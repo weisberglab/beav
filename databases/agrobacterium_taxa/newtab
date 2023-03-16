@@ -1,0 +1,30 @@
+BV1	G1	Agrobacterium tumefaciens	Agrobacterium rhizogenes (if pRi	Ach5	pTi
+BV1	G2	Agrobacterium pusense		H41	
+BV1	G3	Agrobacterium tomkonis	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	SUL3	pTi, pRi
+BV1	G4	Agrobacterium radiobacter	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	B6	pTi
+BV1	G5	not formally named	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	CFBP 6626	pTi
+BV1	G6	not formally named	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	NCPPB 925	pTi
+BV1	G7	Agrobacterium deltaense	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	NCPPB 1641	pTi
+BV1	G8	Agrobacterium fabrum	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	C58	pTi, pRi
+BV1	G9	Agrobacterium salinitolerans	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	YIC 5082	pTi, pRi
+BV1	G12		Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid		
+BV1	G13	not formally named	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	CFBP 6927	
+BV1	G14	Agrobacterium nepotum	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	39/7	pTi
+BV1	G15	Agrobacterium viscosum	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	ATCC 31113	
+BV1	G16		Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid		
+BV1	G17		Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid		
+BV1	G18		Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid		
+BV1	G19	Agrobacterium burrii	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	ICMP 6402	pTi
+BV1	G20	Agrobacterium shirazense	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	K599	pTi, pRi
+BV1	G21	not formally named	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	MAFF210266	
+BV1	G22	not formally named	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	KCJK1736	
+BV1	unnamed	Agrobacterium arsenijevicii	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid	KFB 330	pTi
+BV1-like	-	Agrobacterium rubi	Genomospecies G11	W2/73	pTi
+BV1-like	-	Agrobacterium larrymoorei		AF3.44	pTi
+BV1-like	-	Agrobacterium skierniewicense		Di1472	pTi
+BV1-like	-	Agrobacterium rosae		NCPPB 1650	pTi
+BV2 (BV2	-	Rhizobium rhizogenes	Agrobacterium tumefaciens (if pTi), Agrobacterium rhizogenes (if pRi), Agrobacterium radiobacter (if no oncogenic plasmid), Genomospecies G10	B131/95, K84	pTi, pRi
+BV2-like	-	multiple species groups		AB2/73	pTi
+Rhizobium tumorigenes-	-	Rhizobium tumorigenes		B21/90	pTi
+BV3 (BV3	-	Allorhizobium vitis	Agrobacterium vitis, multiple unnamed species groups	K309	pTi
+BV3 (BV3	-	Allorhizobium ampelinum	Agrobacterium vitis, multiple unnamed species groups	S4	pTi

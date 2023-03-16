@@ -1,0 +1,54 @@
+##!/bin/bash
+#
+
+for f in `ls -1 *.fna`
+do
+strain=$(basename $f .fna)
+	bakta --threads 8 --complete --genus Agrobacterium --species vitis --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --keep-contig-headers --gram - --compliant --output $strain  $f 
+	cd $strain
+#	#add models
+	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$f"
+	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$f"
+	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$f"
+	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$f" 
+#	python $BEAV_DIR/scripts/makegembase.py
+#	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all
+#	cut -f 2,3 ./${strain}_macsyfinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
+#	fuzznuc --sequence "$f" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement
+#	fuzznuc --sequence "$f" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement
+#	touch borders.table
+#	cat ${strain}.leftborder ${strain}.rightborder | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2/g' | bedtools merge -c 4,5 -o collapse,collapse | while read curborderline; do
+#	    contig=`echo -e "$curborderline" | cut -f 1`
+#	    startpos=`echo -e "$curborderline" | cut -f 2`
+#		endpos=`echo -e "$curborderline" | cut -f 3`
+#	    borderevalues=`echo -e "$curborderline" | cut -f 4`
+#	    bordernames=`echo -e "$curborderline" | cut -f 5`
+#	    evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
+#	    namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
+#	    newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
+#	    echo -e "$contig	$newname	$startpos	$endpos" >> borders.table
+#	done
+#	cat ./${strain}.overdrive | grep '#' -v | sed 's/\s\+/\t/g' | awk '$13 < 0.05' | cut -f 1,3,7,8  >> borders.table
+#	cut -f 1-3 ./${strain}.virbox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\tvirbox\t/g' >> borders.table	
+#	cut -f 1-3 ./${strain}.trabox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttrabox\t/g' >> borders.table
+#	cut -f 1-3 ./${strain}.telomere | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttelomere\t/g' >> borders.table
+#	integron_finder --local-max --cpu 8 --outdir integron_finder ---promoter-attI --pdf  "$f"  
+#	cut -f 2-6,11 ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
+#	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "    intI    " | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
+#	defense-finder run --db-type gembase ${strain}.faa
+#	cut -f 2,3 ./defense_finder_genes.tsv | grep -v hit_id > ${strain}_defensefinder.tsv.table
+#	antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
+#	python3.7 /$BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
+#	cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
+#	cp ${strain}.gbff ${strain}.gbk
+#	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
+#	#add software folder?
+##	python3.7 /nfs7/BPP/Weisberg_Lab/software/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num 8 
+#	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep 'bacteria_id' -v  > prophage.table
+#	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$f"
+#	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" 8
+#	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" /$BEAV_DIR/databases/blast/allagro.fna 8
+#	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" 8
+#	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
+	cd ..
+done
