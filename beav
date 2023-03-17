@@ -1,5 +1,4 @@
-##!/bin/bash
-#
+#!/usr/bin/env bash
 
 for f in `ls -1 *.fna`
 do
