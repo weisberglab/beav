@@ -4,11 +4,10 @@ strain=$1
 numCPUs=$2
 #numCPUs=8
 
-GapMindPath="/nfs7/BPP/Weisberg_Lab/software/software/PaperBLAST/"
+GapMindPath="$BEAV_DIR/software/PaperBLAST/"
 
 echo -e "GapMind: Running AA biosynthesis pathway analysis"
 
-#cp /nfs7/BPP/Weisberg_Lab/projects/annotation_pipeline/test/${strain}/${strain}.faa ./
 mkdir GapMind
 $GapMindPath/bin/buildorgs.pl -out GapMind/orgs -orgs "file:${strain}.faa:$strain"
 

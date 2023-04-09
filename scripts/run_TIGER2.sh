@@ -17,7 +17,6 @@ echo -e "TIGER2: preparing input"
 mkdir TIGER2
 cd TIGER2
 cp ../${strain}.fna ./genome.fa
-#echo -e "357	Agrobacterium vitis $strain	Bacteria;Proteobacteria;Alphaproteobacteria;Hyphomicrobiales;Rhizobiaceae;Rhizobium/Agrobacterium group;Agrobacterium;Agrobacterium vitis	11	$strain" > genome.tax
 echo -e "357	Bacteria sp. $strain	Bacteria;;;;;;;	11	$strain" > genome.tax
 mkdir protein
 cp ../${strain}.faa protein/protein.faa
@@ -26,17 +25,15 @@ oldlocus=`head -n1 protein/protein.faa | sed 's/>//g;s/_[0-9]\+.*//g'`
 sed -i "s/$oldlocus/$strain/g" protein/protein*
 
 echo -e "TIGER2: running Islander"
-perl /nfs7/BPP/Weisberg_Lab/software/software/TIGER-TIGER2.1/bin/islander.pl -tax genome.tax -cpu $cpus genome.fa &> islander.log
+perl $BEAV_DIR/software/TIGER/bin/islander.pl -tax genome.tax -cpu $cpus genome.fa &> islander.log
 #refseq genomic is very slow. make a lineage specific blast db (blastdb made using -parse_seqids)
-#could use $BLASTDB/refseq_genomic
-#or /nfs1/BPP/Chang_Lab/sequencing/Illumina/sequenced_2019_03_11/Avitis/db/allagro_withncbi/fna/all/all.fna
 echo -e "TIGER2: running Tiger"
-perl /nfs7/BPP/Weisberg_Lab/software/software/TIGER-TIGER2.1/bin/tiger.pl -verbose -cpu $cpus -db $blastdb -fasta genome.fa &> tiger.log
+perl $BEAV_DIR/software/TIGER/bin/tiger.pl -verbose -cpu $cpus -db $blastdb -fasta genome.fa &> tiger.log
 echo -e "TIGER2: running Typing"
-perl /nfs7/BPP/Weisberg_Lab/software/software/TIGER-TIGER2.1/bin/typing.pl genome.island.nonoverlap.gff &> typing.log
+perl $BEAV_DIR/software/TIGER/bin/typing.pl genome.island.nonoverlap.gff &> typing.log
 echo -e "TIGER2: running Resolve"
-perl /nfs7/BPP/Weisberg_Lab/software/software/TIGER-TIGER2.1/bin/resolve.pl mixed lenient > resolved.log 
-#does not work well#perl /nfs7/BPP/Weisberg_Lab/software/software/TIGER-TIGER2.1/bin/typing.pl resolve3.gff &> typing_final.log 
+perl $BEAV_DIR/software/TIGER/bin/resolve.pl mixed lenient > resolved.log 
+#does not work well#perl $BEAV_DIR/software/TIGER/bin/typing.pl resolve3.gff &> typing_final.log 
 
 echo -e "TIGER2: parsing output"
 

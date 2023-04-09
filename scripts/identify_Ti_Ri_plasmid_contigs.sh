@@ -3,9 +3,7 @@
 infile=$1
 strain=`echo -e "$infile" | sed 's/.fna//g'`
 
-BEAVDIR="/nfs7/BPP/Weisberg_Lab/projects/annotation_pipeline"
-
-inref=`ls -1 $BEAVDIR/databases/oncogenic_plasmids/Weisberg2022PhilTransB/*.sketch $BEAVDIR/databases/oncogenic_plasmids/burr/*.sketch | tr '\n' ','`
+inref=`ls -1 $BEAV_DIR/databases/oncogenic_plasmids/Weisberg2022PhilTransB/*.sketch $BEAV_DIR/databases/oncogenic_plasmids/burr/*.sketch | tr '\n' ','`
 
 echo "Identifying oncogenic (Ti/Ri) plasmid contigs"
 

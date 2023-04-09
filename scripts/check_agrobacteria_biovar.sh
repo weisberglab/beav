@@ -4,9 +4,7 @@ strain=$1
 cpus=$2
 #cpus=8
 
-BEAVDIR="/nfs7/BPP/Weisberg_Lab/projects/annotation_pipeline"
-
-ls -1 $BEAVDIR/databases/agrobacterium_taxa/*fna > genomelist
+ls -1 $BEAV_DIR/databases/agrobacterium_taxa/*fna > genomelist
 
 fastANI -t $cpus -q ${strain}.fna --rl genomelist -o ${strain}.agro_ani.out  
 bestani=`cat ${strain}.agro_ani.out | awk '$3 >= 95' | cut -f 1-3 | sed 's/^.*\///g;s/\.fna//g' | sed 's/__/\t/g'`

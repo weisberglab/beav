@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 
-for f in `ls -1 *.fna`
-do
+f=$1
 strain=$(basename $f .fna)
-	bakta --threads 8 --complete --genus Agrobacterium --species vitis --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --keep-contig-headers --gram - --compliant --output $strain  $f 
-	cd $strain
+bakta --threads 8 --complete --genus Agrobacterium --species vitis --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --keep-contig-headers --gram - --compliant --output $strain  $f 
+cd $strain
 #	#add models
-	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$f"
-	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$f"
-	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$f"
-	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$f" 
+nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$f"
+nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$f"
+nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$f"
+nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$f" 
 #	python $BEAV_DIR/scripts/makegembase.py
 #	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all
 #	cut -f 2,3 ./${strain}_macsyfinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
@@ -49,5 +48,4 @@ strain=$(basename $f .fna)
 #	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" /$BEAV_DIR/databases/blast/allagro.fna 8
 #	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" 8
 #	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
-	cd ..
-done
+cd ..
