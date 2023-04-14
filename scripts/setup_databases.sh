@@ -20,11 +20,12 @@ echo -e ""
 
 #macsyfinder
 echo -e "MACSYFINDER"
-macsydata install --upgrade TXSScan
+macsydata install --user --upgrade TXSScan
 echo -e ""
 
 #defense_finder
 echo -e "DEFENSE FINDER"
+
 defense-finder update
 
 
