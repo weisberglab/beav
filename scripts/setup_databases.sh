@@ -7,7 +7,7 @@ baktadbpath="$1"
 baktadbtype="$2"
 
 #check if bakta db variable exists and db is downloaded
-if [[ -z "$BAKTA_DB" ]] && [[ -f $BAKTA_DB/version.json ]]; then
+if [[ ! -z "$BAKTA_DB" ]] && [[ -f $BAKTA_DB/version.json ]]; then
 	echo -e "BAKTA_DB already set and installed"
 else
 	if [[ ! -z $baktadbpath ]]; then
