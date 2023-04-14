@@ -2,7 +2,7 @@
 
 f=$1
 strain=$(basename $f .fna)
-bakta --threads 8 --complete --genus Agrobacterium --species vitis --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --keep-contig-headers --gram - --compliant --output $strain  $f 
+bakta --threads 8 --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --keep-contig-headers --gram - --compliant --output $strain  $f 
 cd $strain
 #	#add models
 nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$f"
