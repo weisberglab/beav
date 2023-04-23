@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 strain=$1
 agrobacteria=$2
 

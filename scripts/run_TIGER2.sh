@@ -1,8 +1,7 @@
-#/bin/bash
+#!/usr/bin/env bash
 #TIGER2 ICE finder
 
 strain=$1
-#AS1D4
 
 blastdb=$2
 #/nfs7/BPP/Weisberg_Lab/projects/annotation_pipeline/databases/blast/allagro.fna

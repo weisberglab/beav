@@ -1,8 +1,7 @@
-#!/bin/bash
-strain=$1
+#!/usr/bin/env bash
 
+strain=$1
 cpus=$2
-#cpus=8
 
 ls -1 $BEAV_DIR/databases/agrobacterium_taxa/*fna > genomelist
 

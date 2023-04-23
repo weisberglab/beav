@@ -1,8 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 strain=$1
-#strain="AS1D4"
 numCPUs=$2
-#numCPUs=8
 
 GapMindPath="$BEAV_DIR/software/PaperBLAST/"
 

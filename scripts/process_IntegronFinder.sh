@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 strain="$1"
 #strain="AcBa1656-2"

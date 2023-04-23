@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 infile=$1
 strain=`echo -e "$infile" | sed 's/.fna//g'`
