@@ -147,7 +147,7 @@ fi
 
  if $antismash_run; then
      antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
- 	python3.7 $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
+ 	python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
  	cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
  fi
 
@@ -155,7 +155,7 @@ if $dbscanswa_run; then
 	cp ${strain}.gbff ${strain}.gbk
 	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
 	#add software folder?
-	python3.7 $BEAV_DIR/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
+	python $BEAV_DIR/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
 	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep 'bacteria_id' -v  > prophage.table
 fi
 
