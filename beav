@@ -1,51 +1,171 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-f=$1
-strain=$(basename $f .fna)
-bakta --threads 8 --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --keep-contig-headers --gram - --compliant --output $strain  $f 
+show_help=false
+antismash_run=true
+agrobacterium_run=false
+macsyfinder_run=true
+fuzznuc_run=true
+integronfinder_run=true
+defensefinder_run=true
+tiger_run=true
+gapmind_run=true
+dbscanswa_run=true
+thread=1
+output=$PWD
+new_output=""
+bakta_args=""
+input_file=""
+
+#loops over command line arguments and if present will set varible to false
+while [ $# -gt 0 ]
+do
+    case $1 in
+        -h|--help)
+            show_help=true
+            ;;
+        --skip_antismash)
+            antismash_run=false
+            ;;
+        --agrobacterium)
+            agrobacterium_run=true
+            ;;
+	    --skip_macsyfinder)
+            macsyfinder_run=false
+            ;;
+	    --skip_integronfinder)
+            integronfinder_run=false
+            ;;
+        --skip_defensefinder)
+            defensefinder_run=false
+            ;;
+        --skip_tiger)
+            tiger_run=false
+            ;;
+	    --skip_gapmind)
+            gapmind_run=false
+            ;;
+        --skip_dbscan-swa)
+            dbscanswa_run=false
+            ;;
+        -i|--input)
+            input_file=$2
+            new_strain=`basename $input_file`
+            new_strain=`echo -e "$new_strain" | sed 's/.fna$//g;s/.fasta$//g;s/.fas$//g'`
+            if [ ! -z $input_file ]; then
+                strain=$new_strain
+            fi
+            shift
+            ;;
+        -t|--threads)
+            new_thread=$2
+            if [ ! -z $new_thread ]; then
+                thread=$new_thread
+            fi
+            shift
+		    ;;
+        --strain)
+            new_user_strain=$2
+            if [ ! -z $new_user_strain ]; then
+                user_strain=$new_user_strain
+            fi
+            shift
+            ;;
+        --output)
+            new_output=$2
+            if [ ! -z $new_output ]; then
+                output=$new_ouput
+            fi
+            shift
+             ;;
+        --bakta_arguments)
+            new_bakta_args=$2
+            if [ ! -z "$new_bakta_args" ]; then
+                bakta_args=$new_bakta_args
+            fi
+            shift
+            ;;
+	 esac
+    shift
+done
+
+if [ $show_help ]; then
+	echo -e "beav help message"
+	exit
+fi
+
+if [ $user_strain ]; then
+    strain=$user_strain
+fi
+
+#check if varible is true and run program
+cd $output
+bakta --threads "$thread"  --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain $bakta_args $input_file 
+
 cd $strain
-#	#add models
-nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$f"
-nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$f"
-nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$f"
-nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$f" 
-#	python $BEAV_DIR/scripts/makegembase.py
-#	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all
-#	cut -f 2,3 ./${strain}_macsyfinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
-#	fuzznuc --sequence "$f" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement
-#	fuzznuc --sequence "$f" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement
-#	touch borders.table
-#	cat ${strain}.leftborder ${strain}.rightborder | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2/g' | bedtools merge -c 4,5 -o collapse,collapse | while read curborderline; do
-#	    contig=`echo -e "$curborderline" | cut -f 1`
-#	    startpos=`echo -e "$curborderline" | cut -f 2`
-#		endpos=`echo -e "$curborderline" | cut -f 3`
-#	    borderevalues=`echo -e "$curborderline" | cut -f 4`
-#	    bordernames=`echo -e "$curborderline" | cut -f 5`
-#	    evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
-#	    namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
-#	    newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
-#	    echo -e "$contig	$newname	$startpos	$endpos" >> borders.table
-#	done
-#	cat ./${strain}.overdrive | grep '#' -v | sed 's/\s\+/\t/g' | awk '$13 < 0.05' | cut -f 1,3,7,8  >> borders.table
-#	cut -f 1-3 ./${strain}.virbox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\tvirbox\t/g' >> borders.table	
-#	cut -f 1-3 ./${strain}.trabox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttrabox\t/g' >> borders.table
-#	cut -f 1-3 ./${strain}.telomere | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttelomere\t/g' >> borders.table
-#	integron_finder --local-max --cpu 8 --outdir integron_finder ---promoter-attI --pdf  "$f"  
-#	cut -f 2-6,11 ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
-#	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "    intI    " | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
-#	defense-finder run --db-type gembase ${strain}.faa
-#	cut -f 2,3 ./defense_finder_genes.tsv | grep -v hit_id > ${strain}_defensefinder.tsv.table
-#	antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
-#	python3.7 /$BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
-#	cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
-#	cp ${strain}.gbff ${strain}.gbk
-#	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
-#	#add software folder?
-##	python3.7 /nfs7/BPP/Weisberg_Lab/software/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num 8 
-#	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep 'bacteria_id' -v  > prophage.table
-#	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$f"
-#	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" 8
-#	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" /$BEAV_DIR/databases/blast/allagro.fna 8
-#	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" 8
-#	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
+if $agrobacterium_run; then
+	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$file"
+	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$file"
+	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$file"
+	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$file" 
+	fuzznuc --sequence "$input_file" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement
+	fuzznuc --sequence "$input_file" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement
+	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
+	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
+	touch borders.table
+	cat ${strain}.leftborder ${strain}.rightborder | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2/g' | bedtools merge -c 4,5 -o collapse,collapse | while read curborderline; do
+	    contig=`echo -e "$curborderline" | cut -f 1`
+	    startpos=`echo -e "$curborderline" | cut -f 2`
+		endpos=`echo -e "$curborderline" | cut -f 3`
+	    borderevalues=`echo -e "$curborderline" | cut -f 4`
+	    bordernames=`echo -e "$curborderline" | cut -f 5`
+	    evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
+	    namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
+	    newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
+	    echo -e "$contig	$newname	$startpos	$endpos" >> borders.table
+	done
+	cat ./${strain}.overdrive | grep '#' -v | sed 's/\s\+/\t/g' | awk '$13 < 0.05' | cut -f 1,3,7,8  >> borders.table
+	cut -f 1-3 ./${strain}.virbox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\tvirbox\t/g' >> borders.table	
+	cut -f 1-3 ./${strain}.trabox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttrabox\t/g' >> borders.table
+fi
+
+if $macsyfinder_run; then
+	python $BEAV_DIR/scripts/makegembase.py
+	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all
+	cut -f 2,3 ./${strain}_macsyfinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
+fi
+
+ if $integronfinder_run; then
+ 	integron_finder --local-max --cpu "$thread" --outdir integron_finder ---promoter-attI --pdf  "$input_file"  
+ 	cut -f 2-6,11 ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
+ 	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "    intI    " | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
+ fi
+
+if $defensefinder_run; then
+	defense-finder run --db-type gembase ${strain}.faa
+	cut -f 2,3 ./defense_finder_genes.tsv | grep -v hit_id > ${strain}_defensefinder.tsv.table
+fi	
+
+ if $antismash_run; then
+     antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
+ 	python3.7 $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
+ 	cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
+ fi
+
+if $dbscanswa_run; then
+	cp ${strain}.gbff ${strain}.gbk
+	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
+	#add software folder?
+	python3.7 $BEAV_DIR/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
+	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep 'bacteria_id' -v  > prophage.table
+fi
+
+if $gapmind_run; then
+	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
+fi
+
+if $tiger_run; then
+	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" $BEAV_DIR/databases/blast/allagro.fna "$thread"
+	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
+fi
 cd ..
+
