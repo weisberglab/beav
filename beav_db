@@ -16,7 +16,7 @@ else
 	if [[ ! ($baktadbtype == "full" || $baktadbtype == "light") ]]; then
 		echo -e "Please ensure that the second argument to this script is either full (60GB database) or light (~3GB database)"
 		exit 1
-	if [[ -z $baktadbpath ]] && [[ ! -z $CONDA_PREFIX  ]]; then
+	elif [[ -z $baktadbpath ]] && [[ ! -z $CONDA_PREFIX  ]]; then
 		echo -e "No bakta db path provided, defaulting to <baktadir>/db"
 		baktadbpath="$CONDA_PREFIX/db/"
 		if [[ ! -d $baktadbpath ]]; then
