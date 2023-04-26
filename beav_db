@@ -56,7 +56,8 @@ echo -e "TIGER2"
 if [[ ! -f $BEAV_DIR/software/TIGER/db/Pfam-A.hmm ]]; then
 	echo -e "requirement Pfam-A.hmm file does not exist"
 	echo -e "Downloading and extracting Pfam-A hmms"
-	curl -L https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz --output $BEAV_DIR/software/TIGER/db/Pfam-A.hmm.gz
+	curl -O -L https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz
+	mv Pfam-A.hmm.gz $BEAV_DIR/software/TIGER/db/
 	gunzip $BEAV_DIR/software/TIGER/db/Pfam-A.hmm.gz
 else
 	echo -e "Pfam-A.hmm already exists, doing nothing."	
