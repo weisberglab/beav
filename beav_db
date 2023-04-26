@@ -56,8 +56,7 @@ echo -e "TIGER2"
 if [[ ! -f $BEAV_DIR/software/TIGER/db/Pfam-A.hmm ]]; then
 	echo -e "requirement Pfam-A.hmm file does not exist"
 	echo -e "Downloading and extracting Pfam-A hmms"
-	curl -O -L https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz
-	mv Pfam-A.hmm.gz $BEAV_DIR/software/TIGER/db/
+	curl -L https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz > $BEAV_DIR/software/TIGER/db/Pfam-A.hmm.gz
 	gunzip $BEAV_DIR/software/TIGER/db/Pfam-A.hmm.gz
 else
 	echo -e "Pfam-A.hmm already exists, doing nothing."	
@@ -88,12 +87,12 @@ mkdir $BEAV_DIR/software/PaperBLAST/tmp
 mkdir $BEAV_DIR/software/PaperBLAST/tmp/path.aa
 mkdir $BEAV_DIR/software/PaperBLAST/tmp/path.carbon
 
-curl -L -O https://papers.genomics.lbl.gov/tmp/path.aa/curated.faa --output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa
-curl -L -O https://papers.genomics.lbl.gov/tmp/path.aa/curated.db --output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.db
-curl -L -O https://papers.genomics.lbl.gov/tmp/path.aa/steps.db --output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/steps.db
-curl -L -O https://papers.genomics.lbl.gov/tmp/path.carbon/curated.faa --output $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa
-curl -L -O https://papers.genomics.lbl.gov/tmp/path.carbon/curated.db --output $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.db
-curl -L -O https://papers.genomics.lbl.gov/tmp/path.carbon/steps.db --output $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/steps.db
+curl -sL https://papers.genomics.lbl.gov/tmp/path.aa/curated.faa > $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa
+curl -sL https://papers.genomics.lbl.gov/tmp/path.aa/curated.db > $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.db
+curl -sL https://papers.genomics.lbl.gov/tmp/path.aa/steps.db > $BEAV_DIR/software/PaperBLAST/tmp/path.aa/steps.db
+curl -sL https://papers.genomics.lbl.gov/tmp/path.carbon/curated.faa > $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa
+curl -sL https://papers.genomics.lbl.gov/tmp/path.carbon/curated.db > $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.db
+curl -sL https://papers.genomics.lbl.gov/tmp/path.carbon/steps.db > $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/steps.db
 
 $BEAV_DIR/software/PaperBLAST/bin/extractHmms.pl $BEAV_DIR/software/PaperBLAST/tmp/path.aa/steps.db $BEAV_DIR/software/PaperBLAST/tmp/path.aa
 $BEAV_DIR/software/PaperBLAST/bin/extractHmms.pl $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/steps.db $BEAV_DIR/software/PaperBLAST/tmp/path.carbon
