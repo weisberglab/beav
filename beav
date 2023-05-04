@@ -167,5 +167,6 @@ if $tiger_run; then
 	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" $BEAV_DIR/databases/blast/allagro.fna "$thread"
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
 fi
+echo 'DONE!'
 cd ..
 
