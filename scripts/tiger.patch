@@ -125,3 +125,14 @@
    next unless `$run`; # To Do: collect score
    print OUT "$ints{$prot}{line}"; $xerct++; delete $ints{$prot};
   }
+--- TIGER-TIGER2.1/bin/resolve.pl
++++ TIGER-TIGER2.1/bin/resolve.pl
+@@ -71,7 +71,7 @@ for my $dna (keys %tandems) {
+   } else {
+    warn "$$t{id}: $dna $tand\n";
+   }
+-  warn join(',', keys $tandems{$dna}{$tand}) . "\n";
++  warn join(',', keys %{ $tandems{$dna}{$tand} }) . "\n";
+  }
+ }
+ 
