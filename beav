@@ -155,7 +155,7 @@ if $dbscanswa_run; then
 	cp ${strain}.gbff ${strain}.gbk
 	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
 	#add software folder?
-	python $BEAV_DIR/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
+	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
 	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep 'bacteria_id' -v  > prophage.table
 fi
 
