@@ -100,8 +100,8 @@ $BEAV_DIR/software/PaperBLAST/bin/extractHmms.pl $BEAV_DIR/software/PaperBLAST/t
 usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa.udb
 formatdb -p T -o T -i $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa
 
-usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa.udb
-formatdb -p T -o T -i $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa
+usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa.udb
+formatdb -p T -o T -i $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa
 
 echo -e ""
 
