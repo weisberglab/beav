@@ -67,22 +67,6 @@
   RunCommand($call, "ghost.aragorn");
   for (`cat ghost.aragorn`) {
    $id = $1 if /^>(\S+)/;
---- TIGER-TIGER2.1/bin/tater.pl
-+++ TIGER-TIGER2.1/bin/tater.pl
-@@ -45,10 +45,10 @@ sub FindGenes {
-  unlink qw/protein.err protein.ffn protein.fna protein.fsa protein.gbk protein.sqn protein.tbl protein.txt/;
-  open OUT, ">../temp.fa"; for (`cat protein.gff`) {print OUT $_ if s/(\S+)\t/$origs{$1}\t/} close OUT;
-  `mv ../temp.fa protein.gff`;
-- RunCommand("$dir/hmmsearch --domtblout protein.domtbl --cpu $cpu --cut_tc $hmm protein.faa &> /dev/null", "protein.domtbl");
-+ RunCommand("hmmsearch --domtblout protein.domtbl --cpu $cpu --cut_tc $hmm protein.faa &> /dev/null", "protein.domtbl");
-  RunCommand("perl $dir/integrase_finder.pl -faa protein.faa -gff protein.gff -integron $dbpath/intI_Cterm.hmm -pfam $hmm -xer $dbpath/xers.prf -intDoms $dbpath/integrase_domain_pfams.txt -cpu $cpu $extraDoms $force $verbose", "protein.phage");
-- RunCommand("$dir/hmmsearch --tblout tnp.tbl --noali --cut_tc --cpu $cpu $dbpath/TnpPred_HMM_Profiles.hmm protein.faa &> /dev/null", "tnp.tbl");
-- RunCommand("$dir/hmmsearch --domtbl is607.domtbl --noali --cut_ga --cpu $cpu $dbpath/is607.hmm protein.faa &> /dev/null", "is607.domtbl");
-+ RunCommand("hmmsearch --tblout tnp.tbl --noali --cpu $cpu $dbpath/TnpPred_HMM_Profiles.hmm protein.faa &> /dev/null", "tnp.tbl");
-+ RunCommand("hmmsearch --domtbl is607.domtbl --noali --cut_ga --cpu $cpu $dbpath/is607.hmm protein.faa &> /dev/null", "is607.domtbl");
- }
- 
- sub RunCommand {
 --- TIGER-TIGER2.1/bin/tfind.pl
 +++ TIGER-TIGER2.1/bin/tfind.pl
 @@ -18,7 +18,7 @@ $cmd = "perl $binpath/trna.pl genome.fa trna $tax &> trna/trna.log";    RunComma
@@ -135,4 +119,29 @@
 +  warn join(',', keys %{ $tandems{$dna}{$tand} }) . "\n";
   }
  }
+--- TIGER-TIGER2.1/bin/tater.pl
++++ TIGER-TIGER2.1/bin/tater.pl
+@@ -41,14 +41,16 @@ sub FindGenes {
+  close OUT;
+  my $kingdom = 'Bacteria'; $kingdom = 'Archaea' if $tax =~ /^A/;
+  $nickname = '--locustag ' . $nickname if $nickname;
+- RunCommand("prokka --rfam --prefix protein --locustag $dna --gcode $gencode --kingdom $kingdom --cpus $cpu --rnammer --notrna --outdir ./ --force --quiet $nickname ../temp.fa", "protein.gff");
+- unlink qw/protein.err protein.ffn protein.fna protein.fsa protein.gbk protein.sqn protein.tbl protein.txt/;
+- open OUT, ">../temp.fa"; for (`cat protein.gff`) {print OUT $_ if s/(\S+)\t/$origs{$1}\t/} close OUT;
+- `mv ../temp.fa protein.gff`;
+- RunCommand("$dir/hmmsearch --domtblout protein.domtbl --cpu $cpu --cut_tc $hmm protein.faa &> /dev/null", "protein.domtbl");
++ if (!(-e "protein.gff")) {
++  RunCommand("prokka --rfam --prefix protein --locustag $dna --gcode $gencode --kingdom $kingdom --cpus $cpu --rnammer --notrna --outdir ./ --force --quiet $nickname ../temp.fa", "protein.gff");
++  unlink qw/protein.err protein.ffn protein.fna protein.fsa protein.gbk protein.sqn protein.tbl protein.txt/;
++  open OUT, ">../temp.fa"; for (`cat protein.gff`) {print OUT $_ if s/(\S+)\t/$origs{$1}\t/} close OUT;
++  `mv ../temp.fa protein.gff`;
++ }
++ RunCommand("hmmsearch --domtblout protein.domtbl --cpu $cpu --cut_tc $hmm protein.faa &> /dev/null", "protein.domtbl");
+  RunCommand("perl $dir/integrase_finder.pl -faa protein.faa -gff protein.gff -integron $dbpath/intI_Cterm.hmm -pfam $hmm -xer $dbpath/xers.prf -intDoms $dbpath/integrase_domain_pfams.txt -cpu $cpu $extraDoms $force $verbose", "protein.phage");
+- RunCommand("$dir/hmmsearch --tblout tnp.tbl --noali --cut_tc --cpu $cpu $dbpath/TnpPred_HMM_Profiles.hmm protein.faa &> /dev/null", "tnp.tbl");
+- RunCommand("$dir/hmmsearch --domtbl is607.domtbl --noali --cut_ga --cpu $cpu $dbpath/is607.hmm protein.faa &> /dev/null", "is607.domtbl");
++ RunCommand("hmmsearch --tblout tnp.tbl --noali --cpu $cpu $dbpath/TnpPred_HMM_Profiles.hmm protein.faa &> /dev/null", "tnp.tbl");
++ RunCommand("hmmsearch --domtbl is607.domtbl --noali --cut_ga --cpu $cpu $dbpath/is607.hmm protein.faa &> /dev/null", "is607.domtbl");
+ }
  
+ sub RunCommand {
