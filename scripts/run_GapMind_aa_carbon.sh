@@ -28,11 +28,11 @@ $GapMindPath/bin/gapsummary.pl -orgs GapMind/orgs -set aa -hits GapMind/aa.hits 
 
 ## Optionally, use bin/checkGapRequirements.pl to check dependencies
 ## between pathways. The output table will list any warnings.
-$GapMindPath/bin/checkGapRequirements.pl -org ${strain} -set aa -out GapMind/aa.sum.warn
+#$GapMindPath/bin/checkGapRequirements.pl -org ${strain} -set aa -out GapMind/aa.sum.warn
 
 ## Optionally, use orgsVsMarkers.pl to compare the genome to organisms
 ## with known gaps (for amino acid biosynthesis only).
-$GapMindPath/bin/orgsVsMarkers.pl -orgs GapMind/orgs -vs gaps/aa/aa.known.gaps.markers.faa -out GapMind/aa.sum.knownsim
+#$GapMindPath/bin/orgsVsMarkers.pl -orgs GapMind/orgs -vs gaps/aa/aa.known.gaps.markers.faa -out GapMind/aa.sum.knownsim
 
 ## Optionally, use buildGapsDb.pl to combine the results into a sqlite3
 ## database.
@@ -52,7 +52,7 @@ echo -e "GapMind: Running small molecule carbon catabolism analysis"
 $GapMindPath/bin/gapsearch.pl -orgs GapMind/orgs -set carbon -out GapMind/carbon.hits -nCPU $numCPUs
 $GapMindPath/bin/gaprevsearch.pl -orgs GapMind/orgs -hits GapMind/carbon.hits -curated $GapMindPath/tmp/path.carbon/curated.faa.udb -out GapMind/carbon.revhits -nCPU $numCPUs
 $GapMindPath/bin/gapsummary.pl -orgs GapMind/orgs -set carbon -hits GapMind/carbon.hits -rev GapMind/carbon.revhits -out GapMind/carbon.sum
-$GapMindPath/bin/checkGapRequirements.pl -org ${strain} -set carbon -out GapMind/carbon.sum.warn
+#$GapMindPath/bin/checkGapRequirements.pl -org ${strain} -set carbon -out GapMind/carbon.sum.warn
 
 #process and combine GapMind carbon catabolism results
 awk '$6 > 0' GapMind/carbon.sum.steps | cut -f 4- | cut -f 1,2,4,5 | grep -v '		' | sort -k3 -r | awk -F"\t" '!seen[$1, $4]++' | sed 's/\(\S\+\)\t\(\S\+\)\t\(\S\+\)$/\3:\2:\1/g' | awk 'BEGIN{FS="\t"; OFS=FS}; { arr[$2] = arr[$2] == ""? $1 : arr[$2] "," $1 } END {for (i in arr) print i, arr[i] }' | sed 's/:/\t/g' | sort -k1 | grep -v '^locusId' | while read line; do
