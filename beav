@@ -1,6 +1,7 @@
 #!/bin/bash
-
-show_help=false
+ 
+ 
+how_help=false
 antismash_run=true
 agrobacterium_run=false
 macsyfinder_run=true
@@ -16,7 +17,7 @@ new_output=""
 bakta_args=""
 input_file=""
 
-#loops over command line arguments and if present will set varible to false
+
 while [ $# -gt 0 ]
 do
     case $1 in
@@ -84,29 +85,68 @@ do
             fi
             shift
             ;;
+        --tiger_arguments)
+            new_tiger_args=$2
+            if [ ! -z "$new_tiger_args" ]; then
+                tiger_args=$new_tiger_args
+            fi
+            shift
+            ;;            
 	 esac
     shift
 done
-
 if [ $show_help ]; then
-	echo -e "beav help message"
-	exit
+	echo -e "usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
+    BEAV- Bacterial Element Annotation reVamped
+    Input/Output: 
+        --input, -i
+                Input file in fasta nucleotide format
+        --output
+                Output directory (default is current working directory)
+        --strain
+                Strain name (default input file prefix)
+        --bakta_arguments
+                Arguments and database option specific to Bakta 
+        --tiger_arguments
+                Arguments and database option specific to TIGER2
+    Workflow:
+        --agrobacterium
+                Agrobacterium specific option that identifies biovar, Ti/Ri-Plasmid, T-DNA borders, virbox and trabox. (nhmmer & fuzznuc)
+        --skip_macsyfinder
+                Skip detection and annotation of macromolecular systems
+        --skip_integronfinder
+                Skip detection and annotation of integrons, att sites, and intI gene 
+        --skip_defensefinder
+                Skip detection and annotation of anti-phage systems 
+        --skip_tiger
+                Skip detection and annotation of integrative conjugative element
+        --skip_gapmind
+                Skip detection of amino acid biosynthesis
+        --skip_dbscan-swa
+                Skip detection and annotation of prophage
+        --skip_antismash
+                Skip detection and annotation of co-occuring biosynthesis genes
+    General:
+        --help, -h
+                Show BEAV help message
+        --threads, -t
+                Threads"
+
 fi
 
 if [ $user_strain ]; then
     strain=$user_strain
 fi
 
-#check if varible is true and run program
 cd $output
-bakta --threads "$thread"  --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain $bakta_args $input_file 
+#bakta --threads "$thread"  --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --keep-contig-headers $bakta_args $input_file 
 
 cd $strain
 if $agrobacterium_run; then
-	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$file"
-	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$file"
-	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$file"
-	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$file" 
+	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$input_file"
+	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$input_file"
+	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$input_file"
+	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$input_file" 
 	fuzznuc --sequence "$input_file" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement
 	fuzznuc --sequence "$input_file" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement
 	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
@@ -127,6 +167,8 @@ if $agrobacterium_run; then
 	cut -f 1-3 ./${strain}.virbox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\tvirbox\t/g' >> borders.table	
 	cut -f 1-3 ./${strain}.trabox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttrabox\t/g' >> borders.table
 fi
+fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$input_file" -complement -outfile ${strain}.hrp_box.out -rformat excel
+fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$input_file" -complement -outfile ${strain}pip_box.out -rformat excel
 
 if $macsyfinder_run; then
 	python $BEAV_DIR/scripts/makegembase.py
@@ -134,39 +176,80 @@ if $macsyfinder_run; then
 	cut -f 2,3 ./${strain}_macsyfinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 fi
 
- if $integronfinder_run; then
- 	integron_finder --local-max --cpu "$thread" --outdir integron_finder ---promoter-attI --pdf  "$input_file"  
+if $integronfinder_run; then
+    integron_finder --local-max --cpu "$thread" --outdir integron_finder --promoter-attI --pdf  "$input_file"  
  	cut -f 2-6,11 ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
- 	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "    intI    " | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
- fi
+ 	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "	intI	" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
+fi
 
 if $defensefinder_run; then
 	defense-finder run --db-type gembase ${strain}.faa
-	cut -f 2,3 ./defense_finder_genes.tsv | grep -v hit_id > ${strain}_defensefinder.tsv.table
+	cut -f 2,3 ./defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 fi	
 
  if $antismash_run; then
-     antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
+    antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
  	python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
  	cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
- fi
+fi
 
 if $dbscanswa_run; then
 	cp ${strain}.gbff ${strain}.gbk
 	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
-	#add software folder?
 	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
-	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep 'bacteria_id' -v  > prophage.table
+	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
 fi
 
 if $gapmind_run; then
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
 fi
 
-if $tiger_run; then
-	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" $BEAV_DIR/databases/blast/allagro.fna "$thread"
+if [ "$tiger_run" ] && [ ! -z "$tiger_args" ]; then
+	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_args" "$thread"
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
 fi
-echo 'DONE!'
-cd ..
 
+echo 'Citations: 
+    Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685.'
+
+if $macsyfinder_run; then
+    echo 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, Sophie S. MacSyFinder v2: Improved modelling and search engine to identify molecular systems in genomes.Peer Community Journal, Volume 3 (2023), article no. e28. doi : 10.24072/pcjournal.250.
+    https://peercommunityjournal.org/articles/10.24072/pcjournal.250/'
+fi
+
+if $dbscanswa_run; then
+    echo 'Gan R, Zhou F, Si Y, et al. 2022. DBSCAN-SWA: An Integrated Tool for Rapid Prophage Detection and Annotation. Frontiers in Genetics 13.'
+fi
+
+if $tiger_run; then
+	echo 'Mageeney CM, Lau BY, Wagner JM, et al. 2020. New candidates for regulated gene integrity revealed through precise mapping of integrative genetic elements. Nucleic Acids Research 48: 4052–65.'
+fi
+
+if $defensefinder_run; then
+    echo 'Systematic and quantitative view of the antiviral arsenal of prokaryotes" bioRxiv Tesson F., Hervé A. , Touchon M., d’Humières C., Cury J., Bernheim A.
+    MacSyFinder: A Program to Mine Genomes for Molecular Systems with an Application to CRISPR-Cas Systems." PloS one 2014
+    Abby S., Néron B.,Ménager H., Touchon M. Rocha EPC.'
+fi
+
+if $integronfinder_run; then
+    echo 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.
+    Nawrocki, E.P. and Eddy, S.R. (2013) Infernal 1.1: 100-fold faster RNA homology searches. Bioinformatics, 29, 2933-2935.
+    Hyatt, D., Chen, G.L., Locascio, P.F., Land, M.L., Larimer, F.W. and Hauser, L.J. (2010) Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics, 11, 119.'
+fi
+
+if $agrobacterium_run; then
+    echo 'Potter SC, Luciani A, Eddy SR, et al. 2018. HMMER web server: 2018 update. Nucleic Acids Research 46: W200–4.
+        Rice P, Longden I, and Bleasby A. 2000. EMBOSS: The European Molecular Biology Open Software Suite. Trends in Genetics 16: 276–7.
+    '
+fi
+
+if $antismash_run; then
+    echo 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber
+    Nucleic Acids Research (2021) doi: 10.1093/nar/gkab335.'
+fi
+
+if $gapmind_run; then
+    echo 'Price MN, Deutschbauer AM, and Arkin AP. 2020. GapMind: Automated Annotation of Amino Acid Biosynthesis. mSystems 5: e00291-20.'
+fi 
+cd ..
+python $BEAV_DIR/scripts/combine_annotations.py "$strain" 
