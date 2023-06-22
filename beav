@@ -1,5 +1,6 @@
 #!/bin/bash
  
+ 
 how_help=false
 antismash_run=true
 agrobacterium_run=false
@@ -15,7 +16,7 @@ output=$PWD
 new_output=""
 bakta_args=""
 input_file=""
-
+missing_program=false
 
 while [ $# -gt 0 ]
 do
@@ -137,6 +138,105 @@ if [ $user_strain ]; then
     strain=$user_strain
 fi
 
+if $antismash_run
+then
+    if ! antismash -h &> /dev/null
+    then
+        echo "Antismash missing"
+        missing_program=true
+    else
+        echo "Antimash OK" 
+    fi
+fi
+
+if $macsyfinder_run
+then
+    if ! macsyfinder -h &> /dev/null
+    then
+        echo "Macsyfinder missing"
+        missing_program=true
+    else 
+        echo "Macsyfinder OK"
+    fi
+fi
+
+if $agrobacterium_run
+then
+    if ! fuzznuc -h &> /dev/null
+    then
+        echo "Fuzznuc missing"
+        missing_program=true
+    else
+	    echo "Fuzznuc OK"
+    fi
+    if ! nhmmer -h &> /dev/null
+    then 
+        echo "NHMMER missing"
+        missing_program=true
+    else
+        echo "NHMMER OK"
+    fi
+fi
+
+if $integronfinder_run
+then
+    if ! integron_finder -h &> /dev/null
+    then
+        echo "Integronfinder missing"
+        missing_programs=true
+    else 
+        echo "Integronfinder OK"
+    fi
+fi
+
+if $defensefinder_run
+then
+    if ! defense-finder --help &> /dev/null
+    then
+        echo "DefenseFinder missing"
+        missing_program=true
+    else 
+        echo "DefenseFinder OK"
+    fi
+fi
+if $tiger_run
+then
+    if [[ ! -f $BEAV_DIR/software/TIGER/bin/island_finder.pl ]]
+    then
+        echo "Tiger missing"
+        missing_program=true
+    else
+        echo "Tiger OK"
+    fi
+fi
+if $gapmind_run
+then
+    if [[ ! -f $BEAV_DIR/software/PaperBLAST/bin/gapsearch.pl ]]
+    then
+        echo "Gapmind missing"
+        missing_program=true
+    else
+        echo "Gapmind OK"
+    fi
+fi
+
+if $dbscanswa_run
+then
+    if [[ ! -f $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py ]]
+    then
+        echo "DBSCAN-SWA missing"
+        missing_program=true
+    else
+	echo "DBSCAN-SWA OK" 
+    fi
+fi
+
+
+if $missing_program;then 
+    exit
+fi
+
+
 cd $output
 bakta --threads "$thread"  --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --keep-contig-headers $bakta_args $input_file 
 
@@ -145,29 +245,36 @@ if $agrobacterium_run; then
 	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$input_file"
 	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$input_file"
 	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$input_file"
-	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$input_file" 
+	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$input_file"
+    nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm "$input_file"
+    nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm "$input_file" 
 	fuzznuc --sequence "$input_file" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement
 	fuzznuc --sequence "$input_file" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement
+    fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$input_file" -complement -outfile ${strain}.hrp_box.out -rformat excel
+    fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$input_file" -complement -outfile ${strain}.pip_box.out -rformat excel 
 	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
 	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
 	touch borders.table
-	cat ${strain}.leftborder ${strain}.rightborder | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2/g' | bedtools merge -c 4,5 -o collapse,collapse | while read curborderline; do
-	    contig=`echo -e "$curborderline" | cut -f 1`
-	    startpos=`echo -e "$curborderline" | cut -f 2`
-		endpos=`echo -e "$curborderline" | cut -f 3`
-	    borderevalues=`echo -e "$curborderline" | cut -f 4`
-	    bordernames=`echo -e "$curborderline" | cut -f 5`
-	    evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
-	    namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
-	    newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
-	    echo -e "$contig	$newname	$startpos	$endpos" >> borders.table
-	done
-	cat ./${strain}.overdrive | grep '#' -v | sed 's/\s\+/\t/g' | awk '$13 < 0.05' | cut -f 1,3,7,8  >> borders.table
-	cut -f 1-3 ./${strain}.virbox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\tvirbox\t/g' >> borders.table	
-	cut -f 1-3 ./${strain}.trabox | sort | grep -v SeqName | uniq | sed 's/^\(\S\+\)\t/\1\ttrabox\t/g' >> borders.table
+    cat ${strain}.nodbox ${strain}.overdrive ${strain}.ttsbox ${strain}.dif ${strain}.leftborder ${strain}.rightborder | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,12,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\6\t\2\t\5/g' | while read curborderline; do
+            contig=`echo -e "$curborderline" | cut -f 1`
+            startpos=`echo -e "$curborderline" | cut -f 2`
+                endpos=`echo -e "$curborderline" | cut -f 3`
+            borderevalues=`echo -e "$curborderline" | cut -f 4`
+            bordernames=`echo -e "$curborderline" | cut -f 5`
+            strand=`echo -e "$curborderline" | cut -f 6`
+            evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
+            namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
+            newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
+            echo -e "$contig    $newname        $startpos       $endpos $strand" >> borders.table
+        done
+    cat ${strain}.gff3 | sed -n '/^##FASTA/q;p' | sed '/region\t[0-9]/d' > ${strain}.nofasta.gff3
+    cat borders.table | sed 's/\s\+/\t/g' | sed 's/\t\(\S\+\)$/\t100\t\1/g' | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2\t\6/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' > borders.bed
+    cut -f 1-3,5 ./${strain}.virbox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tvirbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
+    cut -f 1-3,5 ./${strain}.trabox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\ttrabox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed    
+    cut -f 1-3,5 ./${strain}.pip_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tpipbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
+    cut -f 1-3,5 ./${strain}.hrp_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\thrpbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
+    bedtools intersect -v -nonamecheck -a borders.bed -b ./${strain}.nofasta.gff3 > ./${strain}_borders.table
 fi
-
-
 if $macsyfinder_run; then
 	python $BEAV_DIR/scripts/makegembase.py
 	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all
@@ -177,7 +284,7 @@ fi
 if $integronfinder_run; then
     integron_finder --local-max --cpu "$thread" --outdir integron_finder --promoter-attI --pdf  "$input_file"  
  	cut -f 2-6,11 ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
- 	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "	intI	" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
+ 	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "	intI	" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
 fi
 
 if $defensefinder_run; then
@@ -185,10 +292,10 @@ if $defensefinder_run; then
 	cut -f 2,3 ./defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 fi	
 
- if $antismash_run; then
+if [ "$antismash_run" ]; then
     antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
- 	python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
- 	cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
+    python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
+    cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
 fi
 
 if $dbscanswa_run; then
@@ -230,15 +337,12 @@ if $defensefinder_run; then
 fi
 
 if $integronfinder_run; then
-    echo 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.
-    Nawrocki, E.P. and Eddy, S.R. (2013) Infernal 1.1: 100-fold faster RNA homology searches. Bioinformatics, 29, 2933-2935.
-    Hyatt, D., Chen, G.L., Locascio, P.F., Land, M.L., Larimer, F.W. and Hauser, L.J. (2010) Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics, 11, 119.'
+    echo 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.'
 fi
 
 if $agrobacterium_run; then
     echo 'Potter SC, Luciani A, Eddy SR, et al. 2018. HMMER web server: 2018 update. Nucleic Acids Research 46: W200–4.
-        Rice P, Longden I, and Bleasby A. 2000. EMBOSS: The European Molecular Biology Open Software Suite. Trends in Genetics 16: 276–7.
-    '
+        Rice P, Longden I, and Bleasby A. 2000. EMBOSS: The European Molecular Biology Open Software Suite. Trends in Genetics 16: 276–7.'
 fi
 
 if $antismash_run; then
