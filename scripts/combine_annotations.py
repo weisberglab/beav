@@ -10,7 +10,7 @@ strain = sys.argv[1]
 
 macsyfinder_path = f"./{strain}/macsyfinder.tsv.table"
 defensefinder_path = f"./{strain}/{strain}_defensefinder.tsv.table"
-hmmdb_path = f"./{strain}/borders.table"
+hmmdb_path = f"./{strain}/{strain}_borders.table"
 dbscan_path = f"./{strain}/prophage.table"
 antismash_path = f"./{strain}/antismash_locustags.table"
 tiger_path = f"./{strain}/{strain}_TIGER2_final.table.out"
@@ -32,16 +32,16 @@ if os.path.isfile(defensefinder_path) == True:
         for line in k:
             (key,values) = line.split()
             defense_dict[key] = values
-#table lines look like: pTi  T-DNA_left_border 1967645 1967615
+
 hmmdb = {}
 if os.path.isfile(hmmdb_path) == True:
-    with open(f"./{strain}/borders.table", 'r') as hmmtable_file:
+    with open(f"./{strain}/{strain}_borders.table", 'r') as hmmtable_file:
         for l in hmmtable_file:
-            replicon,annot,start,end = l.strip().split('\t')
+            replicon,start,end,value,annot,strand = l.strip().split('\t')
             if replicon in hmmdb:
-                hmmdb[replicon].append((annot,start,end))
+                hmmdb[replicon].append((replicon,start,end,value,annot,strand))
             else:
-                hmmdb[replicon]=[(annot,start,end)]
+                hmmdb[replicon]=[(replicon,start,end,value,annot,strand)]
 
 dbscan = {}
 if os.path.isfile(dbscan_path) == True:     
@@ -86,7 +86,7 @@ if os.path.isfile(integron_gene_path) == True:
         for locus in integron_gene_file:
             key = locus.strip()
             integron_gene[key] = protein       
-                      
+                        
 
 new_records = []
 for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
@@ -118,12 +118,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
                     feature.qualifiers["note"] = "Integronfinder: " + integron_gene[locus_tags[0]]  
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
-            start = int(current_border[1])
-            end = int(current_border[2])
-            feature_location = FeatureLocation(start,end)
-            feat_type = "misc_feature"
-            new_feat = SeqFeature(feature_location,type=feat_type,)
-            new_feat.qualifiers["note"] = current_border[0]
+            new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "Fuzznuc & NHMMER"}, strand = int(current_border[5]))
             record.features.append(new_feat)
         
     if record.id in integron:
@@ -131,6 +126,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
             integron_newfeat = SeqFeature(FeatureLocation(int(integrons[1]), int(integrons[2])), type="misc_feature", qualifiers= {"note": ["Integronfinder: " +integrons[0]]}, strand = int(integrons[3]))
             integron_newfeat.qualifiers["note"].append("Integron Status: " +integrons[4])
             record.features.append(integron_newfeat)
+
     if record.id in tiger_dict:
         for ice in tiger_dict[record.id]:
             tiger_newfeat = SeqFeature(FeatureLocation(int(ice[0]),int(ice[1])), type="mobile_element", qualifiers={"mobile_element_type": "integrative element", "note": ice[2] , "inference" : "TIGER2"})
