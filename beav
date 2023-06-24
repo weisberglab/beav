@@ -1,7 +1,9 @@
 #!/bin/bash
  
- 
+version="0.0.14"
+
 how_help=false
+
 antismash_run=true
 agrobacterium_run=false
 macsyfinder_run=true
@@ -11,12 +13,22 @@ defensefinder_run=true
 tiger_run=true
 gapmind_run=true
 dbscanswa_run=true
+
 thread=1
 output=$PWD
-new_output=""
 bakta_args=""
 input_file=""
-missing_program=false
+tiger_blast_database=""
+
+
+error_exit()
+{
+	echo "Error: $1"
+	exit 1
+}
+
+echo -e "BEAV version $version" 
+echo -e ""
 
 while [ $# -gt 0 ]
 do
@@ -59,9 +71,13 @@ do
             ;;
         -t|--threads)
             new_thread=$2
-            if [ ! -z $new_thread ]; then
-                thread=$new_thread
-            fi
+            numberre='^[0-9]+$'
+            if [[ ! $new_thread =~ $numberre ]]; then
+				echo -e "The --thread argument must be a numerical value."
+				exit
+			elif [ ! -z $new_thread ]; then
+				thread=$new_thread
+			fi
             shift
 		    ;;
         --strain)
@@ -85,10 +101,10 @@ do
             fi
             shift
             ;;
-        --tiger_arguments)
+        --tiger_blast_database)
             new_tiger_args=$2
             if [ ! -z "$new_tiger_args" ]; then
-                tiger_args=$new_tiger_args
+                tiger_blast_database=$new_tiger_args
             fi
             shift
             ;;            
@@ -100,81 +116,119 @@ if [ $show_help ]; then
     BEAV- Bacterial Element Annotation reVamped
     Input/Output: 
         --input, -i
-                Input file in fasta nucleotide format
+                Input file in fasta nucleotide format (Required)
         --output
-                Output directory (default is current working directory)
+                Output directory (default: current working directory)
         --strain
-                Strain name (default input file prefix)
+                Strain name (default: input file prefix)
         --bakta_arguments
-                Arguments and database option specific to Bakta 
-        --tiger_arguments
-                Arguments and database option specific to TIGER2
-    Workflow:
+                Additional arguments and database options specific to Bakta 
+        --tiger_blast_database
+                Path to a reference genome blast database for TIGER2 ICE analysis (Required unless --skip_tiger is used)
+    Options:
         --agrobacterium
-                Agrobacterium specific option that identifies biovar, Ti/Ri-Plasmid, T-DNA borders, virbox and trabox. (nhmmer & fuzznuc)
+                Agrobacterium specific tools that identify biovar/species group, Ti/Ri plasmid, T-DNA borders, virboxes and traboxes
         --skip_macsyfinder
-                Skip detection and annotation of macromolecular systems
+                Skip detection and annotation of secretion systems
         --skip_integronfinder
-                Skip detection and annotation of integrons, att sites, and intI gene 
+                Skip detection and annotation of integrons 
         --skip_defensefinder
-                Skip detection and annotation of anti-phage systems 
+                Skip detection and annotation of anti-phage defense systems 
         --skip_tiger
-                Skip detection and annotation of integrative conjugative element
+                Skip detection and annotation of integrative conjugative elements (ICEs)
         --skip_gapmind
-                Skip detection of amino acid biosynthesis
+                Skip detection of amino acid biosynthesis and carbon metabolism pathways
         --skip_dbscan-swa
                 Skip detection and annotation of prophage
         --skip_antismash
-                Skip detection and annotation of co-occuring biosynthesis genes
+                Skip detection and annotation of biosynthetic gene clusters
     General:
         --help, -h
                 Show BEAV help message
         --threads, -t
-                Threads"
+                Number of CPU threads"
+	exit
+fi
 
+if [[ -z $input_file ]];then
+	echo -e "An input file is required. Please use the --input argument and run again"
+	exit
+elif [[ ! -f $input_file ]];then
+	echo -e "The specified input file does not exist"
+	exit
+fi
+
+if [[ ! -d $output ]];then
+	echo -e "The specified output directory does not exist"
+	exit
+fi
+
+if $tiger_run;then
+	if [[ -z $tiger_blast_database ]];then
+		echo -e "Tiger requires a blast database as input. Please rerun using the --tiger_blast_database option or use the --skip_tiger option"
+		exit
+	fi
 fi
 
 if [ $user_strain ]; then
     strain=$user_strain
 fi
 
+echo -e ""
+echo -e "Checking prerequisites:"
+echo -e "----------------------------------------------------------"
+
+missing_program=false
+
+if ! bakta -h &> /dev/null
+then	
+	echo "Bakta: ERROR"
+	missing_program=true
+else
+	echo "Bakta: OK"
+fi
+
 if $antismash_run
 then
     if ! antismash -h &> /dev/null
     then
-        echo "Antismash missing"
+        echo "antiSMASH: ERROR"
         missing_program=true
     else
-        echo "Antimash OK" 
+        echo "antiSMASH: OK" 
     fi
+else
+	echo "antiSMASH: skipped"
 fi
 
 if $macsyfinder_run
 then
     if ! macsyfinder -h &> /dev/null
     then
-        echo "Macsyfinder missing"
+        echo "MacSyFinder: ERROR"
         missing_program=true
     else 
-        echo "Macsyfinder OK"
+        echo "MacSyFinder: OK"
     fi
+else
+	echo "MacSyFinder: skipped"
 fi
 
 if $agrobacterium_run
 then
     if ! fuzznuc -h &> /dev/null
     then
-        echo "Fuzznuc missing"
+        echo "EMBOSS (fuzznuc): ERROR"
         missing_program=true
     else
-	    echo "Fuzznuc OK"
+	    echo "EMBOSS (fuzznuc): OK"
     fi
     if ! nhmmer -h &> /dev/null
     then 
-        echo "NHMMER missing"
+        echo "HMMER (nhmmer): ERROR"
         missing_program=true
     else
-        echo "NHMMER OK"
+        echo "HMMER (nhmmer): OK"
     fi
 fi
 
@@ -182,176 +236,323 @@ if $integronfinder_run
 then
     if ! integron_finder -h &> /dev/null
     then
-        echo "Integronfinder missing"
-        missing_programs=true
+        echo "IntegronFinder: ERROR"
+        missing_program=true
     else 
-        echo "Integronfinder OK"
+        echo "IntegronFinder: OK"
     fi
+else
+	echo "IntegronFinder: skipped"
 fi
 
 if $defensefinder_run
 then
     if ! defense-finder --help &> /dev/null
     then
-        echo "DefenseFinder missing"
+        echo "DefenseFinder: ERROR"
         missing_program=true
     else 
-        echo "DefenseFinder OK"
+        echo "DefenseFinder: OK"
     fi
+else
+	echo "DefenseFinder: skipped"
 fi
+
 if $tiger_run
 then
     if [[ ! -f $BEAV_DIR/software/TIGER/bin/island_finder.pl ]]
     then
-        echo "Tiger missing"
+        echo "TIGER2: missing"
         missing_program=true
     else
-        echo "Tiger OK"
+        echo "TIGER2: OK"
     fi
+else
+	echo "TIGER2: skipped"
 fi
+
 if $gapmind_run
 then
     if [[ ! -f $BEAV_DIR/software/PaperBLAST/bin/gapsearch.pl ]]
     then
-        echo "Gapmind missing"
+        echo "GapMind: missing"
         missing_program=true
     else
-        echo "Gapmind OK"
+        echo "GapMind: OK"
     fi
+else
+	echo "GapMind: skipped"
 fi
 
 if $dbscanswa_run
 then
     if [[ ! -f $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py ]]
     then
-        echo "DBSCAN-SWA missing"
+        echo "DBSCAN-SWA: missing"
         missing_program=true
     else
-	echo "DBSCAN-SWA OK" 
+	echo "DBSCAN-SWA: OK" 
     fi
+else
+	echo "DBSCAN-SWA: skipped"
 fi
-
 
 if $missing_program;then 
-    exit
+	echo -e ""
+	echo -e "Some required programs are missing or gave an error message."
+	echo -e "Either install them or use the --skip-PROGRAM option"
+	exit
 fi
 
+echo -e "----------------------------------------------------------"
+echo -e ""
 
 cd $output
-bakta --threads "$thread"  --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --keep-contig-headers $bakta_args $input_file 
+
+echo -e "Running Bakta"
+echo -e ""
+
+bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --keep-contig-headers $bakta_args $input_file  || error_exit "error occurred while running bakta"
+
+echo -e ""
+echo -e "Done"
+echo -e ""
+
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Annotation of other sequence elements"
+echo -e ""
 
 cd $strain
+
 if $agrobacterium_run; then
-	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$input_file"
-	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$input_file"
-	nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$input_file"
-	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$input_file"
-    nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm "$input_file"
-    nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm "$input_file" 
-	fuzznuc --sequence "$input_file" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement
-	fuzznuc --sequence "$input_file" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement
-    fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$input_file" -complement -outfile ${strain}.hrp_box.out -rformat excel
-    fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$input_file" -complement -outfile ${strain}.pip_box.out -rformat excel 
+	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$input_file" || error_exit "error occurred while running nhmmer"
+	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$input_file" || error_exit "error occurred while running nhmmer"
+fi
+
+nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$input_file" || error_exit "error occurred while running nhmmer"
+nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$input_file" || error_exit "error occurred while running nhmmer"
+nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm "$input_file" || error_exit "error occurred while running nhmmer"
+nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm "$input_file"  || error_exit "error occurred while running nhmmer"
+fuzznuc --sequence "$input_file" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement || error_exit "error occurred while running fuzznuc"
+fuzznuc --sequence "$input_file" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement || error_exit "error occurred while running fuzznuc"
+fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$input_file" -complement -outfile ${strain}.hrp_box.out -rformat excel || error_exit "error occurred while running fuzznuc"
+fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$input_file" -complement -outfile ${strain}.pip_box.out -rformat excel || error_exit "error occurred while running fuzznuc" 
+
+touch borders.table
+
+if $agrobacterium_run; then
+	borderfiles="${strain}.nodbox ${strain}.overdrive ${strain}.ttsbox ${strain}.dif ${strain}.leftborder ${strain}.rightborder"
+else
+	borderfiles="${strain}.nodbox ${strain}.overdrive ${strain}.ttsbox ${strain}.dif"
+fi
+
+cat $borderfiles | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,12,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\6\t\2\t\5/g' | while read curborderline; do
+	contig=`echo -e "$curborderline" | cut -f 1`
+	startpos=`echo -e "$curborderline" | cut -f 2`
+	endpos=`echo -e "$curborderline" | cut -f 3`
+	borderevalues=`echo -e "$curborderline" | cut -f 4`
+	bordernames=`echo -e "$curborderline" | cut -f 5`
+	strand=`echo -e "$curborderline" | cut -f 6`
+	evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
+	namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
+	newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
+	echo -e "$contig    $newname        $startpos       $endpos $strand" >> borders.table
+done
+
+#check if borders/promoters overlap with genes, if so, discard
+cat ${strain}.gff3 | sed -n '/^##FASTA/q;p' | sed '/region\t[0-9]/d' > ${strain}.nofasta.gff3
+cat borders.table | sed 's/\s\+/\t/g' | sed 's/\t\(\S\+\)$/\t100\t\1/g' | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2\t\6/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' > borders.bed
+cut -f 1-3,5 ./${strain}.virbox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tvirbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
+cut -f 1-3,5 ./${strain}.trabox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\ttrabox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed    
+cut -f 1-3,5 ./${strain}.pip_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tpipbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
+cut -f 1-3,5 ./${strain}.hrp_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\thrpbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
+bedtools intersect -v -nonamecheck -a borders.bed -b ./${strain}.nofasta.gff3 > ./${strain}_borders.table || error_exit "error occurred while running bedtools"
+
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+
+if $agrobacterium_run; then
+	echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences"
+	echo -e ""
+
 	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
 	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
-	touch borders.table
-    cat ${strain}.nodbox ${strain}.overdrive ${strain}.ttsbox ${strain}.dif ${strain}.leftborder ${strain}.rightborder | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,12,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\6\t\2\t\5/g' | while read curborderline; do
-            contig=`echo -e "$curborderline" | cut -f 1`
-            startpos=`echo -e "$curborderline" | cut -f 2`
-                endpos=`echo -e "$curborderline" | cut -f 3`
-            borderevalues=`echo -e "$curborderline" | cut -f 4`
-            bordernames=`echo -e "$curborderline" | cut -f 5`
-            strand=`echo -e "$curborderline" | cut -f 6`
-            evallist=`echo -e "$borderevalues" | sed 's/,/\n/g'`
-            namelist=`echo -e "$bordernames" | sed 's/,/\n/g'`
-            newname=`echo "$namelist" | paste - <(echo "$evallist") | sort -k2,2g | head -n1 | cut -f 1`
-            echo -e "$contig    $newname        $startpos       $endpos $strand" >> borders.table
-        done
-    cat ${strain}.gff3 | sed -n '/^##FASTA/q;p' | sed '/region\t[0-9]/d' > ${strain}.nofasta.gff3
-    cat borders.table | sed 's/\s\+/\t/g' | sed 's/\t\(\S\+\)$/\t100\t\1/g' | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2\t\6/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' > borders.bed
-    cut -f 1-3,5 ./${strain}.virbox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tvirbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
-    cut -f 1-3,5 ./${strain}.trabox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\ttrabox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed    
-    cut -f 1-3,5 ./${strain}.pip_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tpipbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
-    cut -f 1-3,5 ./${strain}.hrp_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\thrpbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
-    bedtools intersect -v -nonamecheck -a borders.bed -b ./${strain}.nofasta.gff3 > ./${strain}_borders.table
+
+	echo -e ""
+	echo -e "Done"
+	echo -e ""
+	echo -e "----------------------------------------------------------"
+	echo -e ""
 fi
+
+echo -e "Identifying secretion systems (MacSyFinder)"
+echo -e ""
+
 if $macsyfinder_run; then
 	python $BEAV_DIR/scripts/makegembase.py
-	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all
+	macsyfinder -o ${strain}_macsyfinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all || error_exit "error occurred while running macsyfinder"
 	cut -f 2,3 ./${strain}_macsyfinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 fi
 
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Identifying integrons (IntegronFinder)"
+echo -e ""
 if $integronfinder_run; then
-    integron_finder --local-max --cpu "$thread" --outdir integron_finder --promoter-attI --pdf  "$input_file"  
+    integron_finder --local-max --cpu "$thread" --outdir integron_finder --promoter-attI --pdf  "$input_file" || error_exit "error occurred while running integron-finder" 
  	cut -f 2-6,11 ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
  	cat ./integron_finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep "	intI	" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
 fi
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Identifying defense systems (DefenseFinder)"
+echo -e ""
 
 if $defensefinder_run; then
-	defense-finder run --db-type gembase ${strain}.faa
+	defense-finder run --db-type gembase ${strain}.faa || error_exit "error occurred while running defense-finder"
 	cut -f 2,3 ./defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 fi	
 
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Identifying biosynthetic gene clusters (antiSMASH)"
+echo -e ""
+
 if [ "$antismash_run" ]; then
-    antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash 
+    antismash --minimal ${strain}.gbff --output-dir ${strain}_antismash || error_exit "error occurred while running antismash" 
     python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./${strain}_antismash > ${strain}_antismash.table
     cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
 fi
 
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Identifying phage (DBSCAN-SWA)"
+echo -e ""
+
 if $dbscanswa_run; then
 	cp ${strain}.gbff ${strain}.gbk
 	sed -i 's/gnl|Bakta|//g' ${strain}.gbk
-	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread"
+	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}.gbk --output ${strain}.dbscan.swa.out --thread_num "$thread" || error_exit "error occurred while running DBSCAN-SWA"
 	cut -f 2,5-8 ./${strain}.dbscan.swa.out/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
 fi
+
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Characterizing amino acid biosynthesis and small carbon metabolite catabolism (GapMind)"
+echo -e ""
 
 if $gapmind_run; then
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
 fi
 
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Identifying integrative conjugative elements [ICEs] (TIGER2)"
+echo -e ""
+
 if [ "$tiger_run" ] && [ ! -z "$tiger_args" ]; then
-	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_args" "$thread"
+	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread"
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
 fi
 
-echo 'Citations: 
-    Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685.'
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Combining annotations and preparing final output files"
+
+cd ..
+python $BEAV_DIR/scripts/combine_annotations.py "$strain" || error_exit "error occurred while combining annotations"
+
+echo -e ""
+echo -e "Done"
+echo -e ""
+echo -e "The BEAV pipeline automates the use of a number of published software tools."
+echo -e 'If you use these results in a publication, please include the following in your methods section and cite:'
+echo -e ""
+
+echo -e "Jung J and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" 
+echo -e ""
+bakver=`grep 'version' $output/${strain}.log | head -n1 | sed 's/^.*version=//g'`
+echo -e "Bakta version $bakver"
+echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685."
+echo -e ""
 
 if $macsyfinder_run; then
-    echo 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, Sophie S. MacSyFinder v2: Improved modelling and search engine to identify molecular systems in genomes.Peer Community Journal, Volume 3 (2023), article no. e28. doi : 10.24072/pcjournal.250.
-    https://peercommunityjournal.org/articles/10.24072/pcjournal.250/'
+	macver=`head -n1 $output/${strain}_macsyfinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
+	echo -e "MacSyFinder version $macver"
+    echo -e 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, SophieS 2023. MacSyFinder v2: Improved modelling and search engine to identify molecular systems igenomes. Peer Community Journal, Volume 3, article no. e28. DOI: 10.24072/pcjournal.250.'
 fi
+echo -e ""
 
 if $dbscanswa_run; then
-    echo 'Gan R, Zhou F, Si Y, et al. 2022. DBSCAN-SWA: An Integrated Tool for Rapid Prophage Detection and Annotation. Frontiers in Genetics 13.'
+	echo -e "DBSCAN-SWA"
+    echo -e 'Gan R, Zhou F, Si Y, et al. 2022. DBSCAN-SWA: An Integrated Tool for Rapid Prophage Detection and Annotation. Frontiers in Genetics 13.'
 fi
+echo -e ""
 
 if $tiger_run; then
-	echo 'Mageeney CM, Lau BY, Wagner JM, et al. 2020. New candidates for regulated gene integrity revealed through precise mapping of integrative genetic elements. Nucleic Acids Research 48: 4052–65.'
+	echo -e "TIGER version 2.1"
+	echo -e 'Mageeney CM, Lau BY, Wagner JM, et al. 2020. New candidates for regulated gene integrity revealed through precise mapping of integrative genetic elements. Nucleic Acids Research 48: 4052-65.'
 fi
+echo -e ""
 
 if $defensefinder_run; then
-    echo 'Systematic and quantitative view of the antiviral arsenal of prokaryotes" bioRxiv Tesson F., Hervé A. , Touchon M., d’Humières C., Cury J., Bernheim A.
-    MacSyFinder: A Program to Mine Genomes for Molecular Systems with an Application to CRISPR-Cas Systems." PloS one 2014
-    Abby S., Néron B.,Ménager H., Touchon M. Rocha EPC.'
+	echo -e "DefenseFinder"
+    echo -e 'Tesson F., Hervé A. , Touchon M., d’Humières C., Cury J., Bernheim A. Systematic and quantitative view of the antiviral arsenal of prokaryotes bioRx'
 fi
+echo -e ""
 
 if $integronfinder_run; then
-    echo 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.'
+	intver=`grep 'version' $output/integron_finder/Results_Integron_Finder_${strain}/integron_finder.out | head -n1 | sed 's/^.*version //g'`
+	echo -e "IntegronFinder version $intver"
+    echo -e 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.'
 fi
+echo -e ""
 
 if $agrobacterium_run; then
-    echo 'Potter SC, Luciani A, Eddy SR, et al. 2018. HMMER web server: 2018 update. Nucleic Acids Research 46: W200–4.
-        Rice P, Longden I, and Bleasby A. 2000. EMBOSS: The European Molecular Biology Open Software Suite. Trends in Genetics 16: 276–7.'
+	hmmerver=`grep 'Version' $output/${strain}.dif | sed 's/^.*:\s\+//g;s/ (.*//g'`
+	echo -e "HMMER version $hmmerver"
+    echo -e 'Potter SC, Luciani A, Eddy SR, et al. 2018. HMMER web server: 2018 update. Nucleic Acids Research 46: W200–4.'
+	
+	embver=`fuzznuc -version 2> >(sed 's/^.*://g') >/dev/null`
+	echo -e "EMBOSS version $embver"
+    echo -e 'Rice P, Longden I, and Bleasby A. 2000. EMBOSS: The European Molecular Biology Open Software Suite. Trends in Genetics 16: 276–7.'
 fi
+echo -e ""
 
 if $antismash_run; then
-    echo 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber
-    Nucleic Acids Research (2021) doi: 10.1093/nar/gkab335.'
+	antversion=`grep 'antiSMASH version' $output/${strain}_antismash/index.html | sed 's/^.*version //g'`
+	echo -e "antiSMASH version $antversion"
+    echo -e 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber. 2021. Nucleic Acids Research DOI:10.1093/nar/gkab335.'
 fi
+echo -e ""
 
 if $gapmind_run; then
-    echo 'Price MN, Deutschbauer AM, and Arkin AP. 2020. GapMind: Automated Annotation of Amino Acid Biosynthesis. mSystems 5: e00291-20.'
+	echo -e "GapMind"
+	echo -e "Amino acid biosynthesis:"
+    echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2020. GapMind: Automated Annotation of Amino Acid Biosynthesis. mSystems 5: e00291-20.'
+	echo -e "Catabolic pathways:"
+    echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2022. Filling gaps in bacterial catabolic pathways with computation and high-throughput genetics. PLOS Genetics 18(4): e1010156. DOI:10.1371/journal.pgen.1010156'
 fi 
-cd ..
-python $BEAV_DIR/scripts/combine_annotations.py "$strain" 
