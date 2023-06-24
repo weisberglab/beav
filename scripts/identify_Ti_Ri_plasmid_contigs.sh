@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 infile=$1
-strain=`echo -e "$infile" | sed 's/.fna//g'`
-
+input=`basename $infile`
+strain=`echo -e "$input" | sed 's/.fna//g'`
 inref=`ls -1 $BEAV_DIR/databases/oncogenic_plasmids/Weisberg2022PhilTransB/*.sketch $BEAV_DIR/databases/oncogenic_plasmids/burr/*.sketch | tr '\n' ','`
 
 echo "Identifying oncogenic (Ti/Ri) plasmid contigs"
 
-comparesketch.sh in=$infile ref=$inref minwkid=0.5 out=${strain}.oncogenic_plasmid_type.comparesketch.out
-comparesketch.sh in=$infile ref=$inref mode=sequence minwkid=0.5 out=${strain}.oncogenic_plasmid_contigs.comparesketch.out 
+comparesketch.sh in=$input ref=$inref minwkid=0.5 out=${strain}.oncogenic_plasmid_type.comparesketch.out
+comparesketch.sh in=$input ref=$inref mode=sequence minwkid=0.5 out=${strain}.oncogenic_plasmid_contigs.comparesketch.out 
 echo ""
 echo ""
 echo "oncogenic plasmid: (best hit)" | tee ${strain}.oncogenicplasmid_final.out
