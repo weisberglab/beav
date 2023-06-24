@@ -111,7 +111,7 @@
   }
 --- TIGER-TIGER2.1/bin/resolve.pl
 +++ TIGER-TIGER2.1/bin/resolve.pl
-@@ -71,7 +71,7 @@ for my $dna (keys %tandems) {
+@@ -71,7 +71,7 @@
    } else {
     warn "$$t{id}: $dna $tand\n";
    }
@@ -119,6 +119,7 @@
 +  warn join(',', keys %{ $tandems{$dna}{$tand} }) . "\n";
   }
  }
+
 --- TIGER-TIGER2.1/bin/tater.pl
 +++ TIGER-TIGER2.1/bin/tater.pl
 @@ -41,14 +41,16 @@ sub FindGenes {
