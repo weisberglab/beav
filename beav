@@ -312,7 +312,7 @@ cd $output
 echo -e "Running Bakta"
 echo -e ""
 
-bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --keep-contig-headers $bakta_args $input_file  || error_exit "error occurred while running bakta"
+bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --keep-contig-headers $bakta_args $input_file  || error_exit "error occurred while running bakta"
 
 echo -e ""
 echo -e "Done"
@@ -470,7 +470,7 @@ echo -e ""
 echo -e "Identifying integrative conjugative elements [ICEs] (TIGER2)"
 echo -e ""
 
-if [ "$tiger_run" ] && [ ! -z "$tiger_args" ]; then
+if [ "$tiger_run" ] && [ ! -z "$tiger_blast_database" ]; then
 	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread"
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
 fi
@@ -494,13 +494,13 @@ echo -e ""
 
 echo -e "Jung J and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" 
 echo -e ""
-bakver=`grep 'version' $output/${strain}.log | head -n1 | sed 's/^.*version=//g'`
+bakver=`grep 'version' $output/$strain/${strain}.log | head -n1 | sed 's/^.*version=//g'`
 echo -e "Bakta version $bakver"
 echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685."
 echo -e ""
 
 if $macsyfinder_run; then
-	macver=`head -n1 $output/${strain}_macsyfinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
+	macver=`head -n1 $output/${strain}/${strain}_macsyfinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
 	echo -e "MacSyFinder version $macver"
     echo -e 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, SophieS 2023. MacSyFinder v2: Improved modelling and search engine to identify molecular systems igenomes. Peer Community Journal, Volume 3, article no. e28. DOI: 10.24072/pcjournal.250.'
 fi
@@ -525,14 +525,14 @@ fi
 echo -e ""
 
 if $integronfinder_run; then
-	intver=`grep 'version' $output/integron_finder/Results_Integron_Finder_${strain}/integron_finder.out | head -n1 | sed 's/^.*version //g'`
+	intver=`grep 'version' $output/${strain}/integron_finder/Results_Integron_Finder_${strain}/integron_finder.out | head -n1 | sed 's/^.*version //g'`
 	echo -e "IntegronFinder version $intver"
     echo -e 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.'
 fi
 echo -e ""
 
 if $agrobacterium_run; then
-	hmmerver=`grep 'Version' $output/${strain}.dif | sed 's/^.*:\s\+//g;s/ (.*//g'`
+	hmmerver=`grep 'Version' $output/${strain}/${strain}.dif | sed 's/^.*:\s\+//g;s/ (.*//g'`
 	echo -e "HMMER version $hmmerver"
     echo -e 'Potter SC, Luciani A, Eddy SR, et al. 2018. HMMER web server: 2018 update. Nucleic Acids Research 46: W200–4.'
 	
@@ -543,7 +543,7 @@ fi
 echo -e ""
 
 if $antismash_run; then
-	antversion=`grep 'antiSMASH version' $output/${strain}_antismash/index.html | sed 's/^.*version //g'`
+	antversion=`grep 'antiSMASH version' $output/${strain}/${strain}_antismash/index.html | sed 's/^.*version //g'`
 	echo -e "antiSMASH version $antversion"
     echo -e 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber. 2021. Nucleic Acids Research DOI:10.1093/nar/gkab335.'
 fi
