@@ -453,7 +453,8 @@ echo -e "Identifying biosynthetic gene clusters (antiSMASH)"
 echo -e ""
 
 if [ "$antismash_run" ]; then
-    antismash --minimal ${strain}.gbff --output-dir antiSMASH || error_exit "error occurred while running antiSMASH" 
+    antismash ${strain}.gbff --output-dir antiSMASH || error_exit "error occurred while running antiSMASH" 
+    #antismash --minimal ${strain}.gbff --output-dir antiSMASH || error_exit "error occurred while running antiSMASH" 
     python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./antiSMASH > ${strain}_antismash.table
     cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
 fi
