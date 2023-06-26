@@ -11,7 +11,7 @@ comparesketch.sh in=$input ref=$inref minwkid=0.5 out=${strain}.oncogenic_plasmi
 comparesketch.sh in=$input ref=$inref mode=sequence minwkid=0.5 out=${strain}.oncogenic_plasmid_contigs.comparesketch.out 
 echo ""
 echo ""
-echo "oncogenic plasmid: (best hit)" | tee ${strain}.oncogenicplasmid_final.out
+echo "oncogenic plasmid: (best hit)" | tee ${strain}.oncogenic_plasmid_final.out
 grep 'WKID' -A 1 ${strain}.oncogenic_plasmid_type.comparesketch.out | tail -n 1 | sed 's/^.*\s//g' | sed 's/__/\t/g' | tee -a ${strain}.oncogenic_plasmid_final.out
 echo "" | tee -a ${strain}.oncogenic_plasmid_final.out
 echo "oncogenic plasmid contigs: (best hit)" | tee -a ${strain}.oncogenic_plasmid_final.out
