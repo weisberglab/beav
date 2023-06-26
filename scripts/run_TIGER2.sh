@@ -83,7 +83,7 @@ while read line; do
 		inttype=`echo -e "$intlocus" | sed 's/\..*//g'` 
 		intposstart=`echo -e "$intlocus" | sed 's/^.*://g;s/-.*//g'` 
 		intposend=`echo -e "$intlocus" | sed 's/.*-//g'` 
-		intlocus=`echo "$replicon	$intposstart	$intposend" | bedtools intersect -nonamecheck -a stdin -b ../${strain}.gff3 -wb -f 0.90  | grep 'CDS' | sed 's/^.*ID=//g;s/;.*//g' | tr '\n' ',' | sed 's/,$//g'`
+		intlocus=`echo "$replicon	$intposstart	$intposend" | bedtools intersect -nonamecheck -a stdin -b ./${strain}.gff3 -wb -f 0.90  | grep 'CDS' | sed 's/^.*ID=//g;s/;.*//g' | tr '\n' ',' | sed 's/,$//g'`
 		curloci="$curloci,$inttype:$intlocus"
 	done < <( echo -e "$integraseposlist" | tr ',' '\n' | sort -k2,2g -t : )  
 	curloci=`echo -e "$curloci" | sed 's/^,//g'`
