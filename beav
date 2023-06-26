@@ -384,7 +384,7 @@ mv ./${strain}.pip_box.out ./borders/
 mv ./${strain}.hrp_box.out ./borders/
 mv ./${strain}.nodbox ./borders/
 mv ./${strain}.ttsbox ./borders/
-mv .${strain}.dif ./borders/ 
+mv ./${strain}.dif ./borders/ 
 if $agrobacterium_run; then
 	mv ${strain}.leftborder  ./borders/${strain}.left_T-DNA_border 
 	mv ${strain}.rightborder  ./borders/${strain}.right_T-DNA_border
