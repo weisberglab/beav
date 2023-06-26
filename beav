@@ -507,7 +507,7 @@ echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and st
 echo -e ""
 
 if $macsyfinder_run; then
-	macver=`head -n1 $output/${strain}/${strain}_macsyfinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
+	macver=`head -n1 $output/${strain}/macsyfinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
 	echo -e "MacSyFinder version $macver"
     echo -e 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, SophieS 2023. MacSyFinder v2: Improved modelling and search engine to identify molecular systems igenomes. Peer Community Journal, Volume 3, article no. e28. DOI: 10.24072/pcjournal.250.'
 fi
@@ -520,7 +520,7 @@ fi
 echo -e ""
 
 if $tiger_run; then
-	echo -e "TIGER version 2.1"
+	echo -e "TIGER version 2.1.0"
 	echo -e 'Mageeney CM, Lau BY, Wagner JM, et al. 2020. New candidates for regulated gene integrity revealed through precise mapping of integrative genetic elements. Nucleic Acids Research 48: 4052-65.'
 fi
 echo -e ""
@@ -538,19 +538,8 @@ if $integronfinder_run; then
 fi
 echo -e ""
 
-if $agrobacterium_run; then
-	hmmerver=`grep 'Version' $output/${strain}/${strain}.dif | sed 's/^.*:\s\+//g;s/ (.*//g'`
-	echo -e "HMMER version $hmmerver"
-    echo -e 'Potter SC, Luciani A, Eddy SR, et al. 2018. HMMER web server: 2018 update. Nucleic Acids Research 46: W200–4.'
-	
-	embver=`fuzznuc -version 2> >(sed 's/^.*://g') >/dev/null`
-	echo -e "EMBOSS version $embver"
-    echo -e 'Rice P, Longden I, and Bleasby A. 2000. EMBOSS: The European Molecular Biology Open Software Suite. Trends in Genetics 16: 276–7.'
-fi
-echo -e ""
-
 if $antismash_run; then
-	antversion=`grep 'antiSMASH version' $output/${strain}/${strain}_antismash/index.html | sed 's/^.*version //g'`
+	antversion=`grep 'antiSMASH version' $output/${strain}/antismash/index.html | sed 's/^.*version //g'`
 	echo -e "antiSMASH version $antversion"
     echo -e 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber. 2021. Nucleic Acids Research DOI:10.1093/nar/gkab335.'
 fi
