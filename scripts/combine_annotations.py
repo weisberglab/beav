@@ -17,6 +17,7 @@ tiger_path = f"./{strain}/{strain}_TIGER2_final.table.out"
 integron_path = f"./{strain}/integron.table"
 integron_gene_path = f"./{strain}/integron_gene.table"
 
+outfile_path = f"./{strain}/{strain}_final.gbk"
 
 locus_dict = {}
 if os.path.isfile(macsyfinder_path) == True:
@@ -137,5 +138,5 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
             record.features.append(newfeat)
     record.features.sort(key=lambda x: x.location.start,reverse=False)  
     new_records.append(record)
-out_handle = open("test_output.gbk", 'w')
+out_handle = open(outfile_path, 'w')
 SeqIO.write(new_records,out_handle, "genbank")
