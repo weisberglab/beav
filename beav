@@ -414,7 +414,7 @@ echo -e ""
 
 if $macsyfinder_run; then
 	python $BEAV_DIR/scripts/makegembase.py
-	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all > MacSyFinder.log || error_exit "error occurred while running macsyfinder"
+	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder"
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 	mv allgembase* ./MacSyFinder_TXSS/
 fi
