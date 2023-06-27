@@ -406,20 +406,6 @@ echo -e ""
 echo -e "----------------------------------------------------------"
 echo -e ""
 
-if $agrobacterium_run; then
-	echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences"
-	echo -e ""
-
-	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
-	$BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
-
-	echo -e ""
-	echo -e "Done"
-	echo -e ""
-	echo -e "----------------------------------------------------------"
-	echo -e ""
-fi
-
 echo -e "Identifying secretion systems (MacSyFinder)"
 echo -e ""
 
@@ -515,6 +501,21 @@ echo -e "Done"
 echo -e ""
 echo -e "----------------------------------------------------------"
 echo -e ""
+
+if $agrobacterium_run; then
+    echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences"
+    echo -e ""
+
+    $BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
+    $BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
+
+    echo -e ""
+    echo -e "Done"
+    echo -e ""
+    echo -e "----------------------------------------------------------"
+    echo -e ""
+fi
+
 echo -e "Combining annotations and preparing final output files"
 
 cd ..
