@@ -96,35 +96,35 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
         if locus_tags is not None and feature.type == "CDS":
             if locus_tags[0] in locus_dict:
                 if "note" in locus_dict:
-                    feature.qualifiers["note"].append("Macsyfinder: " + locus_dict[locus_tags[0]])
+                    feature.qualifiers["note"].append("MacSyFinder: " + locus_dict[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "Macsyfinder: " + locus_dict[locus_tags[0]]
+                    feature.qualifiers["note"] = "MacSyFinder: " + locus_dict[locus_tags[0]]
 
             if locus_tags[0] in defense_dict:
                 if "note" in defense_dict:
-                    feature.qualifiers["note"].append("Defensefinder: " + defense_dict[locus_tags[0]])
+                    feature.qualifiers["note"].append("DefenseFinder: " + defense_dict[locus_tags[0]])
                 else: 
-                    feature.qualifiers["note"] = "Defensefinder: " + defense_dict[locus_tags[0]]
+                    feature.qualifiers["note"] = "DefenseFinder: " + defense_dict[locus_tags[0]]
 
             if locus_tags[0] in antismash_dict:
                 if "note" in antismash_dict:
-                    feature.qualifiers["note"].append("Antismash: " + antismash_dict[locus_tags[0]])
+                    feature.qualifiers["note"].append("antiSMASH: " + antismash_dict[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "Antismash: " + antismash_dict[locus_tags[0]]
+                    feature.qualifiers["note"] = "antiSMASH: " + antismash_dict[locus_tags[0]]
 
             if locus_tags[0] in integron_gene:
                 if "note" in integron_gene:
-                    feature.qualifiers["note"].append("Integronfinder: " + integron_gene[locus_tags[0]])
+                    feature.qualifiers["note"].append("IntegronFinder: " + integron_gene[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "Integronfinder: " + integron_gene[locus_tags[0]]  
+                    feature.qualifiers["note"] = "IntegronFinder: " + integron_gene[locus_tags[0]]  
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
-            new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "Fuzznuc & NHMMER"}, strand = int(current_border[5]))
+            new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "fuzznuc pattern or hmm"}, strand = int(current_border[5]))
             record.features.append(new_feat)
         
     if record.id in integron:
         for integrons in integron[record.id]:
-            integron_newfeat = SeqFeature(FeatureLocation(int(integrons[1]), int(integrons[2])), type="misc_feature", qualifiers= {"note": ["Integronfinder: " +integrons[0]]}, strand = int(integrons[3]))
+            integron_newfeat = SeqFeature(FeatureLocation(int(integrons[1]), int(integrons[2])), type="misc_feature", qualifiers= {"note": ["IntegronFinder: " +integrons[0]]}, strand = int(integrons[3]))
             integron_newfeat.qualifiers["note"].append("Integron Status: " +integrons[4])
             record.features.append(integron_newfeat)
 
