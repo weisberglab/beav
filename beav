@@ -485,6 +485,7 @@ echo -e ""
 
 if $gapmind_run; then
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
+	mv formatdb.log ./GapMind/
 fi
 
 echo -e ""
@@ -527,7 +528,7 @@ mv ${strain}/${strain}.tsv ${strain}/bakta/
 mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/
 mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/
 
-rm genomelist
+rm ${strain}/genomelist
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
