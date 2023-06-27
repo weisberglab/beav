@@ -541,7 +541,18 @@ mv ${strain}/${strain}.tsv ${strain}/bakta/
 mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/
 mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/
 
+mkdir ${strain}/DefenseFinder
+
+mv ${strain}/defense_finder_* ${}/DefenseFinder/
+
 rm ${strain}/genomelist
+
+mkdir ${strain}/tables
+mv ${strain}/*.table ${strain}/tables/
+mv ${strain}/*.table.out ${strain}/tables/
+
+mkdir ${strain}/logs
+mv ${strain}/*.log ${strain}/logs/
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
