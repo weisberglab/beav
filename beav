@@ -17,7 +17,7 @@ dbscanswa_run=true
 thread=1
 output=$PWD
 bakta_args=""
-antismash_args="--cb-knownclusters --cc-mibig"
+antismash_args="--cb-knownclusters"
 input_file=""
 tiger_blast_database=""
 
