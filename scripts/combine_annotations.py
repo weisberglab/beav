@@ -16,6 +16,7 @@ antismash_path = f"./{strain}/antismash_locustags.table"
 tiger_path = f"./{strain}/{strain}_TIGER2_final.table.out"
 integron_path = f"./{strain}/integron.table"
 integron_gene_path = f"./{strain}/integron_gene.table"
+gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
 
 outfile_path = f"./{strain}/{strain}_final.gbk"
 
@@ -33,6 +34,13 @@ if os.path.isfile(defensefinder_path) == True:
         for line in k:
             (key,values) = line.split()
             defense_dict[key] = values
+
+gapmind_dict = {}
+if os.path.isfile(gapmind_path) == True:
+    with open (gapmind_path, 'r') as gp:
+        for line in gp:
+            (key,values) = line.split()
+            gapmind_dict[key] = values
 
 hmmdb = {}
 if os.path.isfile(hmmdb_path) == True:
@@ -116,7 +124,15 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
                 if "note" in integron_gene:
                     feature.qualifiers["note"].append("IntegronFinder: " + integron_gene[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "IntegronFinder: " + integron_gene[locus_tags[0]]  
+                    feature.qualifiers["note"] = "IntegronFinder: " + integron_gene[locus_tags[0]]
+
+            if locus_tags[0] in gapmind_dict:
+                if "note" in integron_gene:
+                    feature.qualifiers["note"].append("GapMind: " + gapmind_dict[locus_tags[0]])
+                else:
+                    feature.qualifiers["note"] = "GapMind: " + gapmind_dict[locus_tags[0]]
+
+
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
             new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "fuzznuc pattern or hmm"}, strand = int(current_border[5]))
@@ -124,7 +140,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
         
     if record.id in integron:
         for integrons in integron[record.id]:
-            integron_newfeat = SeqFeature(FeatureLocation(int(integrons[1]), int(integrons[2])), type="misc_feature", qualifiers= {"note": ["IntegronFinder: " +integrons[0]]}, strand = int(integrons[3]))
+            integron_newfeat = SeqFeature(FeatureLocation(int(integrons[1]), int(integrons[2])), type="misc_feature", qualifiers= {"note": [integrons[0]], "inference" : "MacSyFinder TXSS models"}, strand = int(integrons[3]))
             integron_newfeat.qualifiers["note"].append("Integron Status: " +integrons[4])
             record.features.append(integron_newfeat)
 
