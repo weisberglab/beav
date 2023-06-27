@@ -507,7 +507,9 @@ if $agrobacterium_run; then
     echo -e ""
 
     $BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
-    
+   	
+	echo -e "" 
+	
 	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
 
     echo -e ""
