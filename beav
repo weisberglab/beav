@@ -384,7 +384,8 @@ mv ./${strain}.pip_box.out ./borders/
 mv ./${strain}.hrp_box.out ./borders/
 mv ./${strain}.nodbox ./borders/
 mv ./${strain}.ttsbox ./borders/
-mv ./${strain}.dif ./borders/ 
+mv ./${strain}.dif ./borders/
+mv ./borders.bed ./borders/
 if $agrobacterium_run; then
 	mv ${strain}.leftborder  ./borders/${strain}.left_T-DNA_border 
 	mv ${strain}.rightborder  ./borders/${strain}.right_T-DNA_border
@@ -523,6 +524,10 @@ mv ${strain}/${strain}.gff3 ${strain}/bakta/
 mv ${strain}/${strain}.json ${strain}/bakta/
 mv ${strain}/${strain}.nofasta.gff3 ${strain}/bakta/
 mv ${strain}/${strain}.tsv ${strain}/bakta/
+mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/
+mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/
+
+rm genomelist
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
