@@ -7,8 +7,8 @@ inref=`ls -1 $BEAV_DIR/databases/oncogenic_plasmids/Weisberg2022PhilTransB/*.ske
 
 echo "Identifying oncogenic (Ti/Ri) plasmid contigs"
 
-comparesketch.sh in=$input ref=$inref minwkid=0.5 out=${strain}.oncogenic_plasmid_type.comparesketch.out
-comparesketch.sh in=$input ref=$inref mode=sequence minwkid=0.5 out=${strain}.oncogenic_plasmid_contigs.comparesketch.out 
+comparesketch.sh in=$input ref=$inref minwkid=0.5 out=${strain}.oncogenic_plasmid_type.comparesketch.out > oncogenicplasmid.log
+comparesketch.sh in=$input ref=$inref mode=sequence minwkid=0.5 out=${strain}.oncogenic_plasmid_contigs.comparesketch.out >> oncogenicplasmid.log 
 echo ""
 echo ""
 echo "oncogenic plasmid: (best hit)" | tee ${strain}.oncogenic_plasmid_final.out
