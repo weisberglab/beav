@@ -17,7 +17,8 @@ dbscanswa_run=true
 thread=1
 output=$PWD
 bakta_args=""
-antismash_args="--cb-knownclusters --cc-mibig"
+antismash_args=""
+#antismash_args="--cb-knownclusters --cc-mibig"
 input_file=""
 tiger_blast_database=""
 
@@ -452,7 +453,6 @@ echo -e ""
 if [ "$antismash_run" ]; then
     antismash ${strain}.gbff --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
     python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./antiSMASH > ${strain}_antismash.table
-    cut -f 4-5 ./${strain}_antismash.table | grep -v "gene_id" > antismash_locustags.table
 fi
 
 echo -e ""
