@@ -107,6 +107,12 @@ def main(args=None):
     # Output
     df_bgcs.to_csv(opts.output, sep="\t")
 
+    tabdf = pd.read_csv(opts.output,sep='\t',header=(0))    
+    newdf = tabdf[ ['locus_tag','contig_id','region_id','bgc_type','gene_functions','NRPS_PKS','sec_met_domain'] ].copy()
+    newdf['cluster'] = newdf['contig_id'] + "_" + newdf['region_id'] + ":" + newdf['bgc_type']
+    newdf = newdf[ ['locus_tag','cluster','gene_functions','NRPS_PKS','sec_met_domain' ] ]
+    newdf.to_csv(opts.output + ".beav.subset", sep="\t", index=False)
+
 if __name__ == "__main__":
     main()
     
