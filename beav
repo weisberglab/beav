@@ -550,6 +550,7 @@ rm ${strain}/genomelist
 mkdir ${strain}/tables
 mv ${strain}/*.table ${strain}/tables/
 mv ${strain}/*.table.out ${strain}/tables/
+mv ${strain}/*.beav.subset ${strain}/tables/
 
 mkdir ${strain}/logs
 mv ${strain}/*.log ${strain}/logs/
