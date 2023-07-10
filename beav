@@ -553,34 +553,34 @@ python $BEAV_DIR/scripts/combine_annotations.py "$strain"
 
 mkdir ${strain}/bakta
 
-mv ${strain}/${strain}.txt ${strain}/bakta/
-mv ${strain}/${strain}.embl ${strain}/bakta/
-mv ${strain}/${strain}.faa ${strain}/bakta/
-mv ${strain}/${strain}.faa.idx ${strain}/bakta/
-mv ${strain}/${strain}.ffn ${strain}/bakta/
-mv ${strain}/${strain}.fna ${strain}/bakta/
-mv ${strain}/${strain}.gbff ${strain}/bakta/
-mv ${strain}/${strain}.gbk ${strain}/bakta/
-mv ${strain}/${strain}.gff3 ${strain}/bakta/
-mv ${strain}/${strain}.json ${strain}/bakta/
-mv ${strain}/${strain}.nofasta.gff3 ${strain}/bakta/
-mv ${strain}/${strain}.tsv ${strain}/bakta/
-mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/
-mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/
+mv ${strain}/${strain}.txt ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.embl ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.faa ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.faa.idx ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.ffn ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.fna ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.gbff ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.gbk ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.gff3 ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.json ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.nofasta.gff3 ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.tsv ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
 
 mkdir ${strain}/DefenseFinder
 
-mv ${strain}/defense_finder_* ${}/DefenseFinder/
+mv ${strain}/defense_finder_* ${}/DefenseFinder/ 2> /dev/null
 
 rm ${strain}/genomelist
 
 mkdir ${strain}/tables
-mv ${strain}/*.table ${strain}/tables/
-mv ${strain}/*.table.out ${strain}/tables/
-mv ${strain}/*.beav.subset ${strain}/tables/
+mv ${strain}/*.table ${strain}/tables/ 2> /dev/null
+mv ${strain}/*.table.out ${strain}/tables/ 2> /dev/null
+mv ${strain}/*.beav.subset ${strain}/tables/ 2> /dev/null
 
 mkdir ${strain}/logs
-mv ${strain}/*.log ${strain}/logs/
+mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
