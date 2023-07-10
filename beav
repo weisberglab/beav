@@ -463,7 +463,7 @@ echo -e ""
 echo -e "Identifying biosynthetic gene clusters (antiSMASH)"
 echo -e ""
 
-if [ "$antismash_run" ]; then
+if $antismash_run; then
     antismash ${strain}.gbff --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
     python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./antiSMASH > ${strain}_antismash.table
 	echo -e ""
