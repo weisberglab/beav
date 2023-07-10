@@ -39,7 +39,7 @@ gapmind_dict = {}
 if os.path.isfile(gapmind_path) == True:
     with open (gapmind_path, 'r') as gp:
         for line in gp:
-            (key,values) = line.split("\t")
+            (key,values) = line.rstrip().split("\t")
             gapmind_dict[key] = values
 
 hmmdb = {}
