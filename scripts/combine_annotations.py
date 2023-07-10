@@ -127,10 +127,10 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
                     feature.qualifiers["note"] = "IntegronFinder: " + integron_gene[locus_tags[0]]
 
             if locus_tags[0] in gapmind_dict:
-                if "note" in integron_gene:
-                    feature.qualifiers["note"].append(gapmind_dict[locus_tags[0]])
+                if "note" in gapmind_dict:
+                    feature.qualifiers["note"].append("Gapmind: " + gapmind_dict[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = gapmind_dict[locus_tags[0]]
+                    feature.qualifiers["note"] = "Gapmind: " + gapmind_dict[locus_tags[0]]
 
 
     if record.id in hmmdb:
