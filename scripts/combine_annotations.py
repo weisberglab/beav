@@ -4,6 +4,7 @@ import sys
 from Bio import SeqIO
 from Bio.SeqFeature import SeqFeature
 from Bio.SeqFeature import FeatureLocation
+from BCBio import GFF
 import os
 import os.path
 strain = sys.argv[1]
@@ -19,6 +20,9 @@ integron_gene_path = f"./{strain}/integron_gene.table"
 gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
 
 outfile_path = f"./{strain}/{strain}_final.gbk"
+faa_path = f"./{strain}/{strain}_final.faa"
+ffn_path = f"./{strain}/{strain}_final.ffn"
+gff_path = f"./{strain}/{strain}_final.gff3"
 
 locus_dict = {}
 if os.path.isfile(macsyfinder_path) == True:
@@ -154,5 +158,64 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
             record.features.append(newfeat)
     record.features.sort(key=lambda x: x.location.start,reverse=False)  
     new_records.append(record)
-out_handle = open(outfile_path, 'w')
-SeqIO.write(new_records,out_handle, "genbank")
+output_gbk_handle = open(outfile_path, 'w')
+SeqIO.write(new_records,ouput_gbk_handle, "genbank")
+output_gbk_handle.close()
+for record in new_records:
+        for feature in record.features:
+                if feature.type=="CDS":
+                        product = feature.qualifiers.get("product")[0]
+                        gene = feature.qualifiers.get("gene")
+                        if gene is not None:
+                                gene = feature.qualifiers.get("gene")[0]
+                        else:
+                                gene = ""
+
+                        translation = feature.qualifiers.get("translation")
+                        if translation is not None:
+                                translation = feature.qualifiers.get("translation")[0]
+                        else:
+                                translation = ""
+                        output_faa_handle.write(">%s %s %s\n%s\n" % (
+                                feature.qualifiers['locus_tag'][0],
+                                product,
+                                gene,
+                                translation))
+output_faa_handle.close()
+input_handle.close()
+
+input_handle = open(gbff_file, 'r')
+output_ffn_handle = open(ffn_path, 'w')
+
+for record in new_records:
+        for feature in record.features:
+                if feature.type=="CDS":
+                        product = feature.qualifiers.get("product")[0]
+                        gene = feature.qualifiers.get("gene")
+                        if gene is not None:
+                                gene = feature.qualifiers.get("gene")[0]
+                        else:
+                                gene = ""
+
+                        locus = feature.qualifiers.get("locus_tag")
+                        if locus is not None:
+                                locus = feature.qualifiers.get("locus_tag")[0]
+                        else:
+                                locus = ""
+                        nucleotide = feature.extract(record).seq
+                        locus = feature.qualifiers.get("locus_tag")[0]
+                        output_fna_handle.write(">%s %s %s\n%s\n" % (
+                                locus,
+                                product,
+                                gene,
+                                nucleotide))
+output_fna_handle.close()
+input_handle.close()
+
+input_handle = open(gbff_file, 'r')
+output_gff_handle = open(gff_path, 'w')
+
+GFF.write(SeqIO.parse(input_handle,"genbank"), output_gff_handle)
+
+input_handle.close()
+output_gff_handle.close()
