@@ -570,7 +570,7 @@ mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
 
 mkdir ${strain}/DefenseFinder
 
-mv ${strain}/defense_finder_* ${}/DefenseFinder/ 2> /dev/null
+mv ${strain}/defense_finder_* ${strain}/DefenseFinder/ 2> /dev/null
 
 rm ${strain}/genomelist
 
