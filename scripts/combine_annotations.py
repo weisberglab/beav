@@ -100,7 +100,6 @@ if os.path.isfile(integron_gene_path) == True:
             key = locus.strip()
             integron_gene[key] = protein       
                         
-
 new_records = []
 for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
     for feature in record.features:
@@ -161,6 +160,8 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
 output_gbk_handle = open(outfile_path, 'w')
 SeqIO.write(new_records,ouput_gbk_handle, "genbank")
 output_gbk_handle.close()
+
+output_faa_handle = open(faa_path, 'w')
 for record in new_records:
         for feature in record.features:
                 if feature.type=="CDS":
@@ -182,9 +183,8 @@ for record in new_records:
                                 gene,
                                 translation))
 output_faa_handle.close()
-input_handle.close()
 
-input_handle = open(gbff_file, 'r')
+
 output_ffn_handle = open(ffn_path, 'w')
 
 for record in new_records:
@@ -210,12 +210,7 @@ for record in new_records:
                                 gene,
                                 nucleotide))
 output_fna_handle.close()
-input_handle.close()
 
-input_handle = open(gbff_file, 'r')
 output_gff_handle = open(gff_path, 'w')
-
-GFF.write(SeqIO.parse(input_handle,"genbank"), output_gff_handle)
-
-input_handle.close()
+GFF.write(new_records), output_gff_handle)
 output_gff_handle.close()
