@@ -68,10 +68,14 @@ if os.path.isfile(dbscan_path) == True:
 
 antismash_dict = {}
 if os.path.isfile(antismash_path) == True:
-    with open (f"./{strain}/antismash_locustags.table", 'r') as antismash_file:
+    with open (f"./{strain}/{strain}_antismash.table.beav.subset", 'r') as antismash_file:
         for line in antismash_file:
-            (locus,annot) = line.split()
-            antismash_dict[locus] = annot
+            locus,cluster,function,nrps,domain = line.rstrip('\n').split('\t')
+            if locus in antismash_dict:
+                antismash_dict[locus].append((cluster,function,nrps,domain))
+            else:
+                antismash_dict[locus] = [(cluster,function,nrps,domain)]
+
 
 tiger_dict = {}
 if os.path.isfile(tiger_path) == True:          
@@ -106,34 +110,56 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
         locus_tags = feature.qualifiers.get("locus_tag")
         if locus_tags is not None and feature.type == "CDS":
             if locus_tags[0] in locus_dict:
-                if "note" in locus_dict:
+                if "note" in feature.qualifiers:
                     feature.qualifiers["note"].append("MacSyFinder: " + locus_dict[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "MacSyFinder: " + locus_dict[locus_tags[0]]
+                    feature.qualifiers["note"] = ["MacSyFinder: " + locus_dict[locus_tags[0]]]
 
             if locus_tags[0] in defense_dict:
-                if "note" in defense_dict:
+                if "note" in feature.qualifiers:
                     feature.qualifiers["note"].append("DefenseFinder: " + defense_dict[locus_tags[0]])
                 else: 
-                    feature.qualifiers["note"] = "DefenseFinder: " + defense_dict[locus_tags[0]]
-
+                    feature.qualifiers["note"] = ["DefenseFinder: " + defense_dict[locus_tags[0]]]
+                    
             if locus_tags[0] in antismash_dict:
-                if "note" in antismash_dict:
-                    feature.qualifiers["note"].append("antiSMASH: " + antismash_dict[locus_tags[0]])
-                else:
-                    feature.qualifiers["note"] = "antiSMASH: " + antismash_dict[locus_tags[0]]
+                cluster = antismash_dict[locus_tags[0]][0][0]
+                gene_product = antismash_dict[locus_tags[0]][0][1]
+                NRPS_PKS = antismash_dict[locus_tags[0]][0][2]
+                domains = antismash_dict[locus_tags[0]][0][3]
+                if cluster != "":
+                    if  "note" in feature.qualifiers:
+                        feature.qualifiers["note"].append("antiSMASH cluster: " +  cluster)
+                    else:
+                        feature.qualifiers["note"] = ["antiSMASH cluster: " + cluster]
+                if gene_product != "":
+                    if "note" in feature.qualifiers:
+                        feature.qualifiers["note"].append("antiSMASH gene product: " +  gene_product)
+                    else:
+                        feature.qualifiers["note"] = ["antiSMASH gene product: " + gene_product]
+
+                if NRPS_PKS != "":
+                    if "note" in feature.qualifiers:
+                        feature.qualifiers["note"].append("antiSMASH NRPS/PKS: " +  NRPS_PKS)
+                    else:
+                        feature.qualifiers["note"] = ["antiSMASH NRPS/PKS: " + NRPS_PKS]
+
+                if domains != "":
+                    if "note" in feature.qualifiers:
+                        feature.qualifiers["note"].append("antiSMASH domain: " +  domains)
+                    else:
+                        feature.qualifiers["note"] = ["antiSMASH domain: " + domains]
 
             if locus_tags[0] in integron_gene:
-                if "note" in integron_gene:
+                if "note" in feature.qualifiers:
                     feature.qualifiers["note"].append("IntegronFinder: " + integron_gene[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "IntegronFinder: " + integron_gene[locus_tags[0]]
+                    feature.qualifiers["note"] = ["IntegronFinder: " + integron_gene[locus_tags[0]]]
 
             if locus_tags[0] in gapmind_dict:
-                if "note" in gapmind_dict:
-                    feature.qualifiers["note"].append("Gapmind: " + gapmind_dict[locus_tags[0]])
+                if "note" in feature.qualifiers:
+                    feature.qualifiers["note"].append(gapmind_dict[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = "Gapmind: " + gapmind_dict[locus_tags[0]]
+                    feature.qualifiers["note"] = [gapmind_dict[locus_tags[0]]]
 
 
     if record.id in hmmdb:
