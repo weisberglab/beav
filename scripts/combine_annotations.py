@@ -238,5 +238,5 @@ for record in new_records:
 output_fna_handle.close()
 
 output_gff_handle = open(gff_path, 'w')
-GFF.write(new_records), output_gff_handle)
+GFF.write(new_records), output_gff_handle
 output_gff_handle.close()
