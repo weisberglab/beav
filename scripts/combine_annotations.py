@@ -184,7 +184,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
     record.features.sort(key=lambda x: x.location.start,reverse=False)  
     new_records.append(record)
 output_gbk_handle = open(outfile_path, 'w')
-SeqIO.write(new_records,ouput_gbk_handle, "genbank")
+SeqIO.write(new_records,output_gbk_handle, "genbank")
 output_gbk_handle.close()
 
 output_faa_handle = open(faa_path, 'w')
@@ -230,13 +230,13 @@ for record in new_records:
                                 locus = ""
                         nucleotide = feature.extract(record).seq
                         locus = feature.qualifiers.get("locus_tag")[0]
-                        output_fna_handle.write(">%s %s %s\n%s\n" % (
+                        output_ffn_handle.write(">%s %s %s\n%s\n" % (
                                 locus,
                                 product,
                                 gene,
                                 nucleotide))
-output_fna_handle.close()
+output_ffn_handle.close()
 
 output_gff_handle = open(gff_path, 'w')
-GFF.write(new_records), output_gff_handle
+GFF.write(new_records, output_gff_handle)
 output_gff_handle.close()
