@@ -157,9 +157,9 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
 
             if locus_tags[0] in gapmind_dict:
                 if "note" in feature.qualifiers:
-                    feature.qualifiers["note"].append("Gapmind: " + gapmind_dict[locus_tags[0]])
+                    feature.qualifiers["note"].append(gapmind_dict[locus_tags[0]])
                 else:
-                    feature.qualifiers["note"] = ["Gapmind: " + gapmind_dict[locus_tags[0]]]
+                    feature.qualifiers["note"] = [gapmind_dict[locus_tags[0]]]
 
 
     if record.id in hmmdb:
