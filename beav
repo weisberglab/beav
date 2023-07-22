@@ -465,7 +465,7 @@ echo -e ""
 
 if $antismash_run; then
     antismash ${strain}_cds_subset.gbk --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
-    python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i./antiSMASH -o ${strain}_antismash.table
+    python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i ./antiSMASH -o ${strain}_antismash.table
 	echo -e ""
 	echo -e "Done"
 else

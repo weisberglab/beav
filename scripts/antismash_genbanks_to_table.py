@@ -108,7 +108,15 @@ def main(args=None):
     df_bgcs.to_csv(opts.output, sep="\t")
 
     tabdf = df_bgcs.reset_index() 
-    newdf = tabdf[ ['locus_tag','contig_id','region_id','bgc_type','gene_functions','NRPS_PKS','sec_met_domain'] ].copy()
+    if set(['NRPS_PKS','sec_met_domain']).issubset(tabdf.columns):
+        newdf = tabdf[ ['locus_tag','contig_id','region_id','bgc_type','gene_functions','NRPS_PKS','sec_met_domain'] ].copy()
+    elif 'sec_met_domain' in tabdf.columns:
+        newdf = tabdf[ ['locus_tag','contig_id','region_id','bgc_type','gene_functions','sec_met_domain'] ].copy()
+        newdf['NRPS_PKS'] = ''
+    else:
+        newdf = tabdf[ ['locus_tag','contig_id','region_id','bgc_type','gene_functions'] ].copy()
+        newdf['NRPS_PKS'] = ''
+        newdf['sec_met_domain'] = ''
     newdf['cluster'] = newdf['contig_id'] + "_" + newdf['region_id'] + ":" + newdf['bgc_type']
     newdf = newdf[ ['locus_tag','cluster','gene_functions','NRPS_PKS','sec_met_domain' ] ]
     newdf.to_csv(opts.output + ".beav.subset", sep="\t", index=False)
