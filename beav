@@ -567,6 +567,11 @@ mv ${strain}/${strain}.tsv ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
 
+#convert gbk to gff3 format
+bp_genbank2gff3 --quiet --noinfer ${strain}/${strain}_final.gbk -out stdout | sed '/^##FASTA$/,$d' > ${strain}/${strain}_final.no_fasta.gff3
+cp ${strain}/${strain}_final.no_fasta.gff3 ${strain}/${strain}_final.gff3
+cat ${strain}/bakta/${strain}.fna | sed 's/ .*//g' >> ${strain}/${strain}_final.gff3
+
 mkdir ${strain}/DefenseFinder
 
 mv ${strain}/defense_finder_* ${strain}/DefenseFinder/ 2> /dev/null
@@ -579,6 +584,7 @@ mv ${strain}/*.table.out ${strain}/tables/ 2> /dev/null
 mv ${strain}/*.beav.subset ${strain}/tables/ 2> /dev/null
 
 mkdir ${strain}/logs
+mv ${strain}/${strain}.log ${strain}/logs/bakta.log
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 
 echo -e ""
@@ -593,7 +599,7 @@ echo -e ""
 
 echo -e "Jung J and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" 
 echo -e ""
-bakver=`grep 'version' $output/$strain/${strain}.log | head -n1 | sed 's/^.*version=//g'`
+bakver=`grep 'version' $output/${strain}/logs/bakta.log | head -n1 | sed 's/^.*version=//g'`
 echo -e "Bakta version $bakver"
 echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685."
 echo -e ""

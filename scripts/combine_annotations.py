@@ -4,7 +4,7 @@ import sys
 from Bio import SeqIO
 from Bio.SeqFeature import SeqFeature
 from Bio.SeqFeature import FeatureLocation
-from BCBio import GFF
+#from BCBio import GFF
 import os
 import os.path
 strain = sys.argv[1]
@@ -22,7 +22,7 @@ gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
 outfile_path = f"./{strain}/{strain}_final.gbk"
 faa_path = f"./{strain}/{strain}_final.faa"
 ffn_path = f"./{strain}/{strain}_final.ffn"
-gff_path = f"./{strain}/{strain}_final.gff3"
+#gff_path = f"./{strain}/{strain}_final.gff3"
 
 locus_dict = {}
 if os.path.isfile(macsyfinder_path) == True:
@@ -237,6 +237,6 @@ for record in new_records:
                                 nucleotide))
 output_ffn_handle.close()
 
-output_gff_handle = open(gff_path, 'w')
-GFF.write(new_records, output_gff_handle)
-output_gff_handle.close()
+#output_gff_handle = open(gff_path, 'w')
+#GFF.write(new_records, output_gff_handle)
+#output_gff_handle.close()
