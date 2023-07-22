@@ -563,6 +563,7 @@ mv ${strain}/${strain}.gbk ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.gff3 ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.json ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.nofasta.gff3 ${strain}/bakta/ 2> /dev/null
+mv ${strain}/${strain}_cds_subset.gbk ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.tsv ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/ 2> /dev/null
 mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
