@@ -342,7 +342,7 @@ echo -e "Annotation of other sequence elements"
 echo -e ""
 
 cd $strain
-
+python $BEAV_DIR/scripts/subset_cds_genbank.py "$strain"
 touch borders.log
 if $agrobacterium_run; then
 	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$input_file" >> borders.log 
