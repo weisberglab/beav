@@ -20,7 +20,6 @@ instructions for conda:
 ```
 conda create -n beav
 conda env update -n beav beav
-conda install beav
 ```
 alternative instructions using mamba:
 ```
