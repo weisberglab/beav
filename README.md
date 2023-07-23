@@ -34,32 +34,27 @@ conda activate beav
 
 # Alternative: From source
 
-Prerequisites: 
-
-Bakta
-
-IntegronFinder
-
-MacSyFinder
-
-DefenseFinder
-
-TIGER2
-
-GapMind
-
-DBSCAN-SWA
-
-antiSMASH
-
-EMBOSS (Fuzznuc)
-
-HMMER (Nhmmer)
+Clone the beav github repository.
 ```
 git clone https://github.com/weisberglab/beav.git
 ```
+**If installing from source, DBSCAN-SWA, TIGER2, and GapMind (PaperBLAST) need to be installed in the software folder within the beav folder. Then the BEAV_DIR environment variable needs to be set and pointing to the beav directory.**
 
-**If installed from source, DBSCAN-SWA, TIGER2, and PaperBLAST needs to be installed in the software folder. Then an environment variable needs to be set to BEAV_DIR and point to the software folder.**
+**Prerequisites:**
+| Program | Install location |
+| --- | --- |
+| Bakta | PATH |
+| IntegronFinder | PATH |
+| MacSyFinder | PATH |
+| DefenseFinder | PATH |
+| TIGER2 | $BEAV_DIR/software |
+| GapMind (PaperBlast) | $BEAV_DIR/software |
+| DBSCAN-SWA | $BEAV_DIR/software |
+| antiSMASH | PATH |
+| EMBOSS | PATH |
+| HMMER | PATH |
+
+Databases for each of these programs can then be installed manually. Alternatively, the following can be used to install them automatically.
 
 # Install all databases 
 
@@ -146,7 +141,7 @@ beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/
 **Complex run**
 
 ```
-beav --input /path/to/file/test.fna --threads 8 --bakta_arguments --db /path/to/alternative-data-bases/bakta-1.7/ --tiger_blast_database /path/to/databases/blast/allagro.fna --agrobacterium --skip_integronfinder
+beav --input /path/to/file/test.fna --threads 8 --bakta_arguments '--db /path/to/alternative-data-bases/bakta-1.7/' --tiger_blast_database /path/to/databases/blast/allagro.fna --agrobacterium --skip_integronfinder
 ```
 
 
