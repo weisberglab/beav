@@ -540,8 +540,10 @@ if $agrobacterium_run; then
 
     echo -e ""
     echo -e "T-DNA borders:"
+	echo -e "contig	start	end	border	strand"
 	grep 'T-DNA' borders/borders.bed | cut -f 1,2,3,5,6
 	
+	echo -e ""	
 	echo -e "Done"
     echo -e ""
     echo -e "----------------------------------------------------------"
