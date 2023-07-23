@@ -164,7 +164,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
 
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
-            new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "fuzznuc pattern or hmm"}, strand = int(current_border[5]))
+            new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "BEAV"}, strand = int(current_border[5]))
             record.features.append(new_feat)
         
     if record.id in integron:
