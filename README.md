@@ -1,20 +1,38 @@
 # beav - a bacterial genome and mobile element annotation pipeline
 beav: Bacteria/Element Annotation reVamped
 
-**beav** is a command line resource that steam-lines bacteria genome annotation by parsing the output of multiple existing prediction software and organizing these regions of interest into a final easy-to-read output. This tool takes an integrative approach to automate and provide comprehensive functional genome annotations. **Annotated features include secretion systems, integrons, anti-phage defense systems, integrative conjugative elements, amino acid biosynthesis, and carbon metabolism pathways, prophage, biosynthetic gene clusters. The agrobacterium option annotates biovar, Ti/Ri plasmids, T-DNA borders, virboxes, traboxes, pipboxes, nodboxes, hrpboxes, and ttsboxes**. 
+**beav** is a command line tool that streamlines bacterial genome and mobile genetic element annotation. It combines multiple annotation tools, automating the process of running, parsing, and combining the results into a single easy-to-read output. Annotated features include secretion systems, anti-phage defense systems, integrative & conjugative/mobilizable elements, integrons, prophage regions, amino acid biosynthesis pathways, small carbon metabolite catabolism pathways, and biosynthetic gene clusters.
+
+The **beav** pipeline also includes several tools and databases that enhance the annotation of plant associated microbes, including phytopathogens and symbionts. Custom bakta databases provide correct gene names and annotations for phytopathogen virulence genes, effectors, and genes important for mutualist symbiosis. Other tools annotate promoter elements such as . 
+
+An optional <i>Agrobacterium</i>-specific pipeline identifies the presence of Ti and Ri plasmids and classifies them under the Weisberg et al. 2020 scheme. It also annotates Ti/Ri plasmid elements including T-DNA borders, overdrive, virbox, trabox, and other binding sites, and determines the biovar and genomospecies of the input strain. Virulence and T-DNA genes, including opine synthase and transport/catabolism loci, are also correctly named and annotated.
 
 # **Installation**
-It is highly encouraged and recommended to use conda to install BEAV.
+The **beav** pipeline requires a number of programs and databases be installed. Therefore, it is highly encouraged and recommended to use conda to install **beav** and all of its dependencies.
 
 **Prerequisites:
-Usearch must be installed and present in the environment: https://www.drive5.com/usearch/**
+Prior to installing beav, the usearch program must be installed and present in the environment and PATH variable. It can be downloaded from https://www.drive5.com/usearch/**
 
 # From conda (Recommended) 
+It is recommended to use either conda with libmamba or mamba to install beav as this will greatly speed up the time solving the environment.
+
+instructions for conda:
 ```
 conda create -n beav
-conda activate beav
+conda env update -n beav beav
 conda install beav
 ```
+alternative instructions using mamba:
+```
+conda create -n beav
+mamba env update -n beav beav
+```
+
+The conda environment can then be activated using:
+```
+conda activate beav
+```
+
 # Alternative: From source
 
 Prerequisites: 
@@ -44,10 +62,11 @@ git clone https://github.com/weisberglab/beav.git
 
 **If installed from source, DBSCAN-SWA, TIGER2, and PaperBLAST needs to be installed in the software folder. Then an environment variable needs to be set to BEAV_DIR and point to the software folder.**
 
-# Install databases (Required for both)
+# Install all databases 
 
 
 ```
+conda activate beav 
 beav_db
 ```
 
@@ -99,25 +118,30 @@ Additional antiSMASH arguments can be input into antiSMASH using the --antismash
 
 **--tiger_blast_database**
 
-In order to run TIGER2, users must provide a path to a blast database of reference genomes using the --tiger_blast_database option. 
+Required if running TIGER. Users must provide a path to a blast database of reference genomes using the --tiger_blast_database option. 
 
 **--bakta_arguments**
 
-Additional Bakta arguments can be input into Bakta using the --bakta_arguments option.  This allows for full usage of Bakta and additional databases.
+Additional arguments can be passed to bakta using the --bakta_arguments option.
 
 **--agrobacterium**
 
-The --agrobacterium option uses fuzznuc pattern matching, HMMER models, and several unique scripts to provide agrobacterium-specific annotation. 
+The --agrobacterium option activates an additional pipeline to provide agrobacterium-specific annotation. 
 
 **--skip-PROGRAM**
 
 The skip options allow for specified programs to be skipped if the annotation is not needed or required programs are not installed. 
 
 # Examples
-**Minimum run**
+**Minimal run**
 
 ```
 beav --input /path/to/file/test.fna --threads 8 --skip_tiger
+```
+
+**Standard run**
+```
+beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna
 ```
 
 **Complex run**
