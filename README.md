@@ -141,7 +141,7 @@ beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/
 **Complex run**
 
 ```
-beav --input /path/to/file/test.fna --threads 8 --bakta_arguments --db /path/to/alternative-data-bases/bakta-1.7/ --tiger_blast_database /path/to/databases/blast/allagro.fna --agrobacterium --skip_integronfinder
+beav --input /path/to/file/test.fna --threads 8 --bakta_arguments '--db /path/to/alternative-data-bases/bakta-1.7/' --tiger_blast_database /path/to/databases/blast/allagro.fna --agrobacterium --skip_integronfinder
 ```
 
 
