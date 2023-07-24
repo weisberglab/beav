@@ -69,18 +69,20 @@ beav_db
 usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
     BEAV- Bacterial Element Annotation reVamped
     Input/Output: 
-        --input, -i
+        --input, -i STRAIN.fna
                 Input file in fasta nucleotide format (Required)
-        --output
+        --output DIRECTORY
                 Output directory (default: current working directory)
-        --strain
+        --strain STRAIN
                 Strain name (default: input file prefix)
-        --bakta_arguments
+        --bakta_arguments ARGUMENTS
                 Additional arguments and database options specific to Bakta 
-        --antismash_arguments
+        --antismash_arguments ARGUMENTS
                 Additional arguments and database options specific to antiSMASH (Default: \"$antismash_args\") 
-        --tiger_blast_database
+        --tiger_blast_database DBPATH
                 Path to a reference genome blast database for TIGER2 ICE analysis (Required unless --skip_tiger is used)
+        --run_operon_email EMAIL
+                Annotate predicted operons using the Operon-mapper webserver. Must input an email address for the job
     Options:
         --agrobacterium
                 Agrobacterium specific tools that identify biovar/species group, Ti/Ri plasmid, T-DNA borders, virboxes and traboxes
