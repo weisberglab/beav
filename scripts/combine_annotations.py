@@ -18,6 +18,7 @@ tiger_path = f"./{strain}/{strain}_TIGER2_final.table.out"
 integron_path = f"./{strain}/integron.table"
 integron_gene_path = f"./{strain}/integron_gene.table"
 gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
+operon_path = f"./{strain}/operon-mapper_results/list_of_operons.table"
 
 outfile_path = f"./{strain}/{strain}_final.gbk"
 faa_path = f"./{strain}/{strain}_final.faa"
@@ -45,6 +46,13 @@ if os.path.isfile(gapmind_path) == True:
         for line in gp:
             (key,values) = line.rstrip().split("\t")
             gapmind_dict[key] = values
+
+operon_dict = {}
+if os.path.isfile(operon_path) == True:
+    with open (operon_path, 'r') as opp:
+        for line in opp:
+            (key,values) = line.rstrip().split("\t")
+            operon_dict[key] = values
 
 hmmdb = {}
 if os.path.isfile(hmmdb_path) == True:
@@ -160,6 +168,9 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
                     feature.qualifiers["note"].append(gapmind_dict[locus_tags[0]])
                 else:
                     feature.qualifiers["note"] = [gapmind_dict[locus_tags[0]]]
+            
+            if locus_tags[0] in operon_dict:
+                feature.qualifiers["operon"] = operon_dict[locus_tags[0]]
 
 
     if record.id in hmmdb:

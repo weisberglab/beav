@@ -13,6 +13,7 @@ defensefinder_run=true
 tiger_run=true
 gapmind_run=true
 dbscanswa_run=true
+operon_run=false
 
 thread=1
 output=$PWD
@@ -21,7 +22,7 @@ antismash_args=""
 #antismash_args="--cb-knownclusters --cc-mibig"
 input_file=""
 tiger_blast_database=""
-
+email=""
 
 error_exit()
 {
@@ -116,7 +117,15 @@ do
                 tiger_blast_database=$new_tiger_args
             fi
             shift
-            ;;            
+            ;;
+        --run_operon_email)
+            new_operon_args=$2
+            if [ ! -z "$new_operon_args" ]; then
+                email=$new_operon_args
+                operon_run=true
+            fi
+            shift
+            ;;             
 	 esac
     shift
 done
@@ -124,18 +133,20 @@ if [ $show_help ]; then
 	echo -e "usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
     BEAV- Bacterial Element Annotation reVamped
     Input/Output: 
-        --input, -i
+        --input, -i INPUT.fna
                 Input file in fasta nucleotide format (Required)
-        --output
+        --output DIRECTORY
                 Output directory (default: current working directory)
-        --strain
+        --strain STRAIN
                 Strain name (default: input file prefix)
-        --bakta_arguments
-                Additional arguments and database options specific to Bakta 
-        --antismash_arguments
-                Additional arguments and database options specific to antiSMASH (Default: \"$antismash_args\") 
-        --tiger_blast_database
+        --bakta_arguments ARGUMENTS
+                Additional arguments specific to Bakta 
+        --antismash_arguments ARGUMENTS
+                Additional arguments specific to antiSMASH (Default: \"$antismash_args\") 
+        --tiger_blast_database DATABASE_PATH
                 Path to a reference genome blast database for TIGER2 ICE analysis (Required unless --skip_tiger is used)
+        --run_operon_email EMAIL
+				Run the Operon-mapper pipeline [remote]. Requires an email address for the operon-mapper webserver job
     Options:
         --agrobacterium
                 Agrobacterium specific tools that identify biovar/species group, Ti/Ri plasmid, T-DNA borders, virboxes and traboxes
@@ -336,12 +347,29 @@ echo -e ""
 echo -e "Done"
 echo -e ""
 
+cd $strain
+
+if $operon_run; then
+    echo -e "----------------------------------------------------------"
+    echo -e ""
+    echo -e "Submitting remote Operon-mapper job"
+    echo -e ""
+	echo -e "Converting input"
+    #format gff for operon-mapper
+    bp_genbank2gff3 --quiet ${strain}.gbff
+	echo -e "Submitting job to webserver"
+    #submit operon-mapper job to webserver
+    python ${BEAV_DIR}/scripts/submit_operon-mapper_job.py --email $email --strain $strain
+	echo -e ""
+	echo -e "Done"
+	echo -e ""
+fi
+
 echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Annotation of other sequence elements"
 echo -e ""
 
-cd $strain
 python $BEAV_DIR/scripts/subset_cds_genbank.py "$strain"
 touch borders.log
 if $agrobacterium_run; then
@@ -528,6 +556,19 @@ echo -e ""
 echo -e "----------------------------------------------------------"
 echo -e ""
 
+if $operon_run; then
+    echo -e "Checking status of remote Operon-mapper job and downloading results"
+    echo -e ""
+
+    #check on status of operon-mapper job and wait for results
+    ${BEAV_DIR}/scripts/check_operon_mapper_status.sh
+    
+    echo -e ""
+    echo -e "----------------------------------------------------------"
+    echo -e ""
+fi
+
+
 if $agrobacterium_run; then
     echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences"
     echo -e ""
@@ -655,4 +696,9 @@ if $gapmind_run; then
     echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2020. GapMind: Automated Annotation of Amino Acid Biosynthesis. mSystems 5: e00291-20.'
 	echo -e "Catabolic pathways:"
     echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2022. Filling gaps in bacterial catabolic pathways with computation and high-throughput genetics. PLOS Genetics 18(4): e1010156. DOI:10.1371/journal.pgen.1010156'
-fi 
+fi
+
+if $operon_run; then
+    echo -e "Operon-mapper"
+    echo -e "Taboada B, Estrada K, Ciria R, and Merino E. Operon-mapper: a web server for precise operon identification in bacterial and archaeal genomes, Bioinformatics, Volume 34, Issue 23, December 2018, Pages 4118–4120, https://doi.org/10.1093/bioinformatics/bty496"
+fi
