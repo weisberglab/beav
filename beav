@@ -426,7 +426,7 @@ mv ./${strain}.nodbox ./borders/
 mv ./${strain}.ttsbox ./borders/
 mv ./${strain}.dif ./borders/
 mv ./borders.bed ./borders/
-mv ./temp_borders.bed ./borders/
+mv ./temp_border.bed ./borders/
 if $agrobacterium_run; then
 	mv ${strain}.leftborder  ./borders/${strain}.left_T-DNA_border 
 	mv ${strain}.rightborder  ./borders/${strain}.right_T-DNA_border
