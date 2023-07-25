@@ -360,6 +360,7 @@ if $operon_run; then
 	echo -e "Submitting job to webserver"
     #submit operon-mapper job to webserver
     python ${BEAV_DIR}/scripts/submit_operon-mapper_job.py --email $email --strain $strain
+    rm ${strain}.gbff.gff
 	echo -e ""
 	echo -e "Done"
 	echo -e ""
