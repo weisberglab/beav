@@ -49,8 +49,8 @@ check_job () {
 			echo -e "Error in operon-mapper run, skipping output parsing." 
 			exit 0
 		else
-			echo "Job is still running. waiting 1 minute."
-			sleep 1m
+			echo "Job is still running. waiting 5 minutes."
+			sleep 5m
 		fi
 	fi
 }
@@ -64,7 +64,7 @@ fi
 wait_count=0
 while true; do
 	check_job
-	wait_count=$((wait_count+1))
+	wait_count=$((wait_count+5))
 	if [[ $wait_count -ge $max_wait_time ]]; then
 		echo -e "Exceeded maximum job wait time ($max_wait_time minutes), skipping operon-mapper analysis."
 		exit 0
