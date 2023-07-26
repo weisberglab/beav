@@ -65,7 +65,19 @@ fi
 echo -e ""
 
 echo -e "DBSCAN-SWA"
-echo -e "DBSCAN-SWA will download a database (~600 Mb) on first run"
+if [[ ! -f $BEAV_DIR/software/DBSCAN-SWA/db/database/uniprot.dmnd ]]; then
+	echo -e "Downloading and extracting DBSCAN-SWA database"
+	mkdir $BEAV_DIR/software/DBSCAN-SWA/db/
+	if curl -L http://www.microbiome-bigdata.com/PHISDetector/static/download/DBSCAN-SWA/db.tar.gz > $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz; then
+		tar -zxvf $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz -C $BEAV_DIR/software/DBSCAN-SWA/
+		rm -f $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz
+	else
+		echo -e "Download failed, please try again later"
+	fi
+else
+	echo -e "DBSCAN-SWA database already downloaded"
+fi
+
 echo -e ""
 
 echo -e "GAPMIND"
