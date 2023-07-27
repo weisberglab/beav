@@ -15,5 +15,5 @@ echo -e "$bestani" >> ${strain}.agrobacteria_taxonomy.out
 
 if [[ -z "$bestani" ]]; then
 	echo -e "No matching species in database, closest ANI hit:" | tee -a ${strain}.agrobacteria_taxonomy.out
-	head -n 1 ${strain}.agro_ani.out | cut -f 1-3 | sed 's/^.*\///g;s/\.fna//g' | sed 's/__/\t/g' | tee -a ${strain}.agrobacteria_taxonomy.out
+	head -n 1 ${strain}.agro_ani.out | cut -f 1-3 | sed 's/^.*\///g;s/\.fna.gz//g;s/\.fna//g' | sed 's/__/\t/g' | tee -a ${strain}.agrobacteria_taxonomy.out
 fi
