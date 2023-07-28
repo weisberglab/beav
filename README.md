@@ -146,5 +146,10 @@ beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/
 beav --input /path/to/file/test.fna --threads 8 --bakta_arguments '--db /path/to/alternative-data-bases/bakta-1.7/' --tiger_blast_database /path/to/databases/blast/allagro.fna --agrobacterium --skip_integronfinder
 ```
 
+# Citation
+Beav can be cited as:
+
+Jung J. and Weisberg A.J, Beav: a bacterial genome and mobile element annotation pipeline, (2023), GitHub repository, https://github.com/weisberglab/beav
+
 
 
