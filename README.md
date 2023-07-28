@@ -140,6 +140,12 @@ beav --input /path/to/file/test.fna --threads 8 --skip_tiger
 beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna
 ```
 
+
+**Standard run with operon annotation (remote)**
+```
+beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna --run_operon_email myemail@email.com
+```
+
 **Complex run**
 
 ```
