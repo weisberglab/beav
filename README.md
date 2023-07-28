@@ -3,7 +3,7 @@ beav: Bacteria/Element Annotation reVamped
 
 **beav** is a command line tool that streamlines bacterial genome and mobile genetic element annotation. It combines multiple annotation tools, automating the process of running, parsing, and combining the results into a single easy-to-read output. Annotated features include secretion systems, anti-phage defense systems, integrative & conjugative/mobilizable elements, integrons, prophage regions, amino acid biosynthesis pathways, small carbon metabolite catabolism pathways, and biosynthetic gene clusters.
 
-The **beav** pipeline also includes several tools and databases that enhance the annotation of plant associated microbes, including phytopathogens and symbionts. Custom bakta databases provide correct gene names and annotations for phytopathogen virulence genes, effectors, and genes important for mutualist symbiosis.
+The **beav** pipeline also includes several tools and databases that enhance the annotation of plant associated microbes, including phytopathogens and symbionts. Custom bakta databases provide correct gene names and annotations for phytopathogen virulence genes, effectors, and genes important for mutualist symbiosis. Other tools annotate promoter elements such as the pip box, tts box, nod box, tra box, vir box, etc.
 
 An optional <i>Agrobacterium</i>-specific pipeline identifies the presence of Ti and Ri plasmids and classifies them under the Weisberg et al. 2020 scheme. It also annotates Ti/Ri plasmid elements including T-DNA borders, overdrive, virbox, trabox, and other binding sites, and determines the biovar and genomospecies of the input strain. Virulence and T-DNA genes, including opine synthase and transport/catabolism loci, are also correctly named and annotated.
 
