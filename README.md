@@ -19,7 +19,7 @@ It is recommended to use either conda with libmamba or mamba to install beav as 
 instructions for conda:
 ```
 conda create -n beav
-conda env update -n beav beav
+conda install -n beav beav
 ```
 alternative instructions using mamba:
 ```
