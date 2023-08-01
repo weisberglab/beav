@@ -14,7 +14,7 @@ The **beav** pipeline requires a number of programs and databases be installed. 
 Prior to installing beav, the usearch program must be installed and present in the environment and PATH variable. It can be downloaded from https://www.drive5.com/usearch/**
 
 # From conda (Recommended) 
-It is recommended to use either conda with libmamba or mamba to install beav as this will greatly speed up the time solving the environment.
+It is recommended to use either conda with [libmamba](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) or mamba to install beav as this will greatly speed up the time solving the environment.
 
 instructions for conda:
 ```
