@@ -9,6 +9,7 @@ import os
 import os.path
 strain = sys.argv[1]
 
+#Check if input exists
 macsyfinder_path = f"./{strain}/macsyfinder.tsv.table"
 defensefinder_path = f"./{strain}/{strain}_defensefinder.tsv.table"
 hmmdb_path = f"./{strain}/{strain}_borders.table"
@@ -23,8 +24,8 @@ operon_path = f"./{strain}/operon-mapper_results/list_of_operons.table"
 outfile_path = f"./{strain}/{strain}_final.gbk"
 faa_path = f"./{strain}/{strain}_final.faa"
 ffn_path = f"./{strain}/{strain}_final.ffn"
-#gff_path = f"./{strain}/{strain}_final.gff3"
 
+#read in annotation tables as dictionary
 locus_dict = {}
 if os.path.isfile(macsyfinder_path) == True:
     with open (f"./{strain}/macsyfinder.tsv.table", "r") as f:
@@ -111,7 +112,7 @@ if os.path.isfile(integron_gene_path) == True:
         for locus in integron_gene_file:
             key = locus.strip()
             integron_gene[key] = protein       
-                        
+#Parse genbank and match locus tags to annotation                        
 new_records = []
 for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
     for feature in record.features:
@@ -172,7 +173,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
             if locus_tags[0] in operon_dict:
                 feature.qualifiers["operon"] = operon_dict[locus_tags[0]]
 
-
+#adding new features
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
             new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "BEAV"}, strand = int(current_border[5]))
@@ -198,6 +199,7 @@ output_gbk_handle = open(outfile_path, 'w')
 SeqIO.write(new_records,output_gbk_handle, "genbank")
 output_gbk_handle.close()
 
+#writing output into different formats
 output_faa_handle = open(faa_path, 'w')
 for record in new_records:
         for feature in record.features:
@@ -248,6 +250,4 @@ for record in new_records:
                                 nucleotide))
 output_ffn_handle.close()
 
-#output_gff_handle = open(gff_path, 'w')
-#GFF.write(new_records, output_gff_handle)
-#output_gff_handle.close()
+
