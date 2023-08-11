@@ -374,18 +374,18 @@ echo -e ""
 python $BEAV_DIR/scripts/subset_cds_genbank.py "$strain"
 touch borders.log
 if $agrobacterium_run; then
-	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$input_file" >> borders.log 
-	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$input_file" >> borders.log
-	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$input_file" >> borders.log
+	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$strain".fna >> borders.log 
+	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$strain".fna >> borders.log
+	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$strain".fna >> borders.log
 fi
 
-nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$input_file" >> borders.log
-nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm "$input_file" >> borders.log
-nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm "$input_file"  >> borders.log
-fuzznuc --sequence "$input_file" --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement 
-fuzznuc --sequence "$input_file" --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement 
-fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$input_file" -complement -outfile ${strain}.hrp_box.out -rformat excel 
-fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$input_file" -complement -outfile ${strain}.pip_box.out -rformat excel 
+nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$strain".fna >> borders.log
+nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm "$strain".fna >> borders.log
+nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm "$strain".fna >> borders.log
+fuzznuc --sequence "$strain".fna --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement 
+fuzznuc --sequence "$strain".fna --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement 
+fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$strain".fna -complement -outfile ${strain}.hrp_box.out -rformat excel 
+fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$strain".fna -complement -outfile ${strain}.pip_box.out -rformat excel 
 
 touch borders.table
 
@@ -462,7 +462,7 @@ echo -e ""
 echo -e "Identifying integrons (IntegronFinder)"
 echo -e ""
 if $integronfinder_run; then
-    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  "$input_file" | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
+    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  "$strain".fna | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
  	cat ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep -P "\tintI\t" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
 	echo -e ""
