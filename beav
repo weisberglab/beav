@@ -580,7 +580,7 @@ if $agrobacterium_run; then
    	
 	echo -e "" 
 	
-	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$input_file"
+	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$strain".fna
 
     echo -e ""
     echo -e "T-DNA borders:"
