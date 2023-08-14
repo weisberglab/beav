@@ -11,7 +11,7 @@ bestani=`cat ${strain}.agro_ani.out | awk '$3 >= 95' | cut -f 1-3 | sed 's/^.*\/
 touch ${strain}.agrobacteria_taxonomy.out
 
 echo -e "strain	biovar	species_group	reference	%ANI" | tee ${strain}.agrobacteria_taxonomy.out
-echo -e "$bestani" | tee -a ${strain}.agrobacteria_taxonomy.out
+echo -e  "$strain	$bestani" | tee -a ${strain}.agrobacteria_taxonomy.out
 
 if [[ -z "$bestani" ]]; then
 	echo -e "No matching species in database, closest ANI hit:" | tee -a ${strain}.agrobacteria_taxonomy.out
