@@ -85,13 +85,13 @@ echo -e "GAPMIND"
 #then run script to download and format dbs
 #gapmind aa carbon and format
 
-path_to_usearch=$(which usearch)
-if [[ ! -x $path_to_usearch ]]; then 
-	echo -e "Please download the usearch executable from https://www.drive5.com/usearch/download.html"
-	echo -e "Extract this file, rename it to usearch, make it executable (chmod +x usearch) and place it in a location in your PATH before running beav"
-	echo -e "Then re-run this setup script to format GapMind databases"
-	exit 1
-fi
+#path_to_usearch=$(which usearch)
+#if [[ ! -x $path_to_usearch ]]; then 
+#	echo -e "Please download the usearch executable from https://www.drive5.com/usearch/download.html"
+#	echo -e "Extract this file, rename it to usearch, make it executable (chmod +x usearch) and place it in a location in your PATH before running beav"
+#	echo -e "Then re-run this setup script to format GapMind databases"
+#	exit 1
+#fi
 
 mkdir $BEAV_DIR/software/PaperBLAST/fbrowse_data
 mkdir $BEAV_DIR/software/PaperBLAST/private
@@ -109,10 +109,12 @@ curl -sL https://papers.genomics.lbl.gov/tmp/path.carbon/steps.db > $BEAV_DIR/so
 $BEAV_DIR/software/PaperBLAST/bin/extractHmms.pl $BEAV_DIR/software/PaperBLAST/tmp/path.aa/steps.db $BEAV_DIR/software/PaperBLAST/tmp/path.aa
 $BEAV_DIR/software/PaperBLAST/bin/extractHmms.pl $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/steps.db $BEAV_DIR/software/PaperBLAST/tmp/path.carbon
 
-usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa.udb
+#usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa.udb
+diamond makedb --in $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa -d $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa.dmnd
 formatdb -p T -o T -i $BEAV_DIR/software/PaperBLAST/tmp/path.aa/curated.faa
 
-usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa.udb
+#usearch -makeudb_ublast $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa -output $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa.udb
+diamond makedb --in $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa -d $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa.dmnd
 formatdb -p T -o T -i $BEAV_DIR/software/PaperBLAST/tmp/path.carbon/curated.faa
 
 echo -e ""
