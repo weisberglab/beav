@@ -303,12 +303,12 @@ then
         echo "GapMind: OK"
     fi
 	
-	if ! usearch &> /dev/null
-	then
-		echo "usearch: ERROR"
-	else
-		echo "usearch: OK"
-	fi
+	#if ! usearch &> /dev/null
+	#then
+	#	echo "usearch: ERROR"
+	#else
+	#	echo "usearch: OK"
+	#fi
 else
 	echo "GapMind: skipped"
 fi
