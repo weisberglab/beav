@@ -10,9 +10,6 @@ An optional <i>Agrobacterium</i>-specific pipeline identifies the presence of Ti
 # **Installation**
 The **beav** pipeline requires a number of programs and databases be installed. Therefore, it is highly encouraged and recommended to use conda to install **beav** and all of its dependencies.
 
-**Prerequisites:
-Prior to installing beav, the usearch program must be installed and present in the environment and PATH variable. It can be downloaded from https://www.drive5.com/usearch/**
-
 # From conda (Recommended) 
 It is recommended to use either conda with [libmamba](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) or mamba to install beav as this will greatly speed up the time solving the environment.
 
