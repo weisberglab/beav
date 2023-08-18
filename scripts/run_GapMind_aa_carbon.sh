@@ -13,11 +13,18 @@ $GapMindPath/bin/buildorgs.pl -out GapMind/orgs -orgs "file:${strain}.faa:$strai
 #AA biosynthesis
 # Use bin/gapsearch.pl to compare the queries (one file per pathway) to
 # the proteins.
-$GapMindPath/bin/gapsearch.pl -orgs GapMind/orgs -set aa -out GapMind/aa.hits -nCPU $numCPUs
+#usearch
+#$GapMindPath/bin/gapsearch.pl -orgs GapMind/orgs -set aa -out GapMind/aa.hits -nCPU $numCPUs
+#diamond
+diamond makedb --in GapMind/orgs.faa -d GapMind/orgs.aa.dmnd
+$GapMindPath/bin/gapsearch.pl -diamond -orgs GapMind/orgs -set aa -out GapMind/aa.hits -nCPU $numCPUs
 
 # Use bin/gaprevsearch.pl to see if the candidates are similar to
 # characterized proteins that have other functions.
-$GapMindPath/bin/gaprevsearch.pl -orgs GapMind/orgs -hits GapMind/aa.hits -curated $GapMindPath/tmp/path.aa/curated.faa.udb -out GapMind/aa.revhits -nCPU $numCPUs
+#usearch
+#$GapMindPath/bin/gaprevsearch.pl -orgs GapMind/orgs -hits GapMind/aa.hits -curated $GapMindPath/tmp/path.aa/curated.faa.udb -out GapMind/aa.revhits -nCPU $numCPUs
+#diamond
+$GapMindPath/bin/gaprevsearch.pl -diamond -orgs GapMind/orgs -hits GapMind/aa.hits -curated $GapMindPath/tmp/path.aa/curated.faa.dmnd -out GapMind/aa.revhits -nCPU $numCPUs
 
 # Use bin/gapsummary.pl to score all the candidates and steps and to
 # find the best-scoring path for each pathway. This produces three
@@ -32,7 +39,7 @@ $GapMindPath/bin/checkGapRequirements.pl -org GapMind -stepsDb $GapMindPath/tmp/
 
 ## Optionally, use orgsVsMarkers.pl to compare the genome to organisms
 ## with known gaps (for amino acid biosynthesis only).
-$GapMindPath/bin/orgsVsMarkers.pl -orgs GapMind/orgs -vs $GapMindPath/gaps/aa/aa.known.gaps.markers.faa -out GapMind/aa.sum.knownsim
+#$GapMindPath/bin/orgsVsMarkers.pl -orgs GapMind/orgs -vs $GapMindPath/gaps/aa/aa.known.gaps.markers.faa -out GapMind/aa.sum.knownsim
 
 ## Optionally, use buildGapsDb.pl to combine the results into a sqlite3
 ## database.
@@ -49,8 +56,10 @@ done
 
 echo -e "GapMind: Running small molecule carbon catabolism analysis"
 #carbon metabolism
-$GapMindPath/bin/gapsearch.pl -orgs GapMind/orgs -set carbon -out GapMind/carbon.hits -nCPU $numCPUs
-$GapMindPath/bin/gaprevsearch.pl -orgs GapMind/orgs -hits GapMind/carbon.hits -curated $GapMindPath/tmp/path.carbon/curated.faa.udb -out GapMind/carbon.revhits -nCPU $numCPUs
+$GapMindPath/bin/gapsearch.pl -diamond -orgs GapMind/orgs -set carbon -out GapMind/carbon.hits -nCPU $numCPUs
+#$GapMindPath/bin/gapsearch.pl -orgs GapMind/orgs -set carbon -out GapMind/carbon.hits -nCPU $numCPUs
+$GapMindPath/bin/gaprevsearch.pl -diamond -orgs GapMind/orgs -hits GapMind/carbon.hits -curated $GapMindPath/tmp/path.carbon/curated.faa.dmnd -out GapMind/carbon.revhits -nCPU $numCPUs
+#$GapMindPath/bin/gaprevsearch.pl -orgs GapMind/orgs -hits GapMind/carbon.hits -curated $GapMindPath/tmp/path.carbon/curated.faa.udb -out GapMind/carbon.revhits -nCPU $numCPUs
 $GapMindPath/bin/gapsummary.pl -orgs GapMind/orgs -set carbon -hits GapMind/carbon.hits -rev GapMind/carbon.revhits -out GapMind/carbon.sum
 $GapMindPath/bin/checkGapRequirements.pl -org GapMind -stepsDb $GapMindPath/tmp/path.carbon/steps.db -results . -set carbon -out GapMind/carbon.sum.warn
 
