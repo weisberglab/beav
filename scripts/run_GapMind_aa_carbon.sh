@@ -16,7 +16,7 @@ $GapMindPath/bin/buildorgs.pl -out GapMind/orgs -orgs "file:${strain}.faa:$strai
 #usearch
 #$GapMindPath/bin/gapsearch.pl -orgs GapMind/orgs -set aa -out GapMind/aa.hits -nCPU $numCPUs
 #diamond
-diamond makedb --in GapMind/orgs.faa -d GapMind/orgs.aa.dmnd
+diamond makedb --in GapMind/orgs.faa -d GapMind/orgs.faa.dmnd
 $GapMindPath/bin/gapsearch.pl -diamond -orgs GapMind/orgs -set aa -out GapMind/aa.hits -nCPU $numCPUs
 
 # Use bin/gaprevsearch.pl to see if the candidates are similar to
