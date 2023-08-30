@@ -21,7 +21,7 @@ conda install -n beav beav
 alternative instructions using mamba:
 ```
 conda create -n beav
-mamba env update -n beav beav
+mamba install -n beav beav
 ```
 
 The conda environment can then be activated using:
