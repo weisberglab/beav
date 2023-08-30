@@ -174,12 +174,12 @@ def splice_genbank_contig(gbk_file, contig_id):
         if contig_id in i:
             contig_of_interest = i
     
-    with open(f'{contig_id}.gbk', 'w') as f:
+    with open(f'{get_base_file_name(gbk_file)}.oncogenic.gbk', 'w') as f:
         f.writelines(contig_of_interest)
     
     print(f'File generated: {contig_id}.gbk')
 
-    return f'{contig_id}.gbk'
+    return f'{get_base_file_name(gbk_file)}.oncogenic.gbk'
 
 
 def single_contig_circos(contig_id, gbk_file):
