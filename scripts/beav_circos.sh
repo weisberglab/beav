@@ -6,7 +6,7 @@ beav_dir=$1
 GBK=`ls $1/*gbk`
 
 # Contig list
-CONTIG=`cat beav_RAU1/*oncogenic_plasmid_final.out.contiglist | cut -f 1 | head -n 1`
+CONTIG=`cat ${beav_dir}/*oncogenic_plasmid_final.out.contiglist | cut -f 1 | head -n 1`
 
 # Conditionally run python script
 if [ -z $CONTIG ]
