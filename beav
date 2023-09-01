@@ -599,6 +599,7 @@ echo -e "Combining annotations and preparing final output files"
 cd ..
 python $BEAV_DIR/scripts/combine_annotations.py "$strain" 
 
+
 mkdir ${strain}/bakta
 
 mv ${strain}/${strain}.txt ${strain}/bakta/ 2> /dev/null
@@ -639,6 +640,11 @@ mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
+
+$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
+mv ${strain}_final.circo.png ${strain}
+mv ${strain}_final.oncogenes.png ${strain}
+
 
 echo -e ""
 echo -e "Done"
