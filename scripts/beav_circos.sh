@@ -11,7 +11,7 @@ CONTIG=`cat ${beav_dir}/*oncogenic_plasmid_final.out.contiglist | cut -f 1 | hea
 # Conditionally run python script
 if [ -z $CONTIG ]
 then
-    python3 beav_circos.py $GBK
+    python3 ${BEAV_DIR}/scripts/beav_circos.py $GBK
 else
-    python3 beav_circos.py $GBK $CONTIG
+    python3 ${BEAV_DIR}/scripts/beav_circos.py $GBK $CONTIG
 fi
