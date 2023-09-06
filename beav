@@ -417,8 +417,8 @@ cut -f 1-3,5 ./${strain}.pip_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t
 cut -f 1-3,5 ./${strain}.hrp_box.out | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\thrpbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
 awk '$2 > $3 { s=$2; $2=$3; $3=s } {print}' borders.bed | sed 's/\s\+/\t/g' > temp_border.bed
 bedtools intersect -v -nonamecheck -a temp_border.bed -b ./${strain}.nofasta.gff3 > ./${strain}_borders.table
-cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 | awk '{print $1,$4,$5,$6,$3}' | sed 's/\s\+/\t/g' > ./${strain}_uniq_border.table
-cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 -D | awk '{print $1,$4,$5,$6,"0"}' | uniq | sed 's/\s\+/\t/g' >> ./${strain}_uniq_border.table
+cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 | awk '{print $1,$4,$5,$6,$3}' | sed 's/\s\+/\t/g' > ./${strain}_uniq_borders.table
+cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 -D | awk '{print $1,$4,$5,$6,"0"}' | uniq | sed 's/\s\+/\t/g' >> ./${strain}_uniq_borders.table
 
 
 
