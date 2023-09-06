@@ -12,7 +12,7 @@ strain = sys.argv[1]
 #Check if input exists
 macsyfinder_path = f"./{strain}/macsyfinder.tsv.table"
 defensefinder_path = f"./{strain}/{strain}_defensefinder.tsv.table"
-hmmdb_path = f"./{strain}/{strain}_borders.table"
+hmmdb_path = f"./{strain}/{strain}_uniq_borders.table"
 dbscan_path = f"./{strain}/prophage.table"
 antismash_path = f"./{strain}/{strain}_antismash.table.beav.subset"
 tiger_path = f"./{strain}/{strain}_TIGER2_final.table.out"
@@ -57,13 +57,13 @@ if os.path.isfile(operon_path) == True:
 
 hmmdb = {}
 if os.path.isfile(hmmdb_path) == True:
-    with open(f"./{strain}/{strain}_borders.table", 'r') as hmmtable_file:
+    with open(f"./{strain}/{strain}_uniq_borders.table", 'r') as hmmtable_file:
         for l in hmmtable_file:
-            replicon,start,end,value,annot,strand = l.strip().split('\t')
+            replicon,start,end,annot,strand = l.strip('\n').split('\t')
             if replicon in hmmdb:
-                hmmdb[replicon].append((replicon,start,end,value,annot,strand))
+                hmmdb[replicon].append((replicon,start,end,annot,strand))
             else:
-                hmmdb[replicon]=[(replicon,start,end,value,annot,strand)]
+                hmmdb[replicon]=[(replicon,start,end,annot,strand)]
 
 dbscan = {}
 if os.path.isfile(dbscan_path) == True:     
@@ -176,7 +176,7 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
 #adding new features
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
-            new_feat = SeqFeature(FeatureLocation(int(current_border[1]), int(current_border[2])),type="misc_feature", qualifiers= {"note": [current_border[4]], "inference" : "BEAV"}, strand = int(current_border[5]))
+            new_feat = SeqFeature((FeatureLocation(int(current_border[1]), int(current_border[2]), strand = int(current_border[4]))),type="misc_feature", qualifiers= {"note": [current_border[3]], "inference" : "BEAV"})
             record.features.append(new_feat)
         
     if record.id in integron:
