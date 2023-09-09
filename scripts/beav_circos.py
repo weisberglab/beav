@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from sys import argv
+import argparse
 from pycirclize import Circos
 from pycirclize.parser import Genbank
 import numpy as np
@@ -162,30 +162,36 @@ def splice_genbank_contig(gbk_file, contig_id):
     """
     INPUT:
         gbk_file: Genbank file containing beav annotation and has multiple contigs
-        contig_id: The contig of interest
+        contig_id: List of contigs
     OUTPUT: A spliced genbank file that has only the contig of interest
     """
     with open(gbk_file, 'r') as f:
         gbk_raw = f.read()
     
-    gbk_contigs = gbk_raw.split('//')
+    gbk_contigs = gbk_raw.strip().split('//\n')
     
+    contig_of_interest = []
     for i in gbk_contigs:
-        if contig_id in i:
-            contig_of_interest = i
-    
+        for j in contig_id:
+            if j in i.split('\n', 1)[0].split():
+                contig_of_interest.append(i)
+
     with open(f'{get_base_file_name(gbk_file)}.oncogenic.gbk', 'w') as f:
-        f.writelines(contig_of_interest)
+        for i in range(len(contig_of_interest)):
+            f.writelines(contig_of_interest[i])
+            if i < len(contig_of_interest):
+                f.writelines('//\n')
+            
     
-    print(f'File generated: {contig_id}.gbk')
+    print(f'Oncogenic contigs saved at: {get_base_file_name(gbk_file)}.oncogenic.gbk')
 
     return f'{get_base_file_name(gbk_file)}.oncogenic.gbk'
 
 
-def single_contig_circos(contig_id, gbk_file):
+def oncogenic_circos(gbk_file):
     """
     INPUT: 
-        gbk_file: Single contig genbank file containing beav annotation
+    gbk_file: Single contig genbank file containing beav annotation
     OUTPUT: Circos plot containing oncogenic plasmid feature distribution of that contig
     """
 
@@ -193,129 +199,131 @@ def single_contig_circos(contig_id, gbk_file):
     gbk = Genbank(gbk_file)
 
     #Get features
+    seqid2size = gbk.get_seqid2size()
     seqid2features = gbk.get_seqid2features(feature_type=None)
     
     #Define sector for single contig
-    circos = Circos(sectors={gbk.name: gbk.range_size})
-    circos.text(f"{contig_id}", r=5, size=8)
+    circos = Circos(seqid2size, space=3)
+    circos.text(f"{get_base_file_name(gbk_file)}\nTi/Ri plasmid", r=5, size=8)
 
-    sector = circos.sectors[0]
-
-    cds_track = sector.add_track((95, 100))
-    scale_track = sector.add_track((95, 95))
-    cds_track.axis(fc="#EEEEEE", ec="none")
-
-    # Plot all CDS
-    cds_track.genomic_features(
-        gbk.extract_features("CDS"),
-        plotstyle="arrow",
-        fc="lightgrey"
-    )
-
+    # Extract CDS gene labels
     # List containing CDS product labels if gene names are not present
     product_of_interest = []
 
-    # plot oncogene specific features
-    for feature in seqid2features[contig_id]:
-        if 'gene' in feature.qualifiers.keys():
-            if feature.qualifiers['gene'][0] in beav_oncogenes.vir_dict.keys():
-                cds_track.genomic_features([feature], fc="olive", plotstyle="arrow") #T-DNA transfer
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.tra_dict.keys():
-                cds_track.genomic_features([feature], fc="indigo", plotstyle="arrow") #tra genes
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.trb_dict.keys():
-                cds_track.genomic_features([feature], fc="purple", plotstyle="arrow") #trb genes
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.oncogene_dict.keys():
-                cds_track.genomic_features([feature], fc="orange", plotstyle="arrow") #T-DNA/Oncogene            
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.rep_dict.keys():
-                cds_track.genomic_features([feature], fc="salmon", plotstyle="arrow") #repABC
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.opine_synth_dict.keys():
-                cds_track.genomic_features([feature], fc="darkgreen", plotstyle="arrow") #Opine synthase genes
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.opine_tracat_dict.keys():
-                cds_track.genomic_features([feature], fc="turquoise", plotstyle="arrow") #Opine transport/catabolism genes
-            elif feature.qualifiers['gene'][0] in beav_oncogenes.agrocinopine_dict.keys():
-                cds_track.genomic_features([feature], fc="steelblue", plotstyle="arrow") #Agrocinopine transport/catabolism genes
+    for sector in circos.sectors:
+        # plot sector labels
+        kwargs = dict(color="navy")
+        sector.text(f"{sector.name}", orientation='vertical', r=110, size=10, **kwargs)
+
+        # add tracks
+        cds_track = sector.add_track((95, 100))
+        scale_track = sector.add_track((95, 95))
+        cds_track.axis(fc="#EEEEEE", ec="none") 
+
+        # Get sector specific labels
+        ##print(sector, seqid2features[sector.name])
+
+        sector_pos_list, sector_labels = [], []
+        for feat in seqid2features[sector.name]:
+            start, end = int(str(feat.location.end)), int(str(feat.location.start))
+            pos = (start + end) / 2
+            label = feat.qualifiers.get("gene", [""])[0]
+            product = feat.qualifiers.get("product", [""])[0]
+            if label == "":
+                if product in product_of_interest:
+                    label = product
+            if product == "" or product.startswith("hypothetical"):
+                continue
+            if len(label) > 20:
+                label = label[:20] + "..."
+            sector_pos_list.append(pos)
+            sector_labels.append(label)
+
+        # plot oncogene specific features
+        for feature in seqid2features[sector.name]:
+            if feature.type == "CDS":
+                cds_track.genomic_features([feature], fc="lightgrey", plotstyle="arrow")
+            if 'gene' in feature.qualifiers.keys():
+                if feature.qualifiers['gene'][0] in beav_oncogenes.vir_dict.keys():
+                    cds_track.genomic_features([feature], fc="olive", plotstyle="arrow") #T-DNA transfer
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.tra_dict.keys():
+                    cds_track.genomic_features([feature], fc="indigo", plotstyle="arrow") #tra genes
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.trb_dict.keys():
+                    cds_track.genomic_features([feature], fc="purple", plotstyle="arrow") #trb genes
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.oncogene_dict.keys():
+                    cds_track.genomic_features([feature], fc="orange", plotstyle="arrow") #T-DNA/Oncogene            
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.rep_dict.keys():
+                    cds_track.genomic_features([feature], fc="salmon", plotstyle="arrow") #repABC
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.opine_synth_dict.keys():
+                    cds_track.genomic_features([feature], fc="darkgreen", plotstyle="arrow") #Opine synthase genes
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.opine_tracat_dict.keys():
+                    cds_track.genomic_features([feature], fc="turquoise", plotstyle="arrow") #Opine transport/catabolism genes
+                elif feature.qualifiers['gene'][0] in beav_oncogenes.agrocinopine_dict.keys():
+                    cds_track.genomic_features([feature], fc="steelblue", plotstyle="arrow") #Agrocinopine transport/catabolism genes
+                
+            if 'product' in feature.qualifiers.keys():
+                if feature.qualifiers['product'][0] in beav_oncogenes.oncogene_list:
+                    product_of_interest.append(feature.qualifiers['product'][0]) 
+                    cds_track.genomic_features([feature], fc="orange", plotstyle="arrow") #T-DNA/Oncogene
+                elif feature.qualifiers['product'][0] in beav_oncogenes.rep_dict.values():
+                    product_of_interest.append(feature.qualifiers['product'][0])
+                    cds_track.genomic_features([feature], fc="salmon", plotstyle="arrow") #repABC
+                elif feature.qualifiers['product'][0] in beav_oncogenes.opine_synth_dict.values():
+                    product_of_interest.append(feature.qualifiers['product'][0])
+                    cds_track.genomic_features([feature], fc="darkgreen", plotstyle="arrow") #Opine synthase genes
+                elif feature.qualifiers['product'][0] in beav_oncogenes.opine_tracat_dict.values():
+                    product_of_interest.append(feature.qualifiers['product'][0])
+                    cds_track.genomic_features([feature], fc="turquoise", plotstyle="arrow") #Opine transport/catabolism genes
+                elif feature.qualifiers['product'][0] in beav_oncogenes.agrocinopine_dict.values():
+                    product_of_interest.append(feature.qualifiers['product'][0])
+                    cds_track.genomic_features([feature], fc="steelblue", plotstyle="arrow") #Agrocinopine transport/catabolism genes
+                elif 'transposase' in feature.qualifiers['product'][0].lower():
+                    cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Transposase
+                elif 'integrase' in feature.qualifiers['product'][0].lower():
+                    cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Integrase
+                elif 'recombinase' in feature.qualifiers['product'][0].lower():
+                    cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Recombinase
             
-        if 'product' in feature.qualifiers.keys():
-            if feature.qualifiers['product'][0] in beav_oncogenes.oncogene_list:
-                product_of_interest.append(feature.qualifiers['product'][0]) 
-                cds_track.genomic_features([feature], fc="orange", plotstyle="arrow") #T-DNA/Oncogene
-            elif feature.qualifiers['product'][0] in beav_oncogenes.rep_dict.values():
-                product_of_interest.append(feature.qualifiers['product'][0])
-                cds_track.genomic_features([feature], fc="salmon", plotstyle="arrow") #repABC
-            elif feature.qualifiers['product'][0] in beav_oncogenes.opine_synth_dict.values():
-                product_of_interest.append(feature.qualifiers['product'][0])
-                cds_track.genomic_features([feature], fc="darkgreen", plotstyle="arrow") #Opine synthase genes
-            elif feature.qualifiers['product'][0] in beav_oncogenes.opine_tracat_dict.values():
-                product_of_interest.append(feature.qualifiers['product'][0])
-                cds_track.genomic_features([feature], fc="turquoise", plotstyle="arrow") #Opine transport/catabolism genes
-            elif feature.qualifiers['product'][0] in beav_oncogenes.agrocinopine_dict.values():
-                product_of_interest.append(feature.qualifiers['product'][0])
-                cds_track.genomic_features([feature], fc="steelblue", plotstyle="arrow") #Agrocinopine transport/catabolism genes
-            elif 'transposase' in feature.qualifiers['product'][0].lower():
-                cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Transposase
-            elif 'integrase' in feature.qualifiers['product'][0].lower():
-                cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Integrase
-            elif 'recombinase' in feature.qualifiers['product'][0].lower():
-                cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Recombinase
-        
-        if 'note' in feature.qualifiers.keys():
-            if 'origin_of_replication' in ' '.join(feature.qualifiers['note']):
-                fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['origin'], label_orientation="vertical") # Origin of replication
-            elif 'virbox' in ' '.join(feature.qualifiers['note']):
-                fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['virbox'], label_orientation="vertical", line_kws={'ec':'navy'}, text_kws={'color':'navy'}) # virbox
-            elif 'trabox' in ' '.join(feature.qualifiers['note']):
-                fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['trabox'], label_orientation="vertical", line_kws={'ec':'navy'}, text_kws={'color':'navy'}) # trabox
-            elif 'T-DNA_right_border' in ' '.join(feature.qualifiers['note']):
-                fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['T-DNA Right'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # t-dna right border
-            elif 'T-DNA_left_border' in feature.qualifiers['note']:
-                fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['T-DNA Left'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # t-dna left border
-            elif 'integrase' in ' '.join(feature.qualifiers['note']).lower():
-                cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Integrase
-            
+            if 'note' in feature.qualifiers.keys():
+                if 'origin_of_replication' in ' '.join(feature.qualifiers['note']):
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['origin'], label_orientation="vertical") # Origin of replication
+                elif 'virbox' in ' '.join(feature.qualifiers['note']):
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['virbox'], label_orientation="vertical", line_kws={'ec':'navy'}, text_kws={'color':'navy'}) # virbox
+                elif 'trabox' in ' '.join(feature.qualifiers['note']):
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['trabox'], label_orientation="vertical", line_kws={'ec':'navy'}, text_kws={'color':'navy'}) # trabox
+                elif 'T-DNA_right_border' in ' '.join(feature.qualifiers['note']):
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['T-DNA Right'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # t-dna right border
+                elif 'T-DNA_left_border' in feature.qualifiers['note']:
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['T-DNA Left'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # t-dna left border
+                elif 'integrase' in ' '.join(feature.qualifiers['note']).lower():
+                    cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Integrase
 
+        # Plot CDS product labels on outer position
+        cds_track.xticks(
+            sector_pos_list,
+            sector_labels,
+            label_orientation="vertical",
+            show_bottom_line=True,
+            outer=True,
+            label_size=6,
+            line_kws=dict(ec="grey"),
+        )
+        # Plot xticks & intervals on inner position
+        scale_track.xticks_by_interval(
+            interval=25000,
+            label_size=6,
+            outer=False,
+            show_bottom_line=True,
+            label_formatter=lambda v: f"{v/ 1000:.1f} Kb",
+            label_orientation="vertical",
+            line_kws=dict(ec="grey"),
+        )
 
-    # Extract CDS gene labels
-    pos_list, labels = [], []
-    for feat in gbk.extract_features("CDS"):
-        start, end = int(str(feat.location.end)), int(str(feat.location.start))
-        pos = (start + end) / 2
-        label = feat.qualifiers.get("gene", [""])[0]
-        product = feat.qualifiers.get("product", [""])[0]
-        if label == "":
-            if product in product_of_interest:
-                label = product
-        if product == "" or product.startswith("hypothetical"):
-            continue
-        if len(label) > 20:
-            label = label[:20] + "..."
-        pos_list.append(pos)
-        labels.append(label)
-
-    # Plot CDS product labels on outer position
-    cds_track.xticks(
-        pos_list,
-        labels,
-        label_orientation="vertical",
-        show_bottom_line=True,
-        outer=True,
-        label_size=6,
-        line_kws=dict(ec="grey"),
-    )
-    # Plot xticks & intervals on inner position
-    scale_track.xticks_by_interval(
-        interval=25000,
-        label_size=6,
-        outer=False,
-        show_bottom_line=True,
-        label_formatter=lambda v: f"{v/ 1000:.1f} Kb",
-        label_orientation="vertical",
-        line_kws=dict(ec="grey"),
-    )
 
     fig = circos.plotfig()
     _ = circos.ax.legend(
@@ -340,19 +348,30 @@ def single_contig_circos(contig_id, gbk_file):
     fig.savefig(f'{get_base_file_name(gbk_file)}.oncogenes.png')
     print(f'Image saved: {get_base_file_name(gbk_file)}.oncogenes.png')
 
+    pass
 
 if __name__ == "__main__":
+    ## Define arguments
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--input', '-i', type=str, required=True)
+    parser.add_argument('--contigs', '-c', type=str, nargs='*', required=False)
+
+    # Parse the arguments
+    args = parser.parse_args()
+
     # Generate only genome circos 
-    # Command `python3 beav_circos.py input.gbk`
-    if len(argv) == 2:
-        all_contig_circos(argv[1])
+    # Command `python3 beav_circos.py --input input.gbk`
+    if not args.contigs:
+        print('All contig circos only ...')
+        all_contig_circos(args.input)
 
     # Generate genome and oncogene circos
-    # Command: `python3 beav_circos.py input.gbk contig_of_interest`
-    if len(argv) == 3:
+    # Command: `python3 beav_circos.py --input input.gbk --contig contig_of_interest`
+    if args.contigs:
         # Generate genome circos
-        all_contig_circos(argv[1]) 
+        all_contig_circos(args.input) 
         # Subset contig_of_interest and create contig_id.gbk file
-        contig_id_gbk = splice_genbank_contig(argv[1], argv[2])
+        contig_id_gbk = splice_genbank_contig(args.input, args.contigs)
         # Generate circos for contig_of_interest
-        single_contig_circos(argv[2], contig_id_gbk)
+        oncogenic_circos(contig_id_gbk)
