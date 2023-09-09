@@ -6,12 +6,14 @@ beav_dir=$1
 GBK=`ls $1/*gbk`
 
 # Contig list
-CONTIG=`cat ${beav_dir}/*oncogenic_plasmid_final.out.contiglist | cut -f 1 | head -n 1`
+CONTIG=`cat ${beav_dir}/*oncogenic_plasmid_final.out.contiglist | cut -f 1 | tr '\n' ' '`
 
 # Conditionally run python script
-if [ -z $CONTIG ]
+if [ -z "$CONTIG" ]
 then
-    python3 ${BEAV_DIR}/scripts/beav_circos.py $GBK
+    echo "python3 beav_circos.py --input $GBK"
+    python3 beav_circos.py --input $GBK
 else
-    python3 ${BEAV_DIR}/scripts/beav_circos.py $GBK $CONTIG
+    echo "python3 beav_circos.py --input $GBK --contig $CONTIG"
+    python3 beav_circos.py --input $GBK --contig $CONTIG
 fi
