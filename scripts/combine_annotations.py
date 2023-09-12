@@ -115,6 +115,7 @@ if os.path.isfile(integron_gene_path) == True:
 #Parse genbank and match locus tags to annotation                        
 new_records = []
 for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
+    accession = record.annotations.get("accessions")
     for feature in record.features:
         locus_tags = feature.qualifiers.get("locus_tag")
         if locus_tags is not None and feature.type == "CDS":
@@ -189,10 +190,11 @@ for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
         for ice in tiger_dict[record.id]:
             tiger_newfeat = SeqFeature(FeatureLocation(int(ice[0]),int(ice[1])), type="mobile_element", qualifiers={"mobile_element_type": "integrative element", "note": ice[2] , "inference" : "TIGER2"})
             record.features.append(tiger_newfeat)
-    if record.id in dbscan:
-        for phage in dbscan[record.id]:
-            newfeat = SeqFeature(FeatureLocation(int(phage[0]),int(phage[1])), type="mobile_element",qualifiers={"mobile_element_type": "phage", "note": phage[2] + " " + phage[3] , "inference" : "DBSCAN-SWA"})
-            record.features.append(newfeat)
+    for number in accession:
+        if number in dbscan:
+            for phage in dbscan[number]:
+                newfeat = SeqFeature(FeatureLocation(int(phage[0]),int(phage[1])), type="mobile_element", qualifiers={"mobile_element_type": "phage", "note": phage[2] + " " + phage[3] , "inference" : "DBSCAN-SWA"})
+                record.features.append(newfeat)
     record.features.sort(key=lambda x: x.location.start,reverse=False)  
     new_records.append(record)
 output_gbk_handle = open(outfile_path, 'w')
