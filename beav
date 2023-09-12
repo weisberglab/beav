@@ -181,7 +181,7 @@ elif [[ ! -f $input_file ]];then
 fi
 
 if [[ ! -d $output ]];then
-	echo -e "The specified output directory does not exist"
+	echo -e "The specified output directory (${output}) does not exist"
 	exit
 fi
 
