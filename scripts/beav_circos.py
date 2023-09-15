@@ -54,10 +54,9 @@ def all_contig_circos(gbk_file):
         f_cds_track = sector.add_track((90, 95), r_pad_ratio=0.1)
         r_cds_track = sector.add_track((85, 90), r_pad_ratio=0.1)
         beav_track = sector.add_track((80, 85), r_pad_ratio=0.1)
-        extra_feature =  sector.add_track((75, 80))
-        gc_content_track = sector.add_track((70, 75))
-        gc_skew_track = sector.add_track((65, 70))
-        
+        extra_feature =  sector.add_track((72, 77))
+        gc_content_track = sector.add_track((67, 72))
+        gc_skew_track = sector.add_track((62, 67))
         
         # Plot forward/reverse CDS, ICE, origin, beav tracks
         for feature in seqid2features[sector.name]:
@@ -67,19 +66,34 @@ def all_contig_circos(gbk_file):
                 else:
                     r_cds_track.genomic_features([feature], fc="skyblue")
             elif feature.type == "mobile_element":
-                    beav_track.genomic_features([feature], fc="turquoise") #ICEs
+                    if 'mobile_element_type' in feature.qualifiers.keys():
+                        if feature.qualifiers['mobile_element_type'][0] == 'phage':
+                            beav_track.genomic_features([feature], fc='royalblue') # Pahge
+                        elif feature.qualifiers['mobile_element_type'][0] == 'integrative element':
+                            beav_track.genomic_features([feature], fc="turquoise") # Non phage mobile element
             elif feature.type == "rRNA":
                 fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=[''], label_orientation="vertical", line_kws={'ec':'yellowgreen'}) #rRNA
+                gc_skew_track.xticks([(fx1 + fx2)/2], outer=True, label_size=6, labels=[''], label_orientation="vertical", line_kws={'ec':'yellowgreen'}) #rRNA
             elif feature.type == "tRNA":
                 fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=[''], label_orientation="vertical", line_kws={'ec':'orange'}) #tRNA
+                gc_skew_track.xticks([(fx1 + fx2)/2], outer=True, label_size=6, labels=[''], label_orientation="vertical", line_kws={'ec':'orange'}) #tRNA
 
                 
             if feature.type == "CDS":
+                
                 if "note" in feature.qualifiers.keys(): 
-                    if 'MacSy' in feature.qualifiers['note'][0]: 
-                        beav_track.genomic_features([feature], fc="darkorange") #Secretion system
+                    if 'MacSy' in feature.qualifiers['note'][0]:
+                        sec_sys = feature.qualifiers['note'][0].split(': ')[1]
+                        beav_track.genomic_features([feature], fc="darkorange") # Secretion Systems
+                        if 'T4SS' in sec_sys:
+                            fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                            beav_track.xticks([(fx1 + fx2)/2], outer=False, line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # T4SS
+                        elif 'T3SS' in sec_sys:
+                            fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                            beav_track.xticks([(fx1 + fx2)/2], outer=False, line_kws={'ec':'plum'}, text_kws={'color':'darkred'}) # T3SS
+                        elif 'T6SS' in sec_sys:
+                            fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                            beav_track.xticks([(fx1 + fx2)/2], outer=False, line_kws={'ec':'slateblue'}, text_kws={'color':'darkred'}) # T6SS
                     elif 'SMASH' in feature.qualifiers['note'][0]:
                         beav_track.genomic_features([feature], fc="forestgreen") #Secondary metabolite
             
@@ -91,21 +105,6 @@ def all_contig_circos(gbk_file):
                     if feature.qualifiers['gene'][0] in ['repA', 'repB', 'repC']:
                         extra_feature.genomic_features([feature], fc='black',  plotstyle="arrow")
                                             
-        
-        # Plot GC content        
-        pos_list, gc_contents = gbk.calc_gc_content(seq=str(gbk.records[contig_i].seq))
-        gc_contents = gc_contents - gbk.calc_genome_gc_content()
-        positive_gc_contents = np.where(gc_contents > 0, gc_contents, 0)
-        negative_gc_contents = np.where(gc_contents < 0, gc_contents, 0)
-        abs_max_gc_content = np.max(np.abs(gc_contents))
-        vmin, vmax = -abs_max_gc_content, abs_max_gc_content
-        
-        gc_content_track.fill_between(
-            pos_list, positive_gc_contents, 0, vmin=vmin, vmax=vmax, color="black"
-        )
-        gc_content_track.fill_between(
-            pos_list, negative_gc_contents, 0, vmin=vmin, vmax=vmax, color="grey"
-        )
 
         # Plot GC skew
         pos_list, gc_skews = gbk.calc_gc_skew(seq=str(gbk.records[contig_i].seq))
@@ -128,19 +127,21 @@ def all_contig_circos(gbk_file):
     text_common_kws = dict(ha="center", va="center", size=6)
     circos.text("CDS +strand", r=93, color="dimgrey", **text_common_kws)
     circos.text("CDS -strand", r=87, color="dimgrey", **text_common_kws)
-    circos.text("Beav", r=83, color="dimgrey", **text_common_kws)
-    circos.text("repABC", r=77, color="dimgrey", **text_common_kws)
-    circos.text("GC%", r=73, color="dimgrey", **text_common_kws)
-    circos.text("GC skew", r=67, color="dimgrey", **text_common_kws)
+    circos.text("Beav", r=82, color="dimgrey", **text_common_kws)
+    circos.text("repABC", r=74, color="dimgrey", **text_common_kws)
+    circos.text("RNA", r=68, color="dimgrey", **text_common_kws)
+    circos.text("GC skew", r=63, color="dimgrey", **text_common_kws)
 
     fig = circos.plotfig()
     _ = circos.ax.legend(
         handles=[
             Patch(color="darkorange", label="Secretion Systems"),
+            Line2D([], [], color="darkred", label="T4SS", marker='_', ls='None'),
+            Line2D([], [], color="plum", label="T3SS", marker='_', ls='None'),
+            Line2D([], [], color="slateblue", label="T6SS", marker='_', ls='None'),
+            Patch(color="royalblue", label="Phages"),
             Patch(color="turquoise", label="ICEs"),
             Patch(color="forestgreen", label="Secondary Metabolites"),
-            Line2D([], [], color="black", label="Positive GC Content", marker="^", ms=6, ls="None"),
-            Line2D([], [], color="grey", label="Negative GC Content", marker="v", ms=6, ls="None"),
             Line2D([], [], color="olive", label="Positive GC Skew", marker="^", ms=6, ls="None"),
             Line2D([], [], color="purple", label="Negative GC Skew", marker="v", ms=6, ls="None"),
             Line2D([], [], color="yellowgreen", label="rRNA", marker="_", ms=6, ls="None"),
@@ -148,7 +149,7 @@ def all_contig_circos(gbk_file):
         ],
         bbox_to_anchor=(0.5, 0.45),
         loc="center",
-        ncols=1,
+        ncols=2,
         fontsize=6
     )
 
@@ -183,7 +184,7 @@ def splice_genbank_contig(gbk_file, contig_id):
                 f.writelines('//\n')
             
     
-    print(f'Oncogenic contigs saved at: {get_base_file_name(gbk_file)}.oncogenic.gbk')
+    print(f'{get_base_file_name(gbk_file)}.oncogenic.gbk')
 
     return f'{get_base_file_name(gbk_file)}.oncogenic.gbk'
 
@@ -243,6 +244,7 @@ def oncogenic_circos(gbk_file):
         for feature in seqid2features[sector.name]:
             if feature.type == "CDS":
                 cds_track.genomic_features([feature], fc="lightgrey", plotstyle="arrow")
+
             if 'gene' in feature.qualifiers.keys():
                 if feature.qualifiers['gene'][0] in beav_oncogenes.vir_dict.keys():
                     cds_track.genomic_features([feature], fc="olive", plotstyle="arrow") #T-DNA transfer
@@ -283,6 +285,9 @@ def oncogenic_circos(gbk_file):
                     cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Integrase
                 elif 'recombinase' in feature.qualifiers['product'][0].lower():
                     cds_track.genomic_features([feature], fc="gray", plotstyle="arrow") # Recombinase
+                elif 'ABC transporter' in feature.qualifiers['product'][0]:
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, line_kws={'ec':'darkgreen'}) #ABC Transporter
             
             if 'note' in feature.qualifiers.keys():
                 if 'origin_of_replication' in ' '.join(feature.qualifiers['note']):
@@ -328,10 +333,11 @@ def oncogenic_circos(gbk_file):
     fig = circos.plotfig()
     _ = circos.ax.legend(
         handles=[
-            Line2D([], [], color="grey", label="CDS +strand", marker=">", ms=6, ls="None"),
-            Line2D([], [], color="grey", label="CDS -strand", marker="<", ms=6, ls="None"),
+            Line2D([], [], color="lightgrey", label="CDS +strand", marker=">", ms=6, ls="None"),
+            Line2D([], [], color="lightgrey", label="CDS -strand", marker="<", ms=6, ls="None"),
             Patch(color="olive", label="T-DNA transfer"),
             Patch(color="orange", label="T-DNA/Oncogenes"),
+            Line2D([], [], color="darkgreen", label="ABC Transporter", marker="_", ms=6, ls="None"),
             Patch(color="indigo", label="tra"),
             Patch(color="purple", label="trb"),
             Patch(color="salmon", label="repABC"),
