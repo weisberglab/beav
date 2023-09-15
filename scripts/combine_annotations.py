@@ -10,14 +10,14 @@ import os.path
 strain = sys.argv[1]
 
 #Check if input exists
-macsyfinder_path = f"./{strain}/macsyfinder.tsv.table"
-defensefinder_path = f"./{strain}/{strain}_defensefinder.tsv.table"
-hmmdb_path = f"./{strain}/{strain}_uniq_borders.table"
-dbscan_path = f"./{strain}/prophage.table"
-antismash_path = f"./{strain}/{strain}_antismash.table.beav.subset"
-tiger_path = f"./{strain}/{strain}_TIGER2_final.table.out"
-integron_path = f"./{strain}/integron.table"
-integron_gene_path = f"./{strain}/integron_gene.table"
+macsyfinder_path = f"./{strain}/tables/macsyfinder.tsv.table"
+defensefinder_path = f"./{strain}/tables/{strain}_defensefinder.tsv.table"
+hmmdb_path = f"./{strain}/tables/{strain}_uniq_borders.table"
+dbscan_path = f"./{strain}/tables/prophage.table"
+antismash_path = f"./{strain}/tables/{strain}_antismash.table.beav.subset"
+tiger_path = f"./{strain}/tables/{strain}_TIGER2_final.table.out"
+integron_path = f"./{strain}/tables/integron.table"
+integron_gene_path = f"./{strain}/tables/integron_gene.table"
 gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
 operon_path = f"./{strain}/operon-mapper_results/list_of_operons.table"
 
@@ -28,7 +28,7 @@ ffn_path = f"./{strain}/{strain}_final.ffn"
 #read in annotation tables as dictionary
 locus_dict = {}
 if os.path.isfile(macsyfinder_path) == True:
-    with open (f"./{strain}/macsyfinder.tsv.table", "r") as f:
+    with open (f"./{strain}/tables/macsyfinder.tsv.table", "r") as f:
         for line in f:
             (key,values) = line.split()
             locus_dict[key] = values 
@@ -36,7 +36,7 @@ if os.path.isfile(macsyfinder_path) == True:
 
 defense_dict = {}
 if os.path.isfile(defensefinder_path) == True:
-    with open (f"./{strain}/{strain}_defensefinder.tsv.table", 'r') as k:
+    with open (f"./{strain}/tables/{strain}_defensefinder.tsv.table", 'r') as k:
         for line in k:
             (key,values) = line.split()
             defense_dict[key] = values
@@ -57,7 +57,7 @@ if os.path.isfile(operon_path) == True:
 
 hmmdb = {}
 if os.path.isfile(hmmdb_path) == True:
-    with open(f"./{strain}/{strain}_uniq_borders.table", 'r') as hmmtable_file:
+    with open(f"./{strain}/tables/{strain}_uniq_borders.table", 'r') as hmmtable_file:
         for l in hmmtable_file:
             replicon,start,end,annot,strand = l.strip('\n').split('\t')
             if replicon in hmmdb:
@@ -67,7 +67,7 @@ if os.path.isfile(hmmdb_path) == True:
 
 dbscan = {}
 if os.path.isfile(dbscan_path) == True:     
-    with open (f"./{strain}/prophage.table", 'r') as prophage_file:
+    with open (f"./{strain}/tables/prophage.table", 'r') as prophage_file:
         for l in prophage_file:
             replicon,start,end,annot,category = l.strip().split('\t')
             if replicon in dbscan:
@@ -77,7 +77,7 @@ if os.path.isfile(dbscan_path) == True:
 
 antismash_dict = {}
 if os.path.isfile(antismash_path) == True:
-    with open (f"./{strain}/{strain}_antismash.table.beav.subset", 'r') as antismash_file:
+    with open (f"./{strain}/tables/{strain}_antismash.table.beav.subset", 'r') as antismash_file:
         for line in antismash_file:
             locus,cluster,function,nrps,domain = line.rstrip('\n').split('\t')
             if locus in antismash_dict:
@@ -88,7 +88,7 @@ if os.path.isfile(antismash_path) == True:
 
 tiger_dict = {}
 if os.path.isfile(tiger_path) == True:          
-    with open (f"./{strain}/{strain}_TIGER2_final.table.out", 'r') as tiger_file:
+    with open (f"./{strain}/tables/{strain}_TIGER2_final.table.out", 'r') as tiger_file:
         for line in tiger_file:
             replicon,start,end,annot = line.strip().split('\t')
             if replicon in tiger_dict:
@@ -97,7 +97,7 @@ if os.path.isfile(tiger_path) == True:
                 tiger_dict[replicon] = [(start,end,annot)]
 integron = {}
 if os.path.isfile(integron_path) == True:                
-    with open (f"./{strain}/integron.table", 'r') as integron_table:
+    with open (f"./{strain}/tables/integron.table", 'r') as integron_table:
         for l in integron_table:
             replicon,element,start,end,strand,complete = l.strip().split('\t')
             if replicon in integron:
@@ -108,13 +108,13 @@ if os.path.isfile(integron_path) == True:
 integron_gene = {}
 if os.path.isfile(integron_gene_path) == True:
     protein = "IntI"
-    with open (f"./{strain}/integron_gene.table", 'r') as integron_gene_file:
+    with open (f"./{strain}/tables/integron_gene.table", 'r') as integron_gene_file:
         for locus in integron_gene_file:
             key = locus.strip()
             integron_gene[key] = protein       
 #Parse genbank and match locus tags to annotation                        
 new_records = []
-for record in SeqIO.parse(f"./{strain}/{strain}.gbff","gb"):
+for record in SeqIO.parse(f"./{strain}/bakta/{strain}.gbff","gb"):
     accession = record.annotations.get("accessions")
     for feature in record.features:
         locus_tags = feature.qualifiers.get("locus_tag")
