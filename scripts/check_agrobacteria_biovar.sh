@@ -5,7 +5,7 @@ cpus=$2
 
 ls -1 $BEAV_DIR/databases/agrobacterium_taxa/*fna.gz > genomelist
 
-fastANI -t $cpus -q ${strain}.fna --rl genomelist -o ${strain}.agro_ani.out >& fastani.log 
+fastANI -t $cpus -q bakta/${strain}.fna --rl genomelist -o ${strain}.agro_ani.out >& fastani.log 
 bestani=`cat ${strain}.agro_ani.out | awk '$3 >= 95' | cut -f 1-3 | sed 's/^.*\///g;s/\.fna.gz//g;s/\.fna//g' | sed 's/__/\t/g'`
 
 touch ${strain}.agrobacteria_taxonomy.out
