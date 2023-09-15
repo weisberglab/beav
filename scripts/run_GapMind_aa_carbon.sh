@@ -8,7 +8,7 @@ GapMindPath="$BEAV_DIR/software/PaperBLAST/"
 echo -e "GapMind: Running AA biosynthesis pathway analysis"
 
 mkdir GapMind
-$GapMindPath/bin/buildorgs.pl -out GapMind/orgs -orgs "file:${strain}.faa:$strain"
+$GapMindPath/bin/buildorgs.pl -out GapMind/orgs -orgs "file:./bakta/${strain}.faa:$strain"
 
 #AA biosynthesis
 # Use bin/gapsearch.pl to compare the queries (one file per pathway) to
