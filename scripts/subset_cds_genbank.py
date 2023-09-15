@@ -7,7 +7,7 @@ strain = sys.argv[1]
 
 cds_path = f"./{strain}_cds_subset.gbk"
 cds_record = []
-for record in SeqIO.parse(f"./{strain}.gbff","gb"):
+for record in SeqIO.parse(f"./bakta/{strain}.gbff","gb"):
     has_genes = False
     for feature in record.features:
         if feature.type == "CDS":
