@@ -14,7 +14,9 @@ tiger_run=true
 gapmind_run=true
 dbscanswa_run=true
 operon_run=false
-
+continue_run=false
+bakta_run=true
+circos_run=true
 thread=1
 output=$PWD
 bakta_args=""
@@ -62,6 +64,9 @@ do
             ;;
         --skip_dbscan-swa)
             dbscanswa_run=false
+            ;;
+        --continue)
+            continue_run=true
             ;;
         -i|--input)
             input_file=$2
@@ -171,6 +176,8 @@ if [ $show_help ]; then
                 Number of CPU threads"
 	exit
 fi
+
+#Checks input arguments to make sure required arguements are present and exists
 
 if [[ -z $input_file ]];then
 	echo -e "An input file is required. Please use the --input argument and run again"
@@ -338,16 +345,79 @@ echo -e ""
 
 cd $output
 
-echo -e "Running Bakta"
-echo -e ""
+#Check if continue argument was used and if program output file exist, are empty, or present and not empty 
 
-bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta"
+if $continue_run; then
+        echo -e "Checking if beav can continue from Bakta"
+        echo -e ""
+        if [ ! -f ./${strain}/bakta/${strain}.gbff ] && [ ! -f ./${strain}/bakta/${strain}.faa ] && [ ! -f ./${strain}/bakta/${strain}.gff3 ]; then
+                echo -e "Bakta output files do not exist"
+                echo -e ""
+        elif [ -s ./${strain}/bakta/${strain}.gbff ] && [ -s ./${strain}/bakta/${strain}.faa ] && [ -s ./${strain}/bakta/${strain}.gff3 ]; then
+                echo -e "Required outputs found. Skipping Bakta"
+                echo -e ""
+                bakta_run=false
+        elif [ ! -s ./${strain}/bakta/${strain}.gbff ] && [ ! -s ./${strain}/bakta/${strain}.faa ] && [ ! -s ./${strain}/bakta/${strain}.gff3 ]; then
+                echo -e "Output files are empty. Moving empty files and rerunning Bakta"
+		echo -e ""
+		rm -rf ./$strain
+	fi
+fi
 
-echo -e ""
-echo -e "Done"
-echo -e ""
+
+if $bakta_run; then 
+
+	echo -e "Running Bakta"
+	echo -e ""
+
+	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta"
+
+	mkdir ${strain}/bakta
+
+	mv ${strain}/${strain}.txt ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.embl ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.faa ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.faa.idx ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.ffn ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.fna ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.gbff ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.gbk ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.gff3 ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.json ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.nofasta.gff3 ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}_cds_subset.gbk ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.tsv ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/ 2> /dev/null
+	mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
+
+	echo -e ""
+	echo -e "Done"
+	echo -e ""
+fi
 
 cd $strain
+
+mkdir tables 2> /dev/null
+
+if $continue_run; then
+        mkdir ./partial_runs 2> /dev/null
+fi
+
+
+if $operon_run && $continue_run; then
+	echo -e "Checking Operon-mapper output"
+	if  [ ! -f ./operon-mapper_results_url ]; then
+		echo -e "Operon-mapper output does not exist. Rerunning Operon-mapper"
+		echo -e ""
+	elif [ -s ./operon-mapper_results_url ]; then 
+		echo -e "Outfiles found. Skipping Operon-mapper"
+		echo -e ""
+		operon_run=false
+	elif [ ! -s ./operon-mapper_results_url ]; then
+		echo -e "Output empty. Rerunning Operon-mapper"
+		echo -e ""
+	fi
+fi
 
 if $operon_run; then
     echo -e "----------------------------------------------------------"
@@ -370,22 +440,42 @@ echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Annotation of other sequence elements"
 echo -e ""
-
+ 
+#makes genbank file with only cds regions for antismash
 python $BEAV_DIR/scripts/subset_cds_genbank.py "$strain"
 touch borders.log
-if $agrobacterium_run; then
-	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm "$strain".fna >> borders.log 
-	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm "$strain".fna >> borders.log
-	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm "$strain".fna >> borders.log
+
+if $continue_run && $agrobacterium_run; then
+	echo -e "Checking Agrobacterium annotations"
+#if all listed outputs are present then skip
+	if [ -s ${strain}.agrobacteria_taxonomy.out ] && [ -s ${strain}.oncogenic_plasmid_final_out ] && [ -s ${strain}.agro_ani.out ] && [ -s ./tables/${strain}_uniq_borders.table ] && [ -s ${strain}.oncogenic_plasmid_type.sketch.out ]; then
+		agrobacterium_run=false
+		echo -e "Outfiles found. Skipping Agrobacterium pipeline"
+		echo -e ""
+#if any listed outputs are empty,then move all the outputs and rerun the agro pipeline
+	elif [ ! -s ${strain}.agrobacteria_taxonomy.out ] || [ ! -s ${strain}.oncogenic_plasmid_final_out ] || [ ! -s ${strain}.agro_ani.out ]; then
+		echo -e "Agrobacterium pipeline outputs are empty. Moving files and rerunning Agrobacterium pipeline"
+		echo -e ""
+		mv ./borders/${strain}.left_T-DNA_border ./borders/${strain}.right_T-DNA_border ./borders/${strain}.virbox ./borders/${strain}.trabox ./borders/${strain}.pip_box.out ./borders/${strain}.hrp_box.out ./borders/${strain}.nodbox ./borders/${strain}.ttsbox ./borders/${strain}.dif ./borders/borders.bed ./borders/temp_border.bed ./borders/${strain}.overdrive ./${strain}.agro_ani_out ./${strain}.agrobacteria_taxonomy.out ./${strain}.oncogenic_plasmid_final.out ./${strain}.oncogenic_plasmid_final.out.contiglist ./${strain}.oncogenic_plasmid_type.sketch.out ./${strain}.oncogenic_plasmid_contigs.sketch.out ./partial_runs
+#if any of the listed outputs do not exist, then rerun the pipeline
+	elif [ ! -f ${strain}.agrobacteria_taxonomy.out ] || [ ! -f ${strain}.oncogenic_plasmid_final_out ] || [ ! -f ./${strain}.agro_ani.out ] || [ ! -f ./tables/${strain}_uniq_borders.table ] || [ ! -f ./borders/${strain}.left_T-DNA_border ] || [ ! -f ./borders/${strain}.right_T-DNA_border ]; then
+		echo -e "Agrobacterium pipeline files not found. Rerunning Agrobacterium pipeline"
+	fi
 fi
 
-nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm "$strain".fna >> borders.log
-nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm "$strain".fna >> borders.log
-nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm "$strain".fna >> borders.log
-fuzznuc --sequence "$strain".fna --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement 
-fuzznuc --sequence "$strain".fna --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement 
-fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence "$strain".fna -complement -outfile ${strain}.hrp_box.out -rformat excel 
-fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence "$strain".fna -complement -outfile ${strain}.pip_box.out -rformat excel 
+if $agrobacterium_run; then
+	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm bakta/"$strain".fna >> borders.log 
+	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm bakta/"$strain".fna >> borders.log
+	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm bakta/"$strain".fna >> borders.log
+fi
+
+nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm bakta/"$strain".fna >> borders.log
+nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm bakta/"$strain".fna >> borders.log
+nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm bakta/"$strain".fna >> borders.log
+fuzznuc --sequence bakta/"$strain".fna --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement 
+fuzznuc --sequence bakta/"$strain".fna --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement 
+fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence bakta/"$strain".fna -complement -outfile ${strain}.hrp_box.out -rformat excel 
+fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence bakta/"$strain".fna -complement -outfile ${strain}.pip_box.out -rformat excel 
 
 touch borders.table
 
@@ -395,6 +485,7 @@ else
 	borderfiles="${strain}.nodbox ${strain}.overdrive ${strain}.ttsbox ${strain}.dif"
 fi
 
+#format border files for bedtools and then make border table
 cat $borderfiles | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 1,3,7,8,12,13 | sort -k1,1 -k3,3g | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\6\t\2\t\5/g' | bedtools merge -c 4,5,6 -o collapse,collapse,distinct | while read curborderline; do
 	contig=`echo -e "$curborderline" | cut -f 1`
 	startpos=`echo -e "$curborderline" | cut -f 2`
@@ -409,7 +500,7 @@ cat $borderfiles | grep -v '#' | sed 's/\s\+/\t/g' | awk '$13 <= 0.05' | cut -f 
 done
 
 #check if borders/promoters overlap with genes, if so, discard
-cat ${strain}.gff3 | sed -n '/^##FASTA/q;p' | sed '/region\t[0-9]/d' > ${strain}.nofasta.gff3
+cat ./bakta/${strain}.gff3 | sed -n '/^##FASTA/q;p' | sed '/region\t[0-9]/d' > ${strain}.nofasta.gff3
 cat borders.table | sed 's/\s\+/\t/g' | awk '{print $1,$3,$4,"100",$2,$5}' | sed 's/^\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)\t\(\S\+\)/\1\t\3\t\4\t\5\t\2\t\6/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' > borders.bed
 cut -f 1-3,5 ./${strain}.virbox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\tvirbox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed
 cut -f 1-3,5 ./${strain}.trabox | grep -v 'SeqName' | sed 's/\t\(\S\+\)$/\t100\ttrabox\t\1/g' | sed 's/+/+1/g' | sed 's/\t-/\t-1/g' >> borders.bed    
@@ -420,9 +511,9 @@ bedtools intersect -v -nonamecheck -a temp_border.bed -b ./${strain}.nofasta.gff
 cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 -u | awk '{print $1,$4,$5,$6,$3}' | sed 's/\s\+/\t/g' > ./${strain}_uniq_borders.table
 cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 -D | awk '{print $1,$4,$5,$6,"0"}' | uniq | sed 's/\s\+/\t/g' >> ./${strain}_uniq_borders.table
 
+mv *.table ./tables/ 2> /dev/null
 
-
-mkdir borders
+mkdir borders  2> /dev/null
 mv ./${strain}.virbox ./borders/
 mv ./${strain}.trabox ./borders/
 mv ./${strain}.pip_box.out ./borders/
@@ -448,11 +539,29 @@ echo -e ""
 echo -e "Identifying secretion systems (MacSyFinder)"
 echo -e ""
 
+if $continue_run && $macsyfinder_run; then
+	echo -e "Checking secretion system annotations"
+	echo -e ""
+	if [ ! -f ./MacSyFinder_TXSS/best_solution.tsv ]; then 
+		echo -e "MacSyFinder output files do not exist. Rerunning MacSyFinder"
+		echo -e ""
+	elif [ -s ./MacSyFinder_TXSS/best_solution.tsv ]; then
+		echo -e "MacSyFinder output found. Skipping MacSyFinder"
+		echo -e ""
+		macsyfinder_run=false
+	elif [ ! -s ./MacSyFinder_TXSS/best_solution.tsv ]; then
+		echo -e "MacSyFinder output files are empty. Deleting empty files and rerunning MacSyFinder." 
+		rm -rf MacSyFinder_TXSS
+		rm ./tables/macsyfinder.tsv.table
+	fi
+fi
+
 if $macsyfinder_run; then
 	python $BEAV_DIR/scripts/makegembase.py
 	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder"
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 	mv allgembase* ./MacSyFinder_TXSS/
+	mv macsyfinder.tsv.table ./tables/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
@@ -465,10 +574,30 @@ echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Identifying integrons (IntegronFinder)"
 echo -e ""
+if $continue_run && $integronfinder_run; then
+        echo -e "Checking integron annotations"
+        echo -e ""
+        if [ ! -f ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]; then
+                echo -e "IntegronFinder outfiles do not exist. Rerunning IntegronFinder"
+                echo -e ""
+        elif [ -s ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]; then
+                echo -e "IntegronFinder output found. Skipping IntegronFinder"
+                echo -e ""
+                integronfinder_run=false
+        elif [ ! -s ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]; then
+                echo -e "IntegronFinder output files are empty. Deleting empty files and rerunning IntegronFinder." 
+                rm -rf Integron_Finder
+		rm ./tables/integron_gene.table
+		rm ./tables/integron.table
+        fi
+fi
+
+
 if $integronfinder_run; then
-    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  "$strain".fna | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
+    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
- 	cat ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep -P "\tintI\t" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 	
+ 	cat ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep -P "\tintI\t" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 
+	mv *.table ./tables/ 	
 	echo -e ""
 	echo -e "Done"
 else
@@ -482,9 +611,29 @@ echo -e ""
 echo -e "Identifying defense systems (DefenseFinder)"
 echo -e ""
 
+if $continue_run && $defensefinder_run; then
+        echo -e "Checking defense system annotations"
+        echo -e ""
+        if [ ! -f ./tables/${strain}_defensefinder.tsv.table ]; then
+                echo -e "DefenseFinder ouput files do not exist. Rerunning DefenseFinder"
+                echo -e ""
+        elif grep --quiet "Analysis results were written to" ./logs/defensefinder.log; then
+                echo -e "DefenseFinder output found. Skipping DefenseFinder"
+                echo -e ""
+                defensefinder_run=false
+        elif ! grep --quiet "Analysis results were written to" ./logs/defensefinder.log; then
+                echo -e "Defense system annotations were unsucessfull. Deleting outfiles and rerunning DefenseFinder." 
+                rm -rf DefenseFinder
+		rm ./tables/${strain}_defensefinder.tsv.table
+        fi
+fi
+
 if $defensefinder_run; then
-	defense-finder run --db-type gembase ${strain}.faa > defensefinder.log || error_exit "error occurred while running defense-finder"
+	defense-finder run --db-type gembase ./bakta/${strain}.faa > defensefinder.log || error_exit "error occurred while running defense-finder"
 	cut -f 2,3 ./defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
+	mv *.table ./tables/ 2> /dev/null
+	mkdir ${strain}/DefenseFinder
+	mv ${strain}/defense_finder_* ${strain}/DefenseFinder/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
@@ -498,9 +647,30 @@ echo -e ""
 echo -e "Identifying biosynthetic gene clusters (antiSMASH)"
 echo -e ""
 
+if $continue_run && $antismash_run; then
+        echo -e "Checking biosyntehtic gene cluster annotations"
+        echo -e ""
+        if [ ! -f ./tables/${strain}_antismash.table ]; then
+                echo -e "antiSMASH output files do not exist. Rerunning antiSMASH"
+                echo -e ""
+        elif [ -s ./tables/${strain}_antismash.table ]; then
+                echo -e "antiSMASH output found. Skipping antiSMASH"
+                echo -e ""
+                antismash_run=false
+        elif [ ! -s ./tables/${strain}_antismash.table ]; then
+                echo -e "antiSMASH output files are empty. Deleting empty files and rerunning antiSMASH." 
+                rm -rf antiSMASH
+		rm ./tables/${strain}_antismash.table
+		rm ./tables/${strain}_antismash.table.beav.subset
+        fi
+fi
+
+
 if $antismash_run; then
     antismash ${strain}_cds_subset.gbk --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
     python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i ./antiSMASH -o ${strain}_antismash.table
+    mv *.beav.subset ./tables/ 2> /dev/null
+    mv *.table ./tables/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
@@ -514,11 +684,30 @@ echo -e ""
 echo -e "Identifying phage (DBSCAN-SWA)"
 echo -e ""
 
+
+if $continue_run && $dbscanswa_run; then
+        echo -e "Checking phage annotations"
+        echo -e ""
+        if [ ! -f ./tables/prophage.table ]; then
+                echo -e "DBSCAN-SWA output files do not exist. Rerunning DBSCAN-SWA"
+                echo -e ""
+        elif [ -s ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt ]; then
+                echo -e "DBSCAN-SWA output found. Skipping DBSCAN-SWA"
+                echo -e ""
+                dbscanswa_run=false
+        elif [ ! -s ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt ]; then
+                echo -e "DBSCAN-SWA output files are empty. Deleting empty files and rerunning DBSCAN-SWA." 
+                rm -rf DBSCAN-SWA
+		rm ./tables/prophage.table
+        fi
+fi
+
+
 if $dbscanswa_run; then
 	sed -i 's/gnl|Bakta|//g' ${strain}_cds_subset.gbk
 	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA"
 	cut -f 2,5-8 ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
-
+	mv *.table ./tables/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
@@ -531,6 +720,23 @@ echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Characterizing amino acid biosynthesis and small carbon metabolite catabolism (GapMind)"
 echo -e ""
+
+if $continue_run && $gapmind_run; then
+        echo -e "Checking amino acid biosynthesis and small carbon metabolite cartabolism annotations"
+        echo -e ""
+        if [ ! -f ./GapMind/combined_GapMind_results.tab ]; then
+                echo -e "GapMind output files do not exist. Rerunning GapMind"
+                echo -e ""
+        elif [ -s ./GapMind/combined_GapMind_results.tab ]; then
+                echo -e "GapMind output found. Skipping GapMind"
+                echo -e ""
+                gapmind_run=false
+        elif [ ! -s ./GapMind/combined_GapMind_results.tab ]; then
+                echo -e "GapMind output files are empty. Deleting empty files and rerunning GapMind." 
+                rm -rf GapMind
+        fi
+fi
+
 
 if $gapmind_run; then
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
@@ -548,10 +754,25 @@ echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Identifying integrative conjugative elements [ICEs] (TIGER2)"
 echo -e ""
+if $continue_run && $tiger_run && [ ! -z $tiger_blast_database ]; then
+        echo -e "Checking integrative conjugative element annotations"
+        echo -e ""
+        if [ ! -f ./tables/${strain}_TIGER2_final.table.out ]; then
+                echo -e "TIGER2 output files do not exist. Rerunning TIGER2"
+                echo -e ""
+        elif [ -f ./tables/${strain}_TIGER2_final.table.out ]; then
+                echo -e "TIGER2 output found. Skipping TIGER2"
+                echo -e ""
+                tiger_run=false
+        fi
+fi
 
-if [ "$tiger_run" ] && [ ! -z "$tiger_blast_database" ]; then
+
+if $tiger_run && [ ! -z "$tiger_blast_database" ]; then
 	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread"
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
+	mv *.table ./tables/ 2> /dev/null
+	mv *.table.out ./tables/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
@@ -603,52 +824,34 @@ echo -e "Combining annotations and preparing final output files"
 cd ..
 python $BEAV_DIR/scripts/combine_annotations.py "$strain" 
 
-
-mkdir ${strain}/bakta
-
-mv ${strain}/${strain}.txt ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.embl ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.faa ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.faa.idx ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.ffn ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.fna ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.gbff ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.gbk ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.gff3 ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.json ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.nofasta.gff3 ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}_cds_subset.gbk ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.tsv ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/ 2> /dev/null
-mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
-
 #convert gbk to gff3 format
 bp_genbank2gff3 --quiet --noinfer ${strain}/${strain}_final.gbk -out stdout | sed '/^##FASTA$/,$d' > ${strain}/${strain}_final.no_fasta.gff3
 cp ${strain}/${strain}_final.no_fasta.gff3 ${strain}/${strain}_final.gff3
 cat ${strain}/bakta/${strain}.fna | sed 's/ .*//g' >> ${strain}/${strain}_final.gff3
 
-mkdir ${strain}/DefenseFinder
 
-mv ${strain}/defense_finder_* ${strain}/DefenseFinder/ 2> /dev/null
 
 rm ${strain}/genomelist
 
-mkdir ${strain}/tables
-mv ${strain}/*.table ${strain}/tables/ 2> /dev/null
-mv ${strain}/*.table.out ${strain}/tables/ 2> /dev/null
-mv ${strain}/*.beav.subset ${strain}/tables/ 2> /dev/null
 
-mkdir ${strain}/logs
-mv ${strain}/${strain}.log ${strain}/logs/bakta.log
+mkdir ${strain}/logs 2> /dev/null
+mv ${strain}/${strain}.log ${strain}/logs/bakta.log 2> /dev/null
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
+if $continue_run && $circos_run; then
+	if [ -f ./${strain}/${strain}_final.circo.png ] || [ -f ./${strain}/${strain}_final.oncogenes.png ]; then
+		circos_run=false
+	fi
+fi
 
-$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
-mv ${strain}_final.circo.png ${strain}
-mv ${strain}_final.oncogenes.png ${strain}
 
+if $circos_run; then
+	$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
+	mv ${strain}_final.circo.png ${strain}
+	mv ${strain}_final.oncogenes.png ${strain}
+fi
 
 echo -e ""
 echo -e "Done"
