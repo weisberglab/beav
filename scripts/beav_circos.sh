@@ -12,8 +12,8 @@ CONTIG=`cat ${beav_dir}/*oncogenic_plasmid_final.out.contiglist | cut -f 1 | tr 
 if [ -z "$CONTIG" ]
 then
     echo "python3 beav_circos.py --input $GBK"
-    python3 beav_circos.py --input $GBK
+    python3 $BEAV_DIR/scripts/beav_circos.py --input $GBK
 else
     echo "python3 beav_circos.py --input $GBK --contig $CONTIG"
-    python3 beav_circos.py --input $GBK --contig $CONTIG
+    python3 $BEAV_DIR/scripts/beav_circos.py --input $GBK --contig $CONTIG
 fi
