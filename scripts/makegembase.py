@@ -9,7 +9,7 @@ output_handle = open(faa_filename, "w")
 output_handletopo = open(topo_filename, "w")
 
 
-for genbank_file in glob.glob("*.gbff"):
+for genbank_file in glob.glob("bakta/*.gbff"):
     input_handle  = open(genbank_file, "r")
     for seq_record in SeqIO.parse(input_handle, "genbank") :
         output_handletopo.write("%s_%s : circular\n" % (
