@@ -27,7 +27,7 @@ for o, a in opts:
 strain=str(strain)
 
 userdata = {"email1": email, "descri": strain + " operons", "genepairs": "si", "operons": "si", "cogs": "si","orfsdescri": "si"}
-files = {'fastafile': open(strain + '.fna', 'rb'), 'gfffile': open(strain + '.gbff.gff', 'rb')}
+files = {'fastafile': open(f"bakta/{strain}" + '.fna', 'rb'), 'gfffile': open(strain + '.gbff.gff', 'rb')}
 
 try:
 	#need form action url for post, not original webpage
