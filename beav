@@ -426,7 +426,7 @@ if $operon_run; then
     echo -e ""
 	echo -e "Converting input"
     #format gff for operon-mapper
-    bp_genbank2gff3 --quiet ${strain}.gbff
+    bp_genbank2gff3 --quiet bakta/${strain}.gbff
 	echo -e "Submitting job to webserver"
     #submit operon-mapper job to webserver
     python ${BEAV_DIR}/scripts/submit_operon-mapper_job.py --email $email --strain $strain
