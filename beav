@@ -16,7 +16,6 @@ dbscanswa_run=true
 operon_run=false
 continue_run=false
 bakta_run=true
-circos_run=true
 thread=1
 output=$PWD
 bakta_args=""
@@ -840,18 +839,7 @@ mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
-if $continue_run && $circos_run; then
-	if [ -f ./${strain}/${strain}_final.circo.png ] || [ -f ./${strain}/${strain}_final.oncogenes.png ]; then
-		circos_run=false
-	fi
-fi
 
-
-if $circos_run; then
-	$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
-	mv ${strain}_final.circo.png ${strain}
-	mv ${strain}_final.oncogenes.png ${strain}
-fi
 
 echo -e ""
 echo -e "Done"
