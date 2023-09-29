@@ -24,6 +24,7 @@ antismash_args=""
 input_file=""
 tiger_blast_database=""
 email=""
+circos_run=true
 
 error_exit()
 {
@@ -840,6 +841,17 @@ mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 echo -e ""
 echo -e "Final annotation output: ${strain}_final.gbk"
 
+if $continue_run && $circos_run; then
+	if [ -f ./${strain}/${strain}_final.circo.png ] || [ -f ./${strain}/${strain}_final.oncogenes.png ]; then
+		circos_run=false
+	fi
+fi
+
+if $circos_run; then
+	$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
+	mv ${strain}_final.circo.png ${strain}
+	mv ${strain}_final.oncogenes.png ${strain}
+fi
 
 echo -e ""
 echo -e "Done"
