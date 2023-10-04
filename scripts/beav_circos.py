@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 import argparse
+import sys
+sys.path.insert(0, '../software/pyCirclize/src/')
+
 from pycirclize import Circos
 from pycirclize.parser import Genbank
 import numpy as np
