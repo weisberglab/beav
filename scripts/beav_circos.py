@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 import argparse
 import sys
-sys.path.insert(0, '../software/pyCirclize/src/')
 
-from pycirclize import Circos
-from pycirclize.parser import Genbank
+from ..software.pycirclize import Circos
+from ..software.pycirclize.parser import Genbank
 import numpy as np
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
