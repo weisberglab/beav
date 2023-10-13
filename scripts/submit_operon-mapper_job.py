@@ -2,12 +2,17 @@
 import requests
 import re
 import getopt, sys
+import os
+import os.path
 
 #email="weisbeal@oregonstate.edu"
 email=""
 strain=""
 #strain="AS1D4"
 
+#path to zipped files
+zip_fna_path = f"./{strain}.fna.zip"
+zip_gff_path = f"./{strain}.gbff.gff.zip"
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "es", ["email=", "strain="])
@@ -27,7 +32,12 @@ for o, a in opts:
 strain=str(strain)
 
 userdata = {"email1": email, "descri": strain + " operons", "genepairs": "si", "operons": "si", "cogs": "si","orfsdescri": "si"}
-files = {'fastafile': open(f"bakta/{strain}" + '.fna', 'rb'), 'gfffile': open(strain + '.gbff.gff', 'rb')}
+if os.path.isfile(zip_fna_path) == True:
+    files = {'fastafile': open(strain + '.fna.zip', 'rb'), 'gfffile': open(strain + '.gbff.gff.zip', 'rb')}
+
+if os.path.isfile(zip_fna_path) == False:
+    files = {'fastafile': open('bakta/' + strain + '.fna', 'rb'), 'gfffile': open(strain + '.gbff.gff.gz', 'rb')}
+
 
 try:
 	#need form action url for post, not original webpage
