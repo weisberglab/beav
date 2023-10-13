@@ -405,20 +405,19 @@ fi
 
 
 if $operon_run && $continue_run; then
-	echo -e "Checking Operon-mapper output"
-	if  [ ! -f ./operon-mapper_results_url ]; then
-		echo -e "Operon-mapper output does not exist. Rerunning Operon-mapper"
-		echo -e ""
-	elif [ -s ./operon-mapper_results_url ]; then 
-		echo -e "Outfiles found. Skipping Operon-mapper"
-		echo -e ""
-		operon_run=false
-	elif [ ! -s ./operon-mapper_results_url ]; then
-		echo -e "Output empty. Rerunning Operon-mapper"
-		echo -e ""
-	fi
+        echo -e "Checking Operon-mapper output"
+        if  [ ! -f ./operon-mapper_results_url ]; then
+                echo -e "Operon-mapper output does not exist. Rerunning Operon-mapper"
+                echo -e ""
+        elif ! grep --quiet "http://biocomputo.ibt.unam.mx/operon_mapper/out" ./operon-mapper_results_url; then 
+                echo -e "Operon-mapper error found. Rerunning Operon-mapper"
+                echo -e ""
+        elif grep --quiet "http://biocomputo.ibt.unam.mx/operon_mapper/out" ./operon-mapper_results_url; then
+                echo -e "Output found. Skipping Operon-mapper"
+                echo -e ""
+                operon_run=false
+        fi
 fi
-
 if $operon_run; then
     echo -e "----------------------------------------------------------"
     echo -e ""
@@ -427,6 +426,37 @@ if $operon_run; then
 	echo -e "Converting input"
     #format gff for operon-mapper
     bp_genbank2gff3 --quiet bakta/${strain}.gbff
+    if [ ! -f ${strain}.gbff.gff.gz ]; then
+        gzip ${strain}.gbff.gff
+    fi
+    echo -e "Checking file sizes"
+    #looks at file information and gets size in MB
+    fna_file=$(ls -l --block-size=MB bakta/${strain}.fna | awk '{print $5}' | sed 's/MB//g')
+    gff_files=$(ls -l --block-size=MB ${strain}.gbff.gff.gz | awk '{print $5}'| sed 's/MB//g')
+    #combined file size
+    sum=$(($fna_file + $gff_files))
+    echo $sum
+    #Operon-mapper max size is 38MB
+    maxsize=38
+
+    if (($sum > maxsize)); then
+        echo -e ""
+        echo -e "File sum is greater than 38MB. Zipping files"
+        zip ${stain}.fna.zip bakta/${strain}.fna
+        zip ${strain}.gbff.gff.zip ${strain}.gbff.gff
+        #getting size of zipped files in MB
+        zip_fna_file=$(ls -l --block-size=MB ${strain}.fna.zip | awk '{print $5}' | sed 's/MB//g')
+        zip_gff_files=$(ls -l --block-size=MB ${strain}.gff.zip | awk '{print $5}'| sed 's/MB//g')
+        zip_sum=$(($zip_fna_file + $zip_gff_files))
+        if (($zip_sum < maxsize)); then
+            echo -e ""
+            echo -e "Zipped file sum is larger then 38MB. Operon-Mapper can not run"
+            operon_run=false
+        fi
+    fi
+
+fi
+if $operon_run; then
 	echo -e "Submitting job to webserver"
     #submit operon-mapper job to webserver
     python ${BEAV_DIR}/scripts/submit_operon-mapper_job.py --email $email --strain $strain
