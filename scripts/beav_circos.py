@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 import argparse
-import sys
+import sys, os
+sys.path.insert(0, f'{os.environ["BEAV_DIR"]}/software/pycirclize/src/')
 
-from ..software.pycirclize import Circos
-from ..software.pycirclize.parser import Genbank
+
+from pycirclize import Circos
+from pycirclize.parser import Genbank
 import numpy as np
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
@@ -36,7 +38,8 @@ def all_contig_circos(gbk_file):
 
 
     circos = Circos(seqid2size, space=1, start=15, end=345)
-    circos.text(f"{get_base_file_name(gbk_file)}\n{len(circos.sectors)} contig(s)", r=12, size=8)
+    #main_kwargs = dict(ha="right", va="top")
+    #circos.text(f"{get_base_file_name(gbk_file)}\n{len(circos.sectors)} contig(s)", r=12, size=8, **main_kwargs)
 
     # Loop through the contigs
     contig_i = 0
@@ -151,7 +154,7 @@ def all_contig_circos(gbk_file):
         ],
         bbox_to_anchor=(0.5, 0.45),
         loc="center",
-        ncols=2,
+        #ncols=2,
         fontsize=6
     )
 
@@ -207,7 +210,8 @@ def oncogenic_circos(gbk_file):
     
     #Define sector for single contig
     circos = Circos(seqid2size, space=3)
-    circos.text(f"{get_base_file_name(gbk_file)}\nTi/Ri plasmid", r=5, size=8)
+    #main_kwargs = dict(ha="center", va="top") 
+    #circos.text(f"{get_base_file_name(gbk_file)}\nTi/Ri plasmid", r=5, size=8, **main_kwargs)
 
     # Extract CDS gene labels
     # List containing CDS product labels if gene names are not present
@@ -350,7 +354,7 @@ def oncogenic_circos(gbk_file):
         ],
         bbox_to_anchor=(0.5, 0.45),
         loc="center",
-        ncols=2,
+        #ncols=2,
         fontsize=6
     )
     fig.savefig(f'{get_base_file_name(gbk_file)}.oncogenes.png')
