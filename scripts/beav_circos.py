@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import argparse
 import sys, os
-sys.path.insert(0, f'{os.environ["BEAV_DIR"]}/software/pycirclize/src/')
+sys.path.insert(0, f'{os.environ["BEAV_DIR"]}/software/PyCirclize/src/')
 
 
 from pycirclize import Circos
