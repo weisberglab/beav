@@ -156,7 +156,7 @@ beav --input /path/to/file/test.fna --threads 8 --bakta_arguments '--db /path/to
 # Citation
 Beav can be cited as:
 
-Jung J. and Weisberg A.J, Beav: a bacterial genome and mobile element annotation pipeline, (2023), GitHub repository, https://github.com/weisberglab/beav
+Jung J., Rahman A., Schiffer A., and Weisberg A.J, Beav: a bacterial genome and mobile element annotation pipeline, (2023), GitHub repository, https://github.com/weisberglab/beav
 
 
 
