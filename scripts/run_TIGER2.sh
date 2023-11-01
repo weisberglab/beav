@@ -15,11 +15,11 @@ echo -e "TIGER2: preparing input"
 
 mkdir TIGER2
 cd TIGER2
-cp ./${strain}/bakta/${strain}.fna ./genome.fa
-echo -e "357	Bacteria sp. $strain	Bacteria;;;;;;;	11	$strain" > genome.tax
+cp ../bakta/${strain}.fna ./genome.fa
+echo -e "357    Bacteria sp. $strain    Bacteria;;;;;;; 11	$strain" > genome.tax
 mkdir protein
-cp ./${strain}/bakta/${strain}.faa protein/protein.faa
-cp ./${strain}/bakta/${strain}.gff3 protein/protein.gff
+cp ../bakta/${strain}.faa protein/protein.faa
+cp ../bakta/${strain}.gff3 protein/protein.gff
 oldlocus=`head -n1 protein/protein.faa | sed 's/>//g;s/_[0-9]\+.*//g'`
 sed -i "s/$oldlocus/$strain/g" protein/protein*
 
