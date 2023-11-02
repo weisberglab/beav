@@ -561,6 +561,14 @@ fi
 
 echo -e ""
 echo -e "Done"
+echo -e ""
+echo -e "----------------------------------------------------------"
+echo -e ""
+echo -e "Indentifying oriT"
+$BEAV_DIR/scripts/find_oriT.sh bakta/${strain}.fna $thread
+echo -e ""
+echo -e "Done"
+echo -e "----------------------------------------------------------"
 
 echo -e ""
 echo -e "----------------------------------------------------------"
