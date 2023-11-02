@@ -101,6 +101,8 @@ usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakt
                 Skip detection and annotation of prophage
         --skip_antismash
                 Skip detection and annotation of biosynthetic gene clusters
+        --continue
+                Continue running BEAV from any point in the pipeline. Rerun programs that gave an error or were skipped. 
     General:
         --help, -h
                 Show BEAV help message
