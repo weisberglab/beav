@@ -11,6 +11,9 @@ The **beav** pipeline also includes several tools and databases that enhance the
 
 An optional <i>Agrobacterium</i>-specific pipeline identifies the presence of Ti and Ri plasmids and classifies them under the Weisberg et al. 2020 scheme. It also annotates Ti/Ri plasmid elements including T-DNA borders, overdrive, virbox, trabox, and other binding sites, and determines the biovar and genomospecies of the input strain. Virulence and T-DNA genes, including opine synthase and transport/catabolism loci, are also correctly named and annotated.
 
+<p align="center">
+<img src="https://github.com/weisberglab/beav/blob/main/beav_workflow.png" width=55% height=55%><br>
+    
 # **Installation**
 The **beav** pipeline requires a number of programs and databases be installed. Therefore, it is highly encouraged and recommended to use conda to install **beav** and all of its dependencies.
 
