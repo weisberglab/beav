@@ -902,6 +902,8 @@ bakver=`grep 'version' $output/${strain}/logs/bakta.log | head -n1 | sed 's/^.*v
 echo -e "Bakta version $bakver"
 echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685."
 echo -e ""
+echo -e "EMBOSS:fuzznuc" 
+echo -e "EMBOSS: The European Molecular Biology Open Software Suite (2000) Rice,P. Longden,I. and Bleasby,A. Trends in Genetics 16, (6) pp276--277 "
 
 if $macsyfinder_run; then
 	macver=`head -n1 $output/${strain}/MacSyFinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
