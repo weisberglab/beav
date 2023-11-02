@@ -889,6 +889,71 @@ if $circos_run; then
 	mv ${strain}_final.oncogenes.png ${strain}
 fi
 
+touch ${strain}/summary.table
+echo -e "Summary Table"
+echo -e ""
+echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons"
+if [ -f ${strain}/MacSyFinder_TXSS/all_systems.tsv ]
+then
+        secretion_systems=` cat ${strain}/MacSyFinder_TXSS/all_systems.tsv | cut -f 5 | sort | uniq | grep -v "#" | grep -v "model_fqn" | sed '/^[[:space:]]*$/d' | wc -l `
+else
+        secretion_systems="N/A"
+fi
+
+if [ -f ${strain}/DefenseFinder/defense_finder_systems.tsv ]
+then
+        defense_systems=` cat ${strain}/DefenseFinder/defense_finder_systems.tsv | cut -f 2 | grep -v "type" | sort | uniq | wc -l `
+else
+        defense_systems="N/A"
+fi
+
+if [ -f  ${strain}/tables/prophage.table ]
+then
+        phages=` cat ${strain}/tables/prophage.table | cut -f 5 | sort | uniq | wc -l `
+else
+        phages="N/A"
+fi
+if [ -f ${strain}/tables/${strain}_antismash.table.beav.subset ]
+then
+        antiSMASH=` cat ${strain}/tables/${strain}_antismash.table.beav.subset | grep -v "cluster" | cut -f 2 | sort | uniq | wc -l `
+else
+        antiSMASH="N/A"
+fi
+if [ -f ${strain}/Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]
+then
+        integrons=` cat ${strain}/Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | cut -f 1 | grep -v "ID_integron" | grep -v "#" | uniq | wc -l `
+else
+        integrons="N/A"
+fi
+
+if [ -f ${strain}/tables/tiger_cut.table ]
+then
+        ice=` cat ${strain}/tables/tiger_cut.table | uniq | wc -l `
+else
+        ice="N/A"
+fi
+
+if [ -f ${strain}/GapMind/carbon.sum.rules ]
+then
+        gap_mind=` cat ${strain}/GapMind/carbon.sum.rules | cut -f 5,4,7-8 | grep "all" | awk '$4 == 0' | awk '$3 == 0' | cut -f 1 | sort | uniq | awk 'BEGIN { ORS = ", " } { print }'`
+else
+        gap_mind=`N/A`
+fi
+echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" >> ./${strain}/summary.table
+
+echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}"
+echo -e ""
+echo -e "Small carbon catabolism pathways: ${gap_mind}"
+
+if [ -f ${strain}/${strain}.oncogenic_plasmid_final.out ]
+then
+        plasmid_type=`cat ${strain}/${strain}.oncogenic_plasmid_final.out | sed -n "2p"`
+        echo -e ""
+        echo -e "Agrobacterium plasmid type: ${plasmid_type}"
+fi
+
+
+
 echo -e ""
 echo -e "Done"
 echo -e ""
