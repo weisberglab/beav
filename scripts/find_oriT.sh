@@ -18,9 +18,9 @@ blastn -task blastn-short -outfmt '6 std qlen slen qseq sseq' -num_threads $thre
 	endpos=`echo -e "$line" | cut -f 10`
 	evalue=`echo -e "$line" | cut -f 11`
 	if [[ "$endpos" -gt "$startpos" ]]; then
-		strand="+"
+		strand="+1"
 	else
-		strand="-"
+		strand="-1"
 		temppos="$startpos"
 		startpos="$endpos"
 		endpos="$temppos"
@@ -46,7 +46,7 @@ cat oriT_hits.stranded | sort -k1,1 -k2,2g | bedtools merge -c 4,5,6 -o collapse
 	newname=`echo "$namelist" | paste - <(echo "$evallist") | paste - <(echo "$strandlist") | sort -k2,2g | head -n1 `
 	newstrand=`echo -e "$newname" | cut -f 3`
 	newannot=`echo -e "$newname" | cut -f 1-2 | tr '\t' ';'`
-	echo -e "$contig	oriT	$startpos	$endpos	$newstrand	Reference:$newannot" >> oriT.table
+	echo -e "$contig	oriT	$startpos	$endpos	$newstrand	$newannot" >> oriT.table
 done
 
 rm oriT_hits.stranded
