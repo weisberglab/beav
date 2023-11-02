@@ -131,6 +131,10 @@ The --agrobacterium option activates an additional pipeline to provide agrobacte
 
 The skip options allow for specified programs to be skipped if the annotation is not needed or required programs are not installed. 
 
+**--continue**
+
+The continue option will check the output of existing Beav runs and rerun programs that errored or were skipped. This option allows for the pipeline to be used with existing Bakta runs. 
+
 # Examples
 **Minimal run**
 
