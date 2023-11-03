@@ -20,7 +20,7 @@ integron_path = f"./{strain}/tables/integron.table"
 integron_gene_path = f"./{strain}/tables/integron_gene.table"
 gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
 operon_path = f"./{strain}/operon-mapper_results/list_of_operons.table"
-
+oriT_path = f"./{strain}/tables/oriT.table"
 outfile_path = f"./{strain}/{strain}_final.gbk"
 faa_path = f"./{strain}/{strain}_final.faa"
 ffn_path = f"./{strain}/{strain}_final.ffn"
@@ -33,6 +33,15 @@ if os.path.isfile(macsyfinder_path) == True:
             (key,values) = line.split()
             locus_dict[key] = values 
 
+oriT = {}
+if os.path.isfile(oriT_path) == True:
+    with open (f"./{strain}/tables/oriT.table", "r") as ori_table:
+         for line in ori_table:
+             contig,annot,start,end,strand,reference = line.strip().split('\t')
+             if contig in oriT:
+                 oriT[contig].append((contig,annot,start,end,strand,reference))
+             else:
+                 oriT[contig] = [(contig,annot,start,end,strand,reference)]
 
 defense_dict = {}
 if os.path.isfile(defensefinder_path) == True:
@@ -175,6 +184,11 @@ for record in SeqIO.parse(f"./{strain}/bakta/{strain}.gbff","gb"):
                 feature.qualifiers["operon"] = operon_dict[locus_tags[0]]
 
 #adding new features
+    if record.id in oriT:
+        for oriT_annot in oriT[record.id]:
+            oriT_new_feat = SeqFeature((FeatureLocation(int(oriT_annot[2]), int(oriT_annot[3]), strand = int(oriT_annot[4]))), type="misc_feature", qualifiers = {"note": "oriT", "reference": [oriT_annot[5]], "inference" : "blastn"})
+            record.features.append(oriT_new_feat)
+    
     if record.id in hmmdb:
         for current_border in hmmdb[record.id]:
             new_feat = SeqFeature((FeatureLocation(int(current_border[1]), int(current_border[2]), strand = int(current_border[4]))),type="misc_feature", qualifiers= {"note": [current_border[3]], "inference" : "BEAV"})
