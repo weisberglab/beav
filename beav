@@ -565,7 +565,9 @@ echo -e ""
 echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Indentifying oriT"
+echo -e ""
 $BEAV_DIR/scripts/find_oriT.sh bakta/${strain}.fna $thread
+mv oriT.table ./tables
 echo -e ""
 echo -e "Done"
 echo -e ""
