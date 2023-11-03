@@ -894,7 +894,7 @@ fi
 touch ${strain}/summary.table
 echo -e "Summary Table"
 echo -e ""
-echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons"
+echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons" >> ./${strain}/summary.table
 if [ -f ${strain}/MacSyFinder_TXSS/all_systems.tsv ]
 then
         secretion_systems=` cat ${strain}/MacSyFinder_TXSS/all_systems.tsv | cut -f 5 | sort | uniq | grep -v "#" | grep -v "model_fqn" | sed '/^[[:space:]]*$/d' | wc -l `
@@ -943,9 +943,8 @@ else
 fi
 echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" >> ./${strain}/summary.table
 
-echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}"
 echo -e ""
-echo -e "Small carbon catabolism pathways: ${gap_mind}"
+echo -e "Small carbon catabolism pathways: ${gap_mind}" >> ./${strain}/summary.table
 
 if [ -f ${strain}/${strain}.oncogenic_plasmid_final.out ]
 then
