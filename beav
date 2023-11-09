@@ -478,7 +478,7 @@ touch borders.log
 if $continue_run && $agrobacterium_run; then
 	echo -e "Checking Agrobacterium annotations"
 #if all listed outputs are present then skip
-	if [ -s ${strain}.agrobacteria_taxonomy.out ] && [ -s ${strain}.oncogenic_plasmid_final.out ] && [ -s ${strain}.agro_ani.out ] && [ -s ${strain}.oncogenic_plasmid_type.sketch.out ] && [ -s ${strain}.oncogenic_plasmid_final.out.contiglist ] && [ -s ${strain}.oncogenic_plasmid_contigs.sketch.out ] && [ -s ./borders/${strain}.left_T-DNA_border ] || [ ! -s ./borders/${strain}.right_T-DNA_border ]; then
+	if [ -s ${strain}.agrobacteria_taxonomy.out ] && [ -s ${strain}.oncogenic_plasmid_final.out ] && [ -s ${strain}.agro_ani.out ] && [ -s ${strain}.oncogenic_plasmid_type.sketch.out ] && [ -s ${strain}.oncogenic_plasmid_final.out.contiglist ] && [ -s ${strain}.oncogenic_plasmid_contigs.sketch.out ] && [ -s ./borders/${strain}.left_T-DNA_border ] && [ ! -s ./borders/${strain}.right_T-DNA_border ]; then
 		agrobacterium_run=false
 		echo -e "Outfiles found. Skipping Agrobacterium pipeline"
 		echo -e ""
