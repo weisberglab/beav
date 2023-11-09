@@ -497,13 +497,14 @@ if $agrobacterium_run; then
 	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm bakta/"$strain".fna >> borders.log 
 	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm bakta/"$strain".fna >> borders.log
 	nhmmer --tblout "$strain".overdrive $BEAV_DIR/models/overdrive.hmm bakta/"$strain".fna >> borders.log
+	fuzznuc --sequence bakta/"$strain".fna --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement 
+	fuzznuc --sequence bakta/"$strain".fna --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement 
+	
 fi
 
 nhmmer --tblout "$strain".dif $BEAV_DIR/models/dif.hmm bakta/"$strain".fna >> borders.log
 nhmmer --tblout "$strain".nodbox $BEAV_DIR/models/nodbox.hmm bakta/"$strain".fna >> borders.log
 nhmmer --tblout "$strain".ttsbox $BEAV_DIR/models/ttsbox.hmm bakta/"$strain".fna >> borders.log
-fuzznuc --sequence bakta/"$strain".fna --pattern RTTDCAWWTGHAAY -outfile ${strain}.virbox -rformat excel --complement 
-fuzznuc --sequence bakta/"$strain".fna --pattern WNGTGMARAWYTGCACDW -outfile ${strain}.trabox -rformat excel --complement 
 fuzznuc -pattern 'GGAAC[CT]N(15,17)CCACNNA' -sequence bakta/"$strain".fna -complement -outfile ${strain}.hrp_box.out -rformat excel 
 fuzznuc -pattern 'TTCGBN(15)TTCGB' -sequence bakta/"$strain".fna -complement -outfile ${strain}.pip_box.out -rformat excel 
 
