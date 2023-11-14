@@ -2,8 +2,6 @@
  
 version="0.5.5"
 
-how_help=false
-
 antismash_run=true
 agrobacterium_run=false
 macsyfinder_run=true
@@ -32,6 +30,51 @@ error_exit()
 	exit 1
 }
 
+show_help()
+{
+    echo -e "usage: beav [--input INPUT] [--output OUTPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
+    BEAV- Bacterial Element Annotation reVamped
+    Input/Output:
+        --input, -i INPUT.fna
+                Input file in fasta nucleotide format (Required)
+        --output DIRECTORY
+                Output directory (default: current working directory)
+        --strain STRAIN
+                Strain name (default: input file prefix)
+        --bakta_arguments ARGUMENTS
+                Additional arguments specific to Bakta
+        --antismash_arguments ARGUMENTS
+                Additional arguments specific to antiSMASH (Default: \"$antismash_args\")
+        --tiger_blast_database DATABASE_PATH
+                Path to a reference genome blast database for TIGER2 ICE analysis (Required unless --skip_tiger is used)
+        --run_operon_email EMAIL
+                Run the Operon-mapper pipeline [remote]. Requires an email address for the operon-mapper webserver job
+    Options:
+        --agrobacterium
+                Agrobacterium specific tools that identify biovar/species group, Ti/Ri plasmid, T-DNA borders, virboxes and traboxes
+        --skip_macsyfinder
+                Skip detection and annotation of secretion systems
+        --skip_integronfinder
+                Skip detection and annotation of integrons
+        --skip_defensefinder
+                Skip detection and annotation of anti-phage defense systems
+        --skip_tiger
+                Skip detection and annotation of integrative conjugative elements (ICEs)
+        --skip_gapmind
+                Skip detection of amino acid biosynthesis and carbon metabolism pathways
+        --skip_dbscan-swa
+                Skip detection and annotation of prophage
+        --skip_antismash
+                Skip detection and annotation of biosynthetic gene clusters
+    General:
+        --help, -h
+                Show BEAV help message
+        --threads, -t
+                Number of CPU threads
+        --continue
+                Continue a previously started run"
+}
+
 echo -e "BEAV version $version" 
 echo -e ""
 
@@ -39,7 +82,8 @@ while [ $# -gt 0 ]
 do
     case $1 in
         -h|--help)
-            show_help=true
+            show_help
+            exit
             ;;
         --skip_antismash)
             antismash_run=false
@@ -95,10 +139,10 @@ do
             fi
             shift
             ;;
-        --output)
+        -o|--output)
             new_output=$2
             if [ ! -z $new_output ]; then
-                output=$new_ouput
+                output=$new_output
             fi
             shift
              ;;
@@ -130,52 +174,11 @@ do
                 operon_run=true
             fi
             shift
-            ;;             
+            ;;            
+			*) break
 	 esac
     shift
 done
-if [ $show_help ]; then
-	echo -e "usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
-    BEAV- Bacterial Element Annotation reVamped
-    Input/Output: 
-        --input, -i INPUT.fna
-                Input file in fasta nucleotide format (Required)
-        --output DIRECTORY
-                Output directory (default: current working directory)
-        --strain STRAIN
-                Strain name (default: input file prefix)
-        --bakta_arguments ARGUMENTS
-                Additional arguments specific to Bakta 
-        --antismash_arguments ARGUMENTS
-                Additional arguments specific to antiSMASH (Default: \"$antismash_args\") 
-        --tiger_blast_database DATABASE_PATH
-                Path to a reference genome blast database for TIGER2 ICE analysis (Required unless --skip_tiger is used)
-        --run_operon_email EMAIL
-				Run the Operon-mapper pipeline [remote]. Requires an email address for the operon-mapper webserver job
-    Options:
-        --agrobacterium
-                Agrobacterium specific tools that identify biovar/species group, Ti/Ri plasmid, T-DNA borders, virboxes and traboxes
-        --skip_macsyfinder
-                Skip detection and annotation of secretion systems
-        --skip_integronfinder
-                Skip detection and annotation of integrons 
-        --skip_defensefinder
-                Skip detection and annotation of anti-phage defense systems 
-        --skip_tiger
-                Skip detection and annotation of integrative conjugative elements (ICEs)
-        --skip_gapmind
-                Skip detection of amino acid biosynthesis and carbon metabolism pathways
-        --skip_dbscan-swa
-                Skip detection and annotation of prophage
-        --skip_antismash
-                Skip detection and annotation of biosynthetic gene clusters
-    General:
-        --help, -h
-                Show BEAV help message
-        --threads, -t
-                Number of CPU threads"
-	exit
-fi
 
 #Checks input arguments to make sure required arguements are present and exists
 
@@ -403,22 +406,59 @@ if $continue_run; then
         mkdir ./partial_runs 2> /dev/null
 fi
 
-
+operon_skipsubmit=false
 if $operon_run && $continue_run; then
         echo -e "Checking Operon-mapper output"
-        if  [ ! -f ./operon-mapper_results_url ]; then
-                echo -e "Operon-mapper output does not exist. Rerunning Operon-mapper"
-                echo -e ""
-        elif ! grep --quiet "http://biocomputo.ibt.unam.mx/operon_mapper/out" ./operon-mapper_results_url; then 
-                echo -e "Operon-mapper error found. Rerunning Operon-mapper"
-                echo -e ""
-        elif grep --quiet "http://biocomputo.ibt.unam.mx/operon_mapper/out" ./operon-mapper_results_url; then
+        if  [ -d ./operon-mapper_results ] && [ -f ./operon-mapper_results/list_of_operons.table ]; then
                 echo -e "Output found. Skipping Operon-mapper"
                 echo -e ""
                 operon_run=false
-        fi
+
+        elif [ -f ./oeron-mapper_results_url ] && grep --quiet "http://biocomputo.ibt.unam.mx/operon_mapper/out" ./operon-mapper_results_url; then 
+                echo -e "Operon-mapper partial results found. Checking for completed job"
+                echo -e ""
+				
+				jobisdone=false
+				jobstillrunning=false
+
+				URL=`tail -n1 operon-mapper_results_url`
+				submitstatus=`head -n1 operon-mapper_results_url`
+				jobnum=`echo -e "$URL" | sed 's/^.*out_//g;s/\.html$//g'`
+				
+				response=$(curl -L -s -w "%{http_code}" $URL)
+				http_code=$(tail -n1 <<< "$response")  # get the last line
+				content=$(sed '$ d' <<< "$response")
+					
+				if [[ "$http_code" -eq 200 ]] ; then
+					if echo "$content" | grep -qF 'Download' ; then
+						operonsurl=`echo -e "$content" | grep 'list_of_operons_' | sed 's/^.*href="//g;s/" TARGET.*//g' | sed 's#^\.\.#http://biocomputo.ibt.unam.mx/operon_mapper#g'`
+						if curl --head --silent --fail $operonsurl 2> /dev/null; then
+							jobisdone=true
+						fi
+					elif ! echo "$content" | grep -iqF 'error' ; then
+						jobstillrunning=true
+					fi
+				fi
+
+				if [ $jobisdone ]; then
+					echo -e "Original job is complete. Downloading results at end of run."
+					operon_run=false
+				elif [  $jobstillrunning ]; then
+					echo -e "Original job is still running. Checking results at end of run."
+					operon_skipsubmit=true
+				else
+					echo -e "Original job did not complete or results longer available. Resubmitting Operon-mapper job."
+					rm -f ./operon-mapper_results_url
+					rm -f ./testresponse.html
+				fi
+        else
+			#remove url and partial results
+			rm -f ./operon-mapper_results_url
+			rm -f ./testresponse.html
+			rm -rf ./operon-mapper_results
+		fi
 fi
-if $operon_run; then
+if $operon_run && ! $operon_skipsubmit; then
     echo -e "----------------------------------------------------------"
     echo -e ""
     echo -e "Submitting remote Operon-mapper job"
@@ -456,7 +496,7 @@ if $operon_run; then
     fi
 
 fi
-if $operon_run; then
+if $operon_run && ! $operon_skipsubmit; then
 	echo -e "Submitting job to webserver"
     #submit operon-mapper job to webserver
     python ${BEAV_DIR}/scripts/submit_operon-mapper_job.py --email $email --strain $strain
@@ -831,6 +871,19 @@ if $operon_run; then
     echo -e ""
 fi
 
+#if operons are present, check for vgrG clusters
+if  [ -d ./operon-mapper_results ] && [ -f ./operon-mapper_results/list_of_operons.table ]; then
+	
+	echo -e "Identifying T6SS vgrG operons"
+	echo -e ""
+
+	${BEAV_DIR}/scripts/identify_vgrG_clusters.sh $strain | tee T6SS_vgrG_cluster_list.out
+	
+	echo -e ""
+	echo -e "----------------------------------------------------------"
+	echo -e ""
+fi
+
 
 if $agrobacterium_run; then
     echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences"
@@ -888,10 +941,9 @@ if $circos_run; then
 	mv ${strain}_final.oncogenes.png ${strain}
 fi
 
-touch ${strain}/summary.table
-echo -e "Summary Table"
+echo -e "Summary of annotations"
 echo -e ""
-echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons" >> ./${strain}/summary.table
+echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons" | tee ./${strain}/summary.table
 if [ -f ${strain}/MacSyFinder_TXSS/all_systems.tsv ]
 then
         secretion_systems=` cat ${strain}/MacSyFinder_TXSS/all_systems.tsv | cut -f 5 | sort | uniq | grep -v "#" | grep -v "model_fqn" | sed '/^[[:space:]]*$/d' | wc -l `
@@ -934,20 +986,20 @@ fi
 
 if [ -f ${strain}/GapMind/carbon.sum.rules ]
 then
-        gap_mind=` cat ${strain}/GapMind/carbon.sum.rules | cut -f 5,4,7-8 | grep "all" | awk '$4 == 0' | awk '$3 == 0' | cut -f 1 | sort | uniq | awk 'BEGIN { ORS = ", " } { print }'`
+        gap_mind=` cat ${strain}/GapMind/carbon.sum.rules | cut -f 5,4,7-8 | grep "all" | awk '$4 == 0' | awk '$3 == 0' | cut -f 1 | sort | uniq | awk 'BEGIN { ORS = ", " } { print }' | sed 's/,\s\+$//g'`
 else
         gap_mind=`N/A`
 fi
-echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" >> ./${strain}/summary.table
+echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" | tee --append ./${strain}/summary.table
 
 echo -e ""
-echo -e "Small carbon catabolism pathways: ${gap_mind}" >> ./${strain}/summary.table
+echo -e "Small carbon catabolism pathways: ${gap_mind}" | tee --append ./${strain}/summary.table
 
 if [ -f ${strain}/${strain}.oncogenic_plasmid_final.out ]
 then
         plasmid_type=`cat ${strain}/${strain}.oncogenic_plasmid_final.out | sed -n "2p"`
         echo -e ""
-        echo -e "Agrobacterium plasmid type: ${plasmid_type}"
+        echo -e "Agrobacterium plasmid type: ${plasmid_type}" | tee --append ./${strain}/summary.table
 fi
 
 
@@ -959,7 +1011,7 @@ echo -e "The BEAV pipeline automates the use of a number of published software t
 echo -e 'If you use these results in a publication, please include the following in your methods section and cite:'
 echo -e ""
 
-echo -e "Jung J and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" 
+echo -e "Jung J, Rahman A, Schiffer A, and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" 
 echo -e ""
 bakver=`grep 'version' $output/${strain}/logs/bakta.log | head -n1 | sed 's/^.*version=//g'`
 echo -e "Bakta version $bakver"
