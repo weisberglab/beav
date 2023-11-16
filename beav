@@ -705,7 +705,7 @@ fi
 
 if $defensefinder_run; then
 	defense-finder run --db-type gembase ./bakta/${strain}.faa > defensefinder.log || error_exit "error occurred while running defense-finder"
-	cut -f 2,3 ./defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
+	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 	mv *.table ./tables/ 2> /dev/null
 	mkdir ${strain}/DefenseFinder
 	mv ${strain}/defense_finder_* ${strain}/DefenseFinder/ 2> /dev/null
