@@ -955,7 +955,7 @@ fi
 
 if [ -f ${strain}/DefenseFinder/defense_finder_systems.tsv ]
 then
-        defense_systems=` cat ${strain}/DefenseFinder/defense_finder_systems.tsv | cut -f 2 | grep -v "type" | sort | uniq | wc -l `
+        defense_systems=` cat ${strain}/DefenseFinder/${strain}_defense_finder_systems.tsv | cut -f 2 | grep -v "type" | sort | uniq | wc -l `
 else
         defense_systems="N/A"
 fi
