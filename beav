@@ -906,7 +906,9 @@ if $agrobacterium_run; then
     echo -e "----------------------------------------------------------"
     echo -e ""
 fi
-
+mv ${strain}_cds_subset.gbk ./bakta
+mv ${strain}.gbff.gff.gz ./bakta
+mv ${strain}.nofast.gff3 ./bakta
 echo -e "Combining annotations and preparing final output files"
 
 cd ..
