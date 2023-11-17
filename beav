@@ -708,7 +708,7 @@ if $defensefinder_run; then
 	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 	mv *.table ./tables/ 2> /dev/null
 	mkdir DefenseFinder
-	mv ${strain}_defense_finder_* ${strain}/DefenseFinder/ 2> /dev/null
+	mv ${strain}_defense_finder_* DefenseFinder/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
