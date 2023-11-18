@@ -908,7 +908,7 @@ if $agrobacterium_run; then
 fi
 mv ${strain}_cds_subset.gbk ./bakta
 mv ${strain}.gbff.gff.gz ./bakta
-mv ${strain}.nofast.gff3 ./bakta
+mv ${strain}.nofasta.gff3 ./bakta
 echo -e "Combining annotations and preparing final output files"
 
 cd ..
