@@ -533,6 +533,7 @@ if $continue_run && $agrobacterium_run; then
 	fi
 fi
 mkdir borders  2> /dev/null
+SECONDS=0
 if $agrobacterium_run; then
 	nhmmer --tblout "$strain".leftborder $BEAV_DIR/models/T-DNA_leftborder.hmm bakta/"$strain".fna >> borders.log 
 	nhmmer --tblout "$strain".rightborder $BEAV_DIR/models/T-DNA_rightborder.hmm bakta/"$strain".fna >> borders.log
@@ -594,6 +595,8 @@ cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 
 mv *.table ./tables/ 2> /dev/null
 mv ./borders.bed ./borders/
 mv ./temp_border.bed ./borders/
+ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo $ELAPSED
 
 
 echo -e ""
@@ -603,7 +606,10 @@ echo -e "----------------------------------------------------------"
 echo -e ""
 echo -e "Indentifying oriT"
 echo -e ""
+SECONDS=0
 $BEAV_DIR/scripts/find_oriT.sh bakta/${strain}.fna $thread
+ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo $ELAPSED
 mv oriT.table ./tables
 echo -e ""
 echo -e "Done"
@@ -632,8 +638,11 @@ if $continue_run && $macsyfinder_run; then
 fi
 
 if $macsyfinder_run; then
+	SECONDS=0
 	python $BEAV_DIR/scripts/makegembase.py
 	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all 1> /dev/null | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder"
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 	mv allgembase* ./MacSyFinder_TXSS/
 	mv macsyfinder.tsv.table ./tables/ 2> /dev/null
@@ -667,9 +676,11 @@ if $continue_run && $integronfinder_run; then
         fi
 fi
 
-
 if $integronfinder_run; then
-    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
+	SECONDS=0
+	integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
  	cat ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep -P "\tintI\t" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 
 	mv *.table ./tables/ 	
@@ -704,7 +715,10 @@ if $continue_run && $defensefinder_run; then
 fi
 
 if $defensefinder_run; then
+	SECONDS=0
 	defense-finder run --db-type gembase ./bakta/${strain}.faa 1> /dev/null | tee defensefinder.log|| error_exit "error occurred while running defense-finder"
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
 	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 	mv *.table ./tables/ 2> /dev/null
 	mkdir DefenseFinder
@@ -742,10 +756,13 @@ fi
 
 
 if $antismash_run; then
-    antismash ${strain}_cds_subset.gbk --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
-    python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i ./antiSMASH -o ${strain}_antismash.table
-    mv *.beav.subset ./tables/ 2> /dev/null
-    mv *.table ./tables/ 2> /dev/null
+	SECONDS=0
+	antismash ${strain}_cds_subset.gbk --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
+	python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i ./antiSMASH -o ${strain}_antismash.table
+	mv *.beav.subset ./tables/ 2> /dev/null
+	mv *.table ./tables/ 2> /dev/null
 	echo -e ""
 	echo -e "Done"
 else
@@ -779,8 +796,11 @@ fi
 
 
 if $dbscanswa_run; then
+	SECONDS=0
 	sed -i 's/gnl|Bakta|//g' ${strain}_cds_subset.gbk
 	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" 1> /dev/null | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA"
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
 	cut -f 2,5-8 ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
 	mv *.table ./tables/ 2> /dev/null
 	echo -e ""
@@ -814,9 +834,11 @@ fi
 
 
 if $gapmind_run; then
+	SECONDS=0
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
 	mv formatdb.log ./GapMind/
-
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+        echo $ELAPSED
 	echo -e ""
 	echo -e "Done"
 else
@@ -844,7 +866,10 @@ fi
 
 
 if $tiger_run && [ ! -z "$tiger_blast_database" ]; then
+	SECONDS=0
 	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread"
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
 	mv *.table ./tables/ 2> /dev/null
 	mv *.table.out ./tables/ 2> /dev/null
@@ -910,10 +935,11 @@ mv ${strain}_cds_subset.gbk ./bakta
 mv ${strain}.gbff.gff.gz ./bakta
 mv ${strain}.nofasta.gff3 ./bakta
 echo -e "Combining annotations and preparing final output files"
-
+SECONDS=0
 cd ..
 python $BEAV_DIR/scripts/combine_annotations.py "$strain" 
-
+ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+echo $ELAPSED
 #convert gbk to gff3 format
 bp_genbank2gff3 --quiet --noinfer ${strain}/${strain}_final.gbk -out stdout | sed '/^##FASTA$/,$d' > ${strain}/${strain}_final.no_fasta.gff3
 cp ${strain}/${strain}_final.no_fasta.gff3 ${strain}/${strain}_final.gff3
@@ -938,7 +964,10 @@ if $continue_run && $circos_run; then
 fi
 
 if $circos_run; then
+	SECONDS=0
 	$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	echo $ELAPSED
 	mv ${strain}_final.circo.png ${strain}
 	mv ${strain}_final.oncogenes.png ${strain}
 fi
