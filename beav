@@ -633,7 +633,7 @@ fi
 
 if $macsyfinder_run; then
 	python $BEAV_DIR/scripts/makegembase.py
-	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder"
+	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all 1> /dev/null | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder"
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 	mv allgembase* ./MacSyFinder_TXSS/
 	mv macsyfinder.tsv.table ./tables/ 2> /dev/null
@@ -669,7 +669,7 @@ fi
 
 
 if $integronfinder_run; then
-    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
+    integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
  	cat ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep -P "\tintI\t" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 
 	mv *.table ./tables/ 	
@@ -704,7 +704,7 @@ if $continue_run && $defensefinder_run; then
 fi
 
 if $defensefinder_run; then
-	defense-finder run --db-type gembase ./bakta/${strain}.faa > defensefinder.log || error_exit "error occurred while running defense-finder"
+	defense-finder run --db-type gembase ./bakta/${strain}.faa 1> /dev/null | tee defensefinder.log|| error_exit "error occurred while running defense-finder"
 	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 	mv *.table ./tables/ 2> /dev/null
 	mkdir DefenseFinder
