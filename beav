@@ -780,7 +780,7 @@ fi
 
 if $dbscanswa_run; then
 	sed -i 's/gnl|Bakta|//g' ${strain}_cds_subset.gbk
-	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA"
+	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" 1> /dev/null | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA"
 	cut -f 2,5-8 ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
 	mv *.table ./tables/ 2> /dev/null
 	echo -e ""
