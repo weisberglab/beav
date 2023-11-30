@@ -982,7 +982,7 @@ else
         secretion_systems="N/A"
 fi
 
-if [ -f ${strain}/DefenseFinder/defense_finder_systems.tsv ]
+if [ -f ${strain}/DefenseFinder/${strain}_defense_finder_systems.tsv ]
 then
         defense_systems=` cat ${strain}/DefenseFinder/${strain}_defense_finder_systems.tsv | cut -f 2 | grep -v "type" | sort | uniq | wc -l `
 else
