@@ -186,7 +186,7 @@ for record in SeqIO.parse(f"./{strain}/bakta/{strain}.gbff","gb"):
 #adding new features
     if record.id in oriT:
         for oriT_annot in oriT[record.id]:
-            oriT_new_feat = SeqFeature((FeatureLocation(int(oriT_annot[2]), int(oriT_annot[3]), strand = int(oriT_annot[4]))), type="misc_feature", qualifiers = {"note": "oriT", "reference": [oriT_annot[5]], "inference" : "blastn"})
+            oriT_new_feat = SeqFeature((FeatureLocation(int(oriT_annot[2]), int(oriT_annot[3]), strand = int(oriT_annot[4]))), type="oriT", qualifiers = {"reference": [oriT_annot[5]], "inference" : "blastn"})
             record.features.append(oriT_new_feat)
     
     if record.id in hmmdb:
