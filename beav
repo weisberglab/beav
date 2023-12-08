@@ -373,7 +373,7 @@ if $bakta_run; then
 	echo -e "Running Bakta"
 	echo -e ""
 
-	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta"
+	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta"
 
 	mkdir ${strain}/bakta
 
