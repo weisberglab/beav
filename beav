@@ -78,6 +78,8 @@ show_help()
 echo -e "BEAV version $version" 
 echo -e ""
 
+echo $@
+echo -e ""
 while [ $# -gt 0 ]
 do
     case $1 in
