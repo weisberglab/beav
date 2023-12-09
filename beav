@@ -956,7 +956,7 @@ rm ${strain}/genomelist
 mkdir ${strain}/logs 2> /dev/null
 mv ${strain}/${strain}.log ${strain}/logs/bakta.log 2> /dev/null
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
-
+mv ${strain}_final.oncogenic.gbk ${strain}
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "Final annotation output: ${strain}_final.gbk" | tee -a ${strain}/logs/Beav.log
 
