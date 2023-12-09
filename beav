@@ -706,7 +706,7 @@ if $continue_run && $defensefinder_run; then
         if [ ! -f ./tables/${strain}_defensefinder.tsv.table ]; then
                 echo -e "DefenseFinder ouput files do not exist. Rerunning DefenseFinder" | tee -a Beav.log
                 echo -e "" | tee -a Beav.log
-        elif grep --quiet "Analysis results were written to" ./logs/defensefinder.log; then
+        elif [ -s ./tables/${strain}_defensefinder.tsv.table ]; then
                 echo -e "DefenseFinder output found. Skipping DefenseFinder" | tee -a Beav.log
                 echo -e "" | tee -a Beav.log
                 defensefinder_run=false
