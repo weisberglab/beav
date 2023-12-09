@@ -75,11 +75,11 @@ show_help()
                 Continue a previously started run"
 }
 
-echo -e "BEAV version $version" 
-echo -e ""
+echo -e "BEAV version $version" | tee -a Beav.log  
+echo -e "" | tee -a Beav.log
 
-echo $@
-echo -e ""
+echo $@ | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 while [ $# -gt 0 ]
 do
     case $1 in
@@ -127,7 +127,7 @@ do
             new_thread=$2
             numberre='^[0-9]+$'
             if [[ ! $new_thread =~ $numberre ]]; then
-				echo -e "The --thread argument must be a numerical value."
+				echo -e "The --thread argument must be a numerical value." | tee -a Beav.log
 				exit
 			elif [ ! -z $new_thread ]; then
 				thread=$new_thread
@@ -185,21 +185,21 @@ done
 #Checks input arguments to make sure required arguements are present and exists
 
 if [[ -z $input_file ]];then
-	echo -e "An input file is required. Please use the --input argument and run again"
+	echo -e "An input file is required. Please use the --input argument and run again" | tee -a Beav.log
 	exit
 elif [[ ! -f $input_file ]];then
-	echo -e "The specified input file does not exist"
+	echo -e "The specified input file does not exist" | tee -a Beav.log
 	exit
 fi
 
 if [[ ! -d $output ]];then
-	echo -e "The specified output directory (${output}) does not exist"
+	echo -e "The specified output directory (${output}) does not exist" | tee -a Beav.log
 	exit
 fi
 
 if $tiger_run;then
 	if [[ -z $tiger_blast_database ]];then
-		echo -e "Tiger requires a blast database as input. Please rerun using the --tiger_blast_database option or use the --skip_tiger option"
+		echo -e "Tiger requires a blast database as input. Please rerun using the --tiger_blast_database option or use the --skip_tiger option" | tee -a Beav.log
 		exit
 	fi
 fi
@@ -208,61 +208,61 @@ if [ $user_strain ]; then
     strain=$user_strain
 fi
 
-echo -e ""
-echo -e "Checking prerequisites:"
-echo -e "----------------------------------------------------------"
+echo -e "" | tee -a Beav.log
+echo -e "Checking prerequisites:" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
 
 missing_program=false
 
 if ! bakta -h &> /dev/null
 then	
-	echo "Bakta: ERROR"
+	echo "Bakta: ERROR" | tee -a Beav.log
 	missing_program=true
 else
-	echo "Bakta: OK"
+	echo "Bakta: OK" | tee -a Beav.log
 fi
 
 if $antismash_run
 then
     if ! antismash -h &> /dev/null
     then
-        echo "antiSMASH: ERROR"
+        echo "antiSMASH: ERROR" | tee -a Beav.log
         missing_program=true
     else
-        echo "antiSMASH: OK" 
+        echo "antiSMASH: OK" | tee -a Beav.log
     fi
 else
-	echo "antiSMASH: skipped"
+	echo "antiSMASH: skipped" | tee -a Beav.log
 fi
 
 if $macsyfinder_run
 then
     if ! macsyfinder -h &> /dev/null
     then
-        echo "MacSyFinder: ERROR"
+        echo "MacSyFinder: ERROR" | tee -a Beav.log
         missing_program=true
     else 
-        echo "MacSyFinder: OK"
+        echo "MacSyFinder: OK" | tee -a Beav.log
     fi
 else
-	echo "MacSyFinder: skipped"
+	echo "MacSyFinder: skipped" | tee -a Beav.log
 fi
 
 if $agrobacterium_run
 then
     if ! fuzznuc -h &> /dev/null
     then
-        echo "EMBOSS (fuzznuc): ERROR"
+        echo "EMBOSS (fuzznuc): ERROR" | tee -a Beav.log
         missing_program=true
     else
-	    echo "EMBOSS (fuzznuc): OK"
+	    echo "EMBOSS (fuzznuc): OK" | tee -a Beav.log
     fi
     if ! nhmmer -h &> /dev/null
     then 
-        echo "HMMER (nhmmer): ERROR"
+        echo "HMMER (nhmmer): ERROR" | tee -a Beav.log
         missing_program=true
     else
-        echo "HMMER (nhmmer): OK"
+        echo "HMMER (nhmmer): OK" | tee -a Beav.log
     fi
 fi
 
@@ -270,49 +270,49 @@ if $integronfinder_run
 then
     if ! integron_finder -h &> /dev/null
     then
-        echo "IntegronFinder: ERROR"
+        echo "IntegronFinder: ERROR" | tee -a Beav.log
         missing_program=true
     else 
-        echo "IntegronFinder: OK"
+        echo "IntegronFinder: OK" | tee -a Beav.log
     fi
 else
-	echo "IntegronFinder: skipped"
+	echo "IntegronFinder: skipped" | tee -a Beav.log
 fi
 
 if $defensefinder_run
 then
     if ! defense-finder --help &> /dev/null
     then
-        echo "DefenseFinder: ERROR"
+        echo "DefenseFinder: ERROR" | tee -a Beav.log
         missing_program=true
     else 
-        echo "DefenseFinder: OK"
+        echo "DefenseFinder: OK" | tee -a Beav.log
     fi
 else
-	echo "DefenseFinder: skipped"
+	echo "DefenseFinder: skipped" | tee -a Beav.log
 fi
 
 if $tiger_run
 then
     if [[ ! -f $BEAV_DIR/software/TIGER/bin/island_finder.pl ]]
     then
-        echo "TIGER2: missing"
+        echo "TIGER2: missing" | tee -a Beav.log
         missing_program=true
     else
-        echo "TIGER2: OK"
+        echo "TIGER2: OK" | tee -a Beav.log
     fi
 else
-	echo "TIGER2: skipped"
+	echo "TIGER2: skipped" | tee -a Beav.log
 fi
 
 if $gapmind_run
 then
     if [[ ! -f $BEAV_DIR/software/PaperBLAST/bin/gapsearch.pl ]]
     then
-        echo "GapMind: missing"
+        echo "GapMind: missing" | tee -a Beav.log
         missing_program=true
     else
-        echo "GapMind: OK"
+        echo "GapMind: OK" | tee -a Beav.log
     fi
 	
 	#if ! usearch &> /dev/null
@@ -322,49 +322,49 @@ then
 	#	echo "usearch: OK"
 	#fi
 else
-	echo "GapMind: skipped"
+	echo "GapMind: skipped" | tee -a Beav.log
 fi
 
 if $dbscanswa_run
 then
     if [[ ! -f $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py ]]
     then
-        echo "DBSCAN-SWA: missing"
+        echo "DBSCAN-SWA: missing" | tee -a Beav.log
         missing_program=true
     else
-	echo "DBSCAN-SWA: OK" 
+	echo "DBSCAN-SWA: OK" | tee -a Beav.log
     fi
 else
-	echo "DBSCAN-SWA: skipped"
+	echo "DBSCAN-SWA: skipped" | tee -a Beav.log
 fi
 
 if $missing_program;then 
-	echo -e ""
-	echo -e "Some required programs are missing or gave an error message."
-	echo -e "Either install them or use the --skip-PROGRAM option"
+	echo -e "" | tee -a Beav.log
+	echo -e "Some required programs are missing or gave an error message." | tee -a Beav.log
+	echo -e "Either install them or use the --skip-PROGRAM option" | tee -a Beav.log
 	exit
 fi
 
-echo -e "----------------------------------------------------------"
-echo -e ""
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 cd $output
 
 #Check if continue argument was used and if program output file exist, are empty, or present and not empty 
 
 if $continue_run; then
-        echo -e "Checking if beav can continue from Bakta"
+        echo -e "Checking if beav can continue from Bakta" | tee -a Beav.log
         echo -e ""
         if [ ! -f ./${strain}/bakta/${strain}.gbff ] && [ ! -f ./${strain}/bakta/${strain}.faa ] && [ ! -f ./${strain}/bakta/${strain}.gff3 ]; then
-                echo -e "Bakta output files do not exist"
-                echo -e ""
+                echo -e "Bakta output files do not exist" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif [ -s ./${strain}/bakta/${strain}.gbff ] && [ -s ./${strain}/bakta/${strain}.faa ] && [ -s ./${strain}/bakta/${strain}.gff3 ]; then
-                echo -e "Required outputs found. Skipping Bakta"
-                echo -e ""
+                echo -e "Required outputs found. Skipping Bakta" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 bakta_run=false
         elif [ ! -s ./${strain}/bakta/${strain}.gbff ] && [ ! -s ./${strain}/bakta/${strain}.faa ] && [ ! -s ./${strain}/bakta/${strain}.gff3 ]; then
-                echo -e "Output files are empty. Moving empty files and rerunning Bakta"
-		echo -e ""
+                echo -e "Output files are empty. Moving empty files and rerunning Bakta" | tee -a Beav.log
+		echo -e "" | tee -a Beav.log
 		rm -rf ./$strain
 	fi
 fi
@@ -372,10 +372,10 @@ fi
 
 if $bakta_run; then 
 
-	echo -e "Running Bakta"
-	echo -e ""
+	echo -e "Running Bakta" | tee -a Beav.log
+	echo -e "" | tee -a Beav.log
 
-	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta"
+	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta" | tee -a Beav.log
 
 	mkdir ${strain}/bakta
 
@@ -395,11 +395,12 @@ if $bakta_run; then
 	mv ${strain}/${strain}.hypotheticals.faa ${strain}/bakta/ 2> /dev/null
 	mv ${strain}/${strain}.hypotheticals.tsv ${strain}/bakta/ 2> /dev/null
 
-	echo -e ""
-	echo -e "Done"
-	echo -e ""
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
+	echo -e "" | tee -a Beav.log
 fi
 
+mv Beav.log $strain
 cd $strain
 
 mkdir tables 2> /dev/null
@@ -410,15 +411,15 @@ fi
 
 operon_skipsubmit=false
 if $operon_run && $continue_run; then
-        echo -e "Checking Operon-mapper output"
+        echo -e "Checking Operon-mapper output" | tee -a Beav.log
         if  [ -d ./operon-mapper_results ] && [ -f ./operon-mapper_results/list_of_operons.table ]; then
-                echo -e "Output found. Skipping Operon-mapper"
-                echo -e ""
+                echo -e "Output found. Skipping Operon-mapper" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 operon_run=false
 
         elif [ -f ./oeron-mapper_results_url ] && grep --quiet "http://biocomputo.ibt.unam.mx/operon_mapper/out" ./operon-mapper_results_url; then 
-                echo -e "Operon-mapper partial results found. Checking for completed job"
-                echo -e ""
+                echo -e "Operon-mapper partial results found. Checking for completed job" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
 				
 				jobisdone=false
 				jobstillrunning=false
@@ -443,13 +444,13 @@ if $operon_run && $continue_run; then
 				fi
 
 				if [ $jobisdone ]; then
-					echo -e "Original job is complete. Downloading results at end of run."
+					echo -e "Original job is complete. Downloading results at end of run." | tee -a Beav.log
 					operon_run=false
 				elif [  $jobstillrunning ]; then
-					echo -e "Original job is still running. Checking results at end of run."
+					echo -e "Original job is still running. Checking results at end of run." | tee -a Beav.log
 					operon_skipsubmit=true
 				else
-					echo -e "Original job did not complete or results longer available. Resubmitting Operon-mapper job."
+					echo -e "Original job did not complete or results longer available. Resubmitting Operon-mapper job." | tee -a Beav.log
 					rm -f ./operon-mapper_results_url
 					rm -f ./testresponse.html
 				fi
@@ -461,29 +462,29 @@ if $operon_run && $continue_run; then
 		fi
 fi
 if $operon_run && ! $operon_skipsubmit; then
-    echo -e "----------------------------------------------------------"
-    echo -e ""
-    echo -e "Submitting remote Operon-mapper job"
-    echo -e ""
-	echo -e "Converting input"
+    echo -e "----------------------------------------------------------" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
+    echo -e "Submitting remote Operon-mapper job" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
+	echo -e "Converting input" | tee -a Beav.log
     #format gff for operon-mapper
     bp_genbank2gff3 --quiet bakta/${strain}.gbff
     if [ ! -f ${strain}.gbff.gff.gz ]; then
         gzip ${strain}.gbff.gff
     fi
-    echo -e "Checking file sizes"
+    echo -e "Checking file sizes" | tee -a Beav.log
     #looks at file information and gets size in MB
     fna_file=$(ls -l --block-size=MB bakta/${strain}.fna | awk '{print $5}' | sed 's/MB//g')
     gff_files=$(ls -l --block-size=MB ${strain}.gbff.gff.gz | awk '{print $5}'| sed 's/MB//g')
     #combined file size
     sum=$(($fna_file + $gff_files))
-    echo $sum
+    echo $sum | tee -a Beav.log
     #Operon-mapper max size is 38MB
     maxsize=38
 
     if (($sum > maxsize)); then
         echo -e ""
-        echo -e "File sum is greater than 38MB. Zipping files"
+        echo -e "File sum is greater than 38MB. Zipping files" | tee -a Beav.log
         zip ${stain}.fna.zip bakta/${strain}.fna
         zip ${strain}.gbff.gff.zip ${strain}.gbff.gff
         #getting size of zipped files in MB
@@ -491,47 +492,47 @@ if $operon_run && ! $operon_skipsubmit; then
         zip_gff_files=$(ls -l --block-size=MB ${strain}.gff.zip | awk '{print $5}'| sed 's/MB//g')
         zip_sum=$(($zip_fna_file + $zip_gff_files))
         if (($zip_sum < maxsize)); then
-            echo -e ""
-            echo -e "Zipped file sum is larger then 38MB. Operon-Mapper can not run"
+            echo -e "" | tee -a Beav.log
+            echo -e "Zipped file sum is larger then 38MB. Operon-Mapper can not run" | tee -a Beav.log
             operon_run=false
         fi
     fi
 
 fi
 if $operon_run && ! $operon_skipsubmit; then
-	echo -e "Submitting job to webserver"
+	echo -e "Submitting job to webserver" | tee -a Beav.log
     #submit operon-mapper job to webserver
     python ${BEAV_DIR}/scripts/submit_operon-mapper_job.py --email $email --strain $strain
     rm ${strain}.gbff.gff
-	echo -e ""
-	echo -e "Done"
-	echo -e ""
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
+	echo -e "" | tee -a Beav.log
 fi
 
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Annotation of other sequence elements"
-echo -e ""
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Annotation of other sequence elements" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
  
 #makes genbank file with only cds regions for antismash
 python $BEAV_DIR/scripts/subset_cds_genbank.py "$strain"
 touch borders.log
 
 if $continue_run && $agrobacterium_run; then
-	echo -e "Checking Agrobacterium annotations"
+	echo -e "Checking Agrobacterium annotations" | tee -a Beav.log
 #if all listed outputs are present then skip
 	if [ -s ${strain}.agrobacteria_taxonomy.out ] && [ -s ${strain}.oncogenic_plasmid_final.out ] && [ -s ${strain}.agro_ani.out ] && [ -s ${strain}.oncogenic_plasmid_type.sketch.out ] && [ -s ${strain}.oncogenic_plasmid_final.out.contiglist ] && [ -s ${strain}.oncogenic_plasmid_contigs.sketch.out ] && [ -s ./borders/${strain}.left_T-DNA_border ] && [ ! -s ./borders/${strain}.right_T-DNA_border ]; then
 		agrobacterium_run=false
-		echo -e "Outfiles found. Skipping Agrobacterium pipeline"
-		echo -e ""
+		echo -e "Outfiles found. Skipping Agrobacterium pipeline" | tee -a Beav.log
+		echo -e "" | tee -a Beav.log
 #if any listed outputs are empty,then move all the outputs and rerun the agro pipeline
 	elif [ ! -s ${strain}.agrobacteria_taxonomy.out ] || [ ! -s ${strain}.oncogenic_plasmid_final.out ] || [ ! -s ${strain}.agro_ani.out ] || [ ! -s ${strain}.oncogenic_plasmid_type.sketch.out ] || [ ! -s ${strain}.oncogenic_plasmid_final.out.contiglist ] || [ ! -s ${strain}.oncogenic_plasmid_contigs.sketch.out ] || [ ! -s ./borders/${strain}.left_T-DNA_border ] || [ ! -s ./borders/${strain}.right_T-DNA_border ]; then
-		echo -e "Agrobacterium pipeline outputs are empty. Moving files and rerunning Agrobacterium pipeline"
-		echo -e ""
+		echo -e "Agrobacterium pipeline outputs are empty. Moving files and rerunning Agrobacterium pipeline" | tee -a Beav.log
+		echo -e "" | tee -a Beav.log
 		mv ./borders/${strain}.left_T-DNA_border ./borders/${strain}.right_T-DNA_border ./borders/${strain}.virbox ./borders/${strain}.trabox ./borders/${strain}.pip_box.out ./borders/${strain}.hrp_box.out ./borders/${strain}.nodbox ./borders/${strain}.ttsbox ./borders/${strain}.dif ./borders/borders.bed ./borders/temp_border.bed ./borders/${strain}.overdrive ./${strain}.agro_ani_out ./${strain}.agrobacteria_taxonomy.out ./${strain}.oncogenic_plasmid_final.out ./${strain}.oncogenic_plasmid_final.out.contiglist ./${strain}.oncogenic_plasmid_type.sketch.out ./${strain}.oncogenic_plasmid_contigs.sketch.out ./partial_runs
 #if any of the listed outputs do not exist, then rerun the pipeline
 	elif [ ! -f ${strain}.agrobacteria_taxonomy.out ] || [ ! -f ${strain}.oncogenic_plasmid_final.out ] || [ ! -f ./${strain}.agro_ani.out ] || [ ! -f ./tables/${strain}_uniq_borders.table ] || [ ! -f ./borders/${strain}.left_T-DNA_border ] || [ ! -f ./borders/${strain}.right_T-DNA_border ]; then
-		echo -e "Agrobacterium pipeline files not found. Rerunning Agrobacterium pipeline"
+		echo -e "Agrobacterium pipeline files not found. Rerunning Agrobacterium pipeline" | tee -a Beav.log
 	fi
 fi
 mkdir borders  2> /dev/null
@@ -597,43 +598,43 @@ cat ${strain}_borders.table | awk '{print $1,$4,$6,$2,$3,$5}' | sort | uniq -f4 
 mv *.table ./tables/ 2> /dev/null
 mv ./borders.bed ./borders/
 mv ./temp_border.bed ./borders/
-ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo $ELAPSED
+ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec" 
+echo $ELAPSED | tee -a Beav.log
 
 
-echo -e ""
-echo -e "Done"
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Indentifying oriT"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "Done" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Indentifying oriT" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 SECONDS=0
 $BEAV_DIR/scripts/find_oriT.sh bakta/${strain}.fna $thread
 ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo $ELAPSED
+echo $ELAPSED | tee -a Beav.log
 mv oriT.table ./tables
-echo -e ""
-echo -e "Done"
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "Done" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
-echo -e "Identifying secretion systems (MacSyFinder)"
-echo -e ""
+echo -e "Identifying secretion systems (MacSyFinder)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 if $continue_run && $macsyfinder_run; then
-	echo -e "Checking secretion system annotations"
-	echo -e ""
+	echo -e "Checking secretion system annotations" | tee -a Beav.log
+	echo -e "" | tee -a Beav.log
 	if [ ! -f ./MacSyFinder_TXSS/best_solution.tsv ]; then 
-		echo -e "MacSyFinder output files do not exist. Rerunning MacSyFinder"
-		echo -e ""
+		echo -e "MacSyFinder output files do not exist. Rerunning MacSyFinder" | tee -a Beav.log
+		echo -e "" | tee -a Beav.log
 	elif [ -s ./MacSyFinder_TXSS/best_solution.tsv ]; then
-		echo -e "MacSyFinder output found. Skipping MacSyFinder"
-		echo -e ""
+		echo -e "MacSyFinder output found. Skipping MacSyFinder" | tee -a Beav.log
+		echo -e "" | tee -a Beav.log
 		macsyfinder_run=false
 	elif [ ! -s ./MacSyFinder_TXSS/best_solution.tsv ]; then
-		echo -e "MacSyFinder output files are empty. Deleting empty files and rerunning MacSyFinder." 
+		echo -e "MacSyFinder output files are empty. Deleting empty files and rerunning MacSyFinder." | tee -a Beav.log 
 		rm -rf MacSyFinder_TXSS
 		rm ./tables/macsyfinder.tsv.table
 	fi
@@ -642,36 +643,36 @@ fi
 if $macsyfinder_run; then
 	SECONDS=0
 	python $BEAV_DIR/scripts/makegembase.py
-	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all 1> /dev/null | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder"
-	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all 1> /dev/null | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder" | tee -a Beav.log
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec" | tee -a Beav.log
+	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
 	mv allgembase* ./MacSyFinder_TXSS/
 	mv macsyfinder.tsv.table ./tables/ 2> /dev/null
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Identifying integrons (IntegronFinder)"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Identifying integrons (IntegronFinder)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 if $continue_run && $integronfinder_run; then
-        echo -e "Checking integron annotations"
-        echo -e ""
+        echo -e "Checking integron annotations" | tee -a Beav.log
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]; then
-                echo -e "IntegronFinder outfiles do not exist. Rerunning IntegronFinder"
-                echo -e ""
+                echo -e "IntegronFinder outfiles do not exist. Rerunning IntegronFinder" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif [ -s ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]; then
-                echo -e "IntegronFinder output found. Skipping IntegronFinder"
-                echo -e ""
-                integronfinder_run=false
+                echo -e "IntegronFinder output found. Skipping IntegronFinder" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
+                integronfinder_run=false 
         elif [ ! -s ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons ]; then
-                echo -e "IntegronFinder output files are empty. Deleting empty files and rerunning IntegronFinder." 
+                echo -e "IntegronFinder output files are empty. Deleting empty files and rerunning IntegronFinder." | tee -a Beav.log
                 rm -rf Integron_Finder
 		rm ./tables/integron_gene.table
 		rm ./tables/integron.table
@@ -682,35 +683,35 @@ if $integronfinder_run; then
 	SECONDS=0
 	integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	echo $ELAPSED | tee -a Beav.log
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
  	cat ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | grep -P "\tintI\t" | cut -f 2,4-5 | bedtools intersect -a - -b ${strain}.nofasta.gff3 -wb -F 0.5 | grep "CDS" | sed -n 's/^.*locus_tag=\([a-zA-Z0-9_]*\);.*$/\1/p' > integron_gene.table 
 	mv *.table ./tables/ 	
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Identifying defense systems (DefenseFinder)"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Identifying defense systems (DefenseFinder)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 if $continue_run && $defensefinder_run; then
-        echo -e "Checking defense system annotations"
-        echo -e ""
+        echo -e "Checking defense system annotations" | tee -a Beav.log
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./tables/${strain}_defensefinder.tsv.table ]; then
-                echo -e "DefenseFinder ouput files do not exist. Rerunning DefenseFinder"
-                echo -e ""
+                echo -e "DefenseFinder ouput files do not exist. Rerunning DefenseFinder" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif grep --quiet "Analysis results were written to" ./logs/defensefinder.log; then
-                echo -e "DefenseFinder output found. Skipping DefenseFinder"
-                echo -e ""
+                echo -e "DefenseFinder output found. Skipping DefenseFinder" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 defensefinder_run=false
         elif ! grep --quiet "Analysis results were written to" ./logs/defensefinder.log; then
-                echo -e "Defense system annotations were unsucessfull. Deleting outfiles and rerunning DefenseFinder." 
+                echo -e "Defense system annotations were unsucessfull. Deleting outfiles and rerunning DefenseFinder." | tee -a Beav.log 
                 rm -rf DefenseFinder
 		rm ./tables/${strain}_defensefinder.tsv.table
         fi
@@ -718,38 +719,38 @@ fi
 
 if $defensefinder_run; then
 	SECONDS=0
-	defense-finder run --db-type gembase ./bakta/${strain}.faa 1> /dev/null | tee defensefinder.log|| error_exit "error occurred while running defense-finder"
+	defense-finder run --db-type gembase ./bakta/${strain}.faa 1> /dev/null | tee defensefinder.log|| error_exit "error occurred while running defense-finder" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
 	mv *.table ./tables/ 2> /dev/null
 	mkdir DefenseFinder
 	mv ${strain}_defense_finder_* DefenseFinder/ 2> /dev/null
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Identifying biosynthetic gene clusters (antiSMASH)"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Identifying biosynthetic gene clusters (antiSMASH)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 if $continue_run && $antismash_run; then
-        echo -e "Checking biosyntehtic gene cluster annotations"
-        echo -e ""
+        echo -e "Checking biosyntehtic gene cluster annotations" | tee -a Beav.log
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./tables/${strain}_antismash.table ]; then
-                echo -e "antiSMASH output files do not exist. Rerunning antiSMASH"
-                echo -e ""
+                echo -e "antiSMASH output files do not exist. Rerunning antiSMASH" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif [ -s ./tables/${strain}_antismash.table ]; then
-                echo -e "antiSMASH output found. Skipping antiSMASH"
-                echo -e ""
+                echo -e "antiSMASH output found. Skipping antiSMASH" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 antismash_run=false
         elif [ ! -s ./tables/${strain}_antismash.table ]; then
-                echo -e "antiSMASH output files are empty. Deleting empty files and rerunning antiSMASH." 
+                echo -e "antiSMASH output files are empty. Deleting empty files and rerunning antiSMASH." | tee -a Beav.log
                 rm -rf antiSMASH
 		rm ./tables/${strain}_antismash.table
 		rm ./tables/${strain}_antismash.table.beav.subset
@@ -759,38 +760,38 @@ fi
 
 if $antismash_run; then
 	SECONDS=0
-	antismash ${strain}_cds_subset.gbk --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" 
+	antismash ${strain}_cds_subset.gbk --cpus $thread --output-dir antiSMASH $antismash_args || error_exit "error occurred while running antiSMASH" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	echo $ELAPSED | tee -a Beav.log
 	python $BEAV_DIR/scripts/antismash_genbanks_to_table.py -i ./antiSMASH -o ${strain}_antismash.table
 	mv *.beav.subset ./tables/ 2> /dev/null
 	mv *.table ./tables/ 2> /dev/null
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Identifying phage (DBSCAN-SWA)"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Identifying phage (DBSCAN-SWA)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 
 if $continue_run && $dbscanswa_run; then
-        echo -e "Checking phage annotations"
-        echo -e ""
+        echo -e "Checking phage annotations" | tee -a Beav.log
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./tables/prophage.table ]; then
-                echo -e "DBSCAN-SWA output files do not exist. Rerunning DBSCAN-SWA"
-                echo -e ""
+                echo -e "DBSCAN-SWA output files do not exist. Rerunning DBSCAN-SWA" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif [ -s ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt ]; then
-                echo -e "DBSCAN-SWA output found. Skipping DBSCAN-SWA"
-                echo -e ""
+                echo -e "DBSCAN-SWA output found. Skipping DBSCAN-SWA" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 dbscanswa_run=false
         elif [ ! -s ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt ]; then
-                echo -e "DBSCAN-SWA output files are empty. Deleting empty files and rerunning DBSCAN-SWA." 
+                echo -e "DBSCAN-SWA output files are empty. Deleting empty files and rerunning DBSCAN-SWA." | tee -a Beav.log 
                 rm -rf DBSCAN-SWA
 		rm ./tables/prophage.table
         fi
@@ -800,36 +801,36 @@ fi
 if $dbscanswa_run; then
 	SECONDS=0
 	sed -i 's/gnl|Bakta|//g' ${strain}_cds_subset.gbk
-	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" 1> /dev/null | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA"
+	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" 1> /dev/null | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,5-8 ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
 	mv *.table ./tables/ 2> /dev/null
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Characterizing amino acid biosynthesis and small carbon metabolite catabolism (GapMind)"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Characterizing amino acid biosynthesis and small carbon metabolite catabolism (GapMind)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 if $continue_run && $gapmind_run; then
-        echo -e "Checking amino acid biosynthesis and small carbon metabolite cartabolism annotations"
-        echo -e ""
+        echo -e "Checking amino acid biosynthesis and small carbon metabolite cartabolism annotations" | tee -a Beav.log
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./GapMind/combined_GapMind_results.tab ]; then
-                echo -e "GapMind output files do not exist. Rerunning GapMind"
-                echo -e ""
+                echo -e "GapMind output files do not exist. Rerunning GapMind" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif [ -s ./GapMind/combined_GapMind_results.tab ]; then
-                echo -e "GapMind output found. Skipping GapMind"
-                echo -e ""
+                echo -e "GapMind output found. Skipping GapMind" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 gapmind_run=false
         elif [ ! -s ./GapMind/combined_GapMind_results.tab ]; then
-                echo -e "GapMind output files are empty. Deleting empty files and rerunning GapMind." 
+                echo -e "GapMind output files are empty. Deleting empty files and rerunning GapMind." | tee -a Beav.log
                 rm -rf GapMind
         fi
 fi
@@ -839,29 +840,29 @@ if $gapmind_run; then
 	SECONDS=0
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
 	mv formatdb.log ./GapMind/
-	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec" | tee -a Beav.log
         echo $ELAPSED
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
-echo -e "Identifying integrative conjugative elements [ICEs] (TIGER2)"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
+echo -e "Identifying integrative conjugative elements [ICEs] (TIGER2)" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 if $continue_run && $tiger_run && [ ! -z $tiger_blast_database ]; then
-        echo -e "Checking integrative conjugative element annotations"
-        echo -e ""
+        echo -e "Checking integrative conjugative element annotations" | tee -a Beav.log
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./tables/${strain}_TIGER2_final.table.out ]; then
-                echo -e "TIGER2 output files do not exist. Rerunning TIGER2"
-                echo -e ""
+                echo -e "TIGER2 output files do not exist. Rerunning TIGER2" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
         elif [ -f ./tables/${strain}_TIGER2_final.table.out ]; then
-                echo -e "TIGER2 output found. Skipping TIGER2"
-                echo -e ""
+                echo -e "TIGER2 output found. Skipping TIGER2" | tee -a Beav.log
+                echo -e "" | tee -a Beav.log
                 tiger_run=false
         fi
 fi
@@ -871,77 +872,77 @@ if $tiger_run && [ ! -z "$tiger_blast_database" ]; then
 	SECONDS=0
 	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread"
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	echo $ELAPSED | tee -a Beav.log
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
 	mv *.table ./tables/ 2> /dev/null
 	mv *.table.out ./tables/ 2> /dev/null
-	echo -e ""
-	echo -e "Done"
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
 else
-	echo -e ""
-	echo -e "Skipped"
+	echo -e "" | tee -a Beav.log
+	echo -e "Skipped" | tee -a Beav.log
 fi
 
-echo -e ""
-echo -e "----------------------------------------------------------"
-echo -e ""
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
+echo -e "" | tee -a Beav.log
 
 if $operon_run; then
-    echo -e "Checking status of remote Operon-mapper job and downloading results"
-    echo -e ""
+    echo -e "Checking status of remote Operon-mapper job and downloading results" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
 
     #check on status of operon-mapper job and wait for results
     ${BEAV_DIR}/scripts/check_operon_mapper_status.sh
     
-    echo -e ""
-    echo -e "----------------------------------------------------------"
-    echo -e ""
+    echo -e "" | tee -a Beav.log
+    echo -e "----------------------------------------------------------" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
 fi
 
 #if operons are present, check for vgrG clusters
 if  [ -d ./operon-mapper_results ] && [ -f ./operon-mapper_results/list_of_operons.table ]; then
 	
-	echo -e "Identifying T6SS vgrG operons"
-	echo -e ""
+	echo -e "Identifying T6SS vgrG operons" | tee -a Beav.log
+	echo -e "" | tee -a Beav.log
 
 	${BEAV_DIR}/scripts/identify_vgrG_clusters.sh $strain | tee T6SS_vgrG_cluster_list.out
 	
-	echo -e ""
-	echo -e "----------------------------------------------------------"
-	echo -e ""
+	echo -e "" | tee -a Beav.log
+	echo -e "----------------------------------------------------------" | tee -a Beav.log
+	echo -e "" | tee -a Beav.log
 fi
 
 
 if $agrobacterium_run; then
-    echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences"
-    echo -e ""
+    echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
 
     $BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
    	
-	echo -e "" 
+	echo -e "" | tee -a Beav.log
 	
 	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$strain".fna
 
-    echo -e ""
-    echo -e "T-DNA borders:"
-	echo -e "contig	start	end	border	strand"
-	grep 'T-DNA' borders/borders.bed | cut -f 1,2,3,5,6
+    echo -e "" | tee -a Beav.log
+    echo -e "T-DNA borders:" | tee -a Beav.log
+	echo -e "contig	start	end	border	strand" | tee -a Beav.log
+	grep 'T-DNA' borders/borders.bed | cut -f 1,2,3,5,6 | tee -a Beav.log
 	
-	echo -e ""	
-	echo -e "Done"
-    echo -e ""
-    echo -e "----------------------------------------------------------"
-    echo -e ""
+	echo -e "" | tee -a Beav.log
+	echo -e "Done" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
+    echo -e "----------------------------------------------------------" | tee -a Beav.log
+    echo -e "" | tee -a Beav.log
 fi
 mv ${strain}_cds_subset.gbk ./bakta
 mv ${strain}.gbff.gff.gz ./bakta
 mv ${strain}.nofasta.gff3 ./bakta
-echo -e "Combining annotations and preparing final output files"
+echo -e "Combining annotations and preparing final output files" | tee -a Beav.log
 SECONDS=0
 cd ..
 python $BEAV_DIR/scripts/combine_annotations.py "$strain" 
 ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-echo $ELAPSED
+echo $ELAPSED | tee -a ${strain}/Beav.log
 #convert gbk to gff3 format
 bp_genbank2gff3 --quiet --noinfer ${strain}/${strain}_final.gbk -out stdout | sed '/^##FASTA$/,$d' > ${strain}/${strain}_final.no_fasta.gff3
 cp ${strain}/${strain}_final.no_fasta.gff3 ${strain}/${strain}_final.gff3
@@ -956,8 +957,8 @@ mkdir ${strain}/logs 2> /dev/null
 mv ${strain}/${strain}.log ${strain}/logs/bakta.log 2> /dev/null
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 
-echo -e ""
-echo -e "Final annotation output: ${strain}_final.gbk"
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "Final annotation output: ${strain}_final.gbk" | tee -a ${strain}/logs/Beav.log
 
 if $continue_run && $circos_run; then
 	if [ -f ./${strain}/${strain}_final.circo.png ] || [ -f ./${strain}/${strain}_final.oncogenes.png ]; then
@@ -974,9 +975,9 @@ if $circos_run; then
 	mv ${strain}_final.oncogenes.png ${strain}
 fi
 
-echo -e "Summary of annotations"
-echo -e ""
-echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons" | tee ./${strain}/summary.table
+echo -e "Summary of annotations" | tee -a ${strain}/logs/Beav.log
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons" | tee ./${strain}/summary.table | tee -a ${strain}/logs/Beav.log
 if [ -f ${strain}/MacSyFinder_TXSS/all_systems.tsv ]
 then
         secretion_systems=` cat ${strain}/MacSyFinder_TXSS/all_systems.tsv | cut -f 5 | sort | uniq | grep -v "#" | grep -v "model_fqn" | sed '/^[[:space:]]*$/d' | wc -l `
@@ -1023,84 +1024,84 @@ then
 else
         gap_mind=`N/A`
 fi
-echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" | tee --append ./${strain}/summary.table
+echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" | tee --append ./${strain}/summary.table | tee -a ${strain}/logs/Beav.log
 
-echo -e ""
-echo -e "Small carbon catabolism pathways: ${gap_mind}" | tee --append ./${strain}/summary.table
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "Small carbon catabolism pathways: ${gap_mind}" | tee --append ./${strain}/summary.table | tee -a ${strain}/logs/Beav.log
 
 if [ -f ${strain}/${strain}.oncogenic_plasmid_final.out ]
 then
         plasmid_type=`cat ${strain}/${strain}.oncogenic_plasmid_final.out | sed -n "2p"`
-        echo -e ""
-        echo -e "Agrobacterium plasmid type: ${plasmid_type}" | tee --append ./${strain}/summary.table
+        echo -e "" | tee -a ${strain}/logs/Beav.log
+        echo -e "Agrobacterium plasmid type: ${plasmid_type}" | tee --append ./${strain}/summary.table | tee -a ${strain}/logs/Beav.log
 fi
 
 
 
-echo -e ""
-echo -e "Done"
-echo -e ""
-echo -e "The BEAV pipeline automates the use of a number of published software tools."
-echo -e 'If you use these results in a publication, please include the following in your methods section and cite:'
-echo -e ""
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "Done" | tee -a ${strain}/logs/Beav.log
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "The BEAV pipeline automates the use of a number of published software tools." | tee -a ${strain}/logs/Beav.log
+echo -e 'If you use these results in a publication, please include the following in your methods section and cite:' | tee -a ${strain}/logs/Beav.log
+echo -e "" 
 
-echo -e "Jung J, Rahman A, Schiffer A, and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" 
+echo -e "Jung J, Rahman A, Schiffer A, and Weisberg A. 2023. BEAV: a bacterial genome and mobile element annotation pipeline. https://github.com/weisberglab/beav" | tee -a ${strain}/logs/Beav.log 
 echo -e ""
-bakver=`grep 'version' $output/${strain}/logs/bakta.log | head -n1 | sed 's/^.*version=//g'`
-echo -e "Bakta version $bakver"
-echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685."
-echo -e ""
-echo -e "EMBOSS:fuzznuc" 
-echo -e "EMBOSS: The European Molecular Biology Open Software Suite (2000) Rice,P. Longden,I. and Bleasby,A. Trends in Genetics 16, (6) pp276--277 "
+bakver=`grep 'version' $output/${strain}/logs/bakta.log | head -n1 | sed 's/^.*version=//g'` | tee -a ${strain}/logs/Beav.log
+echo -e "Bakta version $bakver" | tee -a ${strain}/logs/Beav.log
+echo -e "Schwengers O, Jelonek L, Dieckmann MA, et al. 2021. Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification. Microb Genom 7: 000685." | tee -a ${strain}/logs/Beav.log
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "EMBOSS:fuzznuc" | tee -a ${strain}/logs/Beav.log
+echo -e "EMBOSS: The European Molecular Biology Open Software Suite (2000) Rice,P. Longden,I. and Bleasby,A. Trends in Genetics 16, (6) pp276--277 " | tee -a ${strain}/logs/Beav.log
 
 if $macsyfinder_run; then
-	macver=`head -n1 $output/${strain}/MacSyFinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'`
-	echo -e "MacSyFinder version $macver"
-    echo -e 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, SophieS 2023. MacSyFinder v2: Improved modelling and search engine to identify molecular systems igenomes. Peer Community Journal, Volume 3, article no. e28. DOI: 10.24072/pcjournal.250.'
+	macver=`head -n1 $output/${strain}/MacSyFinder_TXSS/macsyfinder.log | sed 's/^.*Macsyfinder //g'` 
+	echo -e "MacSyFinder version $macver" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Néron, Bertrand; Denise, Rémi; Coluzzi, Charles; Touchon, Marie; Rocha, Eduardo P.C.; Abby, SophieS 2023. MacSyFinder v2: Improved modelling and search engine to identify molecular systems igenomes. Peer Community Journal, Volume 3, article no. e28. DOI: 10.24072/pcjournal.250.' | tee -a ${strain}/logs/Beav.log
 fi
-echo -e ""
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $dbscanswa_run; then
-	echo -e "DBSCAN-SWA"
-    echo -e 'Gan R, Zhou F, Si Y, et al. 2022. DBSCAN-SWA: An Integrated Tool for Rapid Prophage Detection and Annotation. Frontiers in Genetics 13.'
+	echo -e "DBSCAN-SWA" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Gan R, Zhou F, Si Y, et al. 2022. DBSCAN-SWA: An Integrated Tool for Rapid Prophage Detection and Annotation. Frontiers in Genetics 13.' | tee -a ${strain}/logs/Beav.log
 fi
-echo -e ""
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $tiger_run; then
-	echo -e "TIGER version 2.1.0"
-	echo -e 'Mageeney CM, Lau BY, Wagner JM, et al. 2020. New candidates for regulated gene integrity revealed through precise mapping of integrative genetic elements. Nucleic Acids Research 48: 4052-65.'
+	echo -e "TIGER version 2.1.0" | tee -a ${strain}/logs/Beav.log
+	echo -e 'Mageeney CM, Lau BY, Wagner JM, et al. 2020. New candidates for regulated gene integrity revealed through precise mapping of integrative genetic elements. Nucleic Acids Research 48: 4052-65.' | tee -a ${strain}/logs/Beav.log
 fi
-echo -e ""
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $defensefinder_run; then
-	echo -e "DefenseFinder"
-    echo -e 'Tesson F., Hervé A. , Touchon M., d’Humières C., Cury J., Bernheim A. Systematic and quantitative view of the antiviral arsenal of prokaryotes bioRx'
+	echo -e "DefenseFinder" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Tesson F., Hervé A. , Touchon M., d’Humières C., Cury J., Bernheim A. Systematic and quantitative view of the antiviral arsenal of prokaryotes bioRx' | tee -a ${strain}/logs/Beav.log
 fi
-echo -e ""
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $integronfinder_run; then
 	intver=`grep 'version' $output/${strain}/Integron_Finder/Results_Integron_Finder_${strain}/integron_finder.out | head -n1 | sed 's/^.*version //g'`
-	echo -e "IntegronFinder version $intver"
-    echo -e 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.'
-fi
-echo -e ""
+	echo -e "IntegronFinder version $intver" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Néron B, Littner E, Haudiquet M, et al. 2022. IntegronFinder 2.0: Identification and Analysis of Integrons across Bacteria, with a Focus on Antibiotic Resistance in Klebsiella. Microorganisms 10: 700.' | tee -a ${strain}/logs/Beav.log
+fi 
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $antismash_run; then
 	antversion=`grep 'antiSMASH version' $output/${strain}/antiSMASH/index.html | sed 's/^.*version //g'`
-	echo -e "antiSMASH version $antversion"
-    echo -e 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber. 2021. Nucleic Acids Research DOI:10.1093/nar/gkab335.'
+	echo -e "antiSMASH version $antversion" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Kai Blin, Simon Shaw, Alexander M Kloosterman, Zach Charlop-Powers, Gilles P van Weezel, Marnix H Medema, & Tilmann Weber. 2021. Nucleic Acids Research DOI:10.1093/nar/gkab335.' | tee -a ${strain}/logs/Beav.log
 fi
-echo -e ""
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $gapmind_run; then
-	echo -e "GapMind"
-	echo -e "Amino acid biosynthesis:"
-    echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2020. GapMind: Automated Annotation of Amino Acid Biosynthesis. mSystems 5: e00291-20.'
-	echo -e "Catabolic pathways:"
-    echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2022. Filling gaps in bacterial catabolic pathways with computation and high-throughput genetics. PLOS Genetics 18(4): e1010156. DOI:10.1371/journal.pgen.1010156'
+	echo -e "GapMind" | tee -a ${strain}/logs/Beav.log
+	echo -e "Amino acid biosynthesis:" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2020. GapMind: Automated Annotation of Amino Acid Biosynthesis. mSystems 5: e00291-20.' | tee -a ${strain}/logs/Beav.log
+	echo -e "Catabolic pathways:" | tee -a ${strain}/logs/Beav.log
+    echo -e 'Price MN, Deutschbauer AM, and Arkin AP. 2022. Filling gaps in bacterial catabolic pathways with computation and high-throughput genetics. PLOS Genetics 18(4): e1010156. DOI:10.1371/journal.pgen.1010156' | tee -a ${strain}/logs/Beav.log
 fi
 
 if $operon_run; then
-    echo -e "Operon-mapper"
-    echo -e "Taboada B, Estrada K, Ciria R, and Merino E. Operon-mapper: a web server for precise operon identification in bacterial and archaeal genomes, Bioinformatics, Volume 34, Issue 23, December 2018, Pages 4118–4120, https://doi.org/10.1093/bioinformatics/bty496"
+    echo -e "Operon-mapper" | tee -a ${strain}/logs/Beav.log
+    echo -e "Taboada B, Estrada K, Ciria R, and Merino E. Operon-mapper: a web server for precise operon identification in bacterial and archaeal genomes, Bioinformatics, Volume 34, Issue 23, December 2018, Pages 4118–4120, https://doi.org/10.1093/bioinformatics/bty496" | tee -a ${strain}/logs/Beav.log
 fi
