@@ -710,7 +710,7 @@ if $continue_run && $defensefinder_run; then
                 echo -e "DefenseFinder output found. Skipping DefenseFinder" | tee -a Beav.log
                 echo -e "" | tee -a Beav.log
                 defensefinder_run=false
-        elif ! grep --quiet "Analysis results were written to" ./logs/defensefinder.log; then
+        elif [ ! -s ./tables/${strain}_defensefinder.tsv.table ]; then
                 echo -e "Defense system annotations were unsucessfull. Deleting outfiles and rerunning DefenseFinder." | tee -a Beav.log 
                 rm -rf DefenseFinder
 		rm ./tables/${strain}_defensefinder.tsv.table
