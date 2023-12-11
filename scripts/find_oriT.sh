@@ -9,7 +9,7 @@ threads=$2
 
 touch oriT_hits.stranded
 
-makeblastdb -in $infile -dbtype nucl
+makeblastdb -in $infile -dbtype nucl 1> /dev/null
 
 blastn -task blastn-short -outfmt '6 std qlen slen qseq sseq' -num_threads $threads -dust no -query ${BEAV_DIR}/databases/oriT_db.fna -db $infile -qcov_hsp_perc 20 | awk '$4 >= 20' | awk '$11 <= 0.1' | while read line; do
 	contig=`echo -e "$line" | cut -f 2`
