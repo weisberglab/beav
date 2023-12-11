@@ -405,9 +405,7 @@ cd $strain
 
 mkdir tables 2> /dev/null
 
-if $continue_run; then
-        mkdir ./partial_runs 2> /dev/null
-fi
+
 
 operon_skipsubmit=false
 if $operon_run && $continue_run; then
@@ -527,9 +525,9 @@ if $continue_run && $agrobacterium_run; then
 		echo -e "" | tee -a Beav.log
 #if any listed outputs are empty,then move all the outputs and rerun the agro pipeline
 	elif [ ! -s ${strain}.agrobacteria_taxonomy.out ] || [ ! -s ${strain}.oncogenic_plasmid_final.out ] || [ ! -s ${strain}.agro_ani.out ] || [ ! -s ${strain}.oncogenic_plasmid_type.sketch.out ] || [ ! -s ${strain}.oncogenic_plasmid_final.out.contiglist ] || [ ! -s ${strain}.oncogenic_plasmid_contigs.sketch.out ] || [ ! -s ./borders/${strain}.left_T-DNA_border ] || [ ! -s ./borders/${strain}.right_T-DNA_border ]; then
-		echo -e "Agrobacterium pipeline outputs are empty. Moving files and rerunning Agrobacterium pipeline" | tee -a Beav.log
+		echo -e "Agrobacterium pipeline outputs are empty. Removing files and rerunning Agrobacterium pipeline" | tee -a Beav.log
 		echo -e "" | tee -a Beav.log
-		mv ./borders/${strain}.left_T-DNA_border ./borders/${strain}.right_T-DNA_border ./borders/${strain}.virbox ./borders/${strain}.trabox ./borders/${strain}.pip_box.out ./borders/${strain}.hrp_box.out ./borders/${strain}.nodbox ./borders/${strain}.ttsbox ./borders/${strain}.dif ./borders/borders.bed ./borders/temp_border.bed ./borders/${strain}.overdrive ./${strain}.agro_ani_out ./${strain}.agrobacteria_taxonomy.out ./${strain}.oncogenic_plasmid_final.out ./${strain}.oncogenic_plasmid_final.out.contiglist ./${strain}.oncogenic_plasmid_type.sketch.out ./${strain}.oncogenic_plasmid_contigs.sketch.out ./partial_runs
+		rm -f ./borders/${strain}.left_T-DNA_border ./borders/${strain}.right_T-DNA_border ./borders/${strain}.virbox ./borders/${strain}.trabox ./borders/${strain}.pip_box.out ./borders/${strain}.hrp_box.out ./borders/${strain}.nodbox ./borders/${strain}.ttsbox ./borders/${strain}.dif ./borders/borders.bed ./borders/temp_border.bed ./borders/${strain}.overdrive ./${strain}.agro_ani_out ./${strain}.agrobacteria_taxonomy.out ./${strain}.oncogenic_plasmid_final.out ./${strain}.oncogenic_plasmid_final.out.contiglist ./${strain}.oncogenic_plasmid_type.sketch.out ./${strain}.oncogenic_plasmid_contigs.sketch.out
 #if any of the listed outputs do not exist, then rerun the pipeline
 	elif [ ! -f ${strain}.agrobacteria_taxonomy.out ] || [ ! -f ${strain}.oncogenic_plasmid_final.out ] || [ ! -f ./${strain}.agro_ani.out ] || [ ! -f ./tables/${strain}_uniq_borders.table ] || [ ! -f ./borders/${strain}.left_T-DNA_border ] || [ ! -f ./borders/${strain}.right_T-DNA_border ]; then
 		echo -e "Agrobacterium pipeline files not found. Rerunning Agrobacterium pipeline" | tee -a Beav.log
