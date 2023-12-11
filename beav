@@ -841,7 +841,7 @@ if $gapmind_run; then
 	$BEAV_DIR/scripts/run_GapMind_aa_carbon.sh "$strain" "$thread"
 	mv formatdb.log ./GapMind/
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec" | tee -a Beav.log
-        echo $ELAPSED
+        echo $ELAPSED | tee -a Beav.log
 	echo -e "" | tee -a Beav.log
 	echo -e "Done" | tee -a Beav.log
 else
