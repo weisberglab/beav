@@ -968,13 +968,19 @@ fi
 
 if $circos_run; then
 	SECONDS=0
+	echo -e "----------------------------------------------------------" | tee -a Beav.log
+        echo -e "" | tee -a ${strain}/logs/Beav.log
+        echo -e "Creating Circos Map" | tee -a ${strain}/logs/Beav.log
 	$BEAV_DIR/scripts/beav_circos.sh "$output"/"$strain"
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED
+	echo $ELAPSED | tee -a ${strain}/logs/Beav.log
+	echo -e "" | tee -a ${strain}/logs/Beav.log
+	echo -e "done" | tee -a ${strain}/logs/Beav.log
 	mv ${strain}_final.circo.png ${strain}
 	mv ${strain}_final.oncogenes.png ${strain}
 fi
-
+echo -e "" | tee -a Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
 echo -e "Summary of annotations" | tee -a ${strain}/logs/Beav.log
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "Secretion_Systems      Defense_Systems Phages  Biosynthetic_gene_clusters      ICEs    Integrons" | tee ./${strain}/summary.table | tee -a ${strain}/logs/Beav.log
@@ -1040,6 +1046,8 @@ fi
 
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "Done" | tee -a ${strain}/logs/Beav.log
+echo -e "" | tee -a ${strain}/logs/Beav.log
+echo -e "----------------------------------------------------------" | tee -a Beav.log
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "The BEAV pipeline automates the use of a number of published software tools." | tee -a ${strain}/logs/Beav.log
 echo -e 'If you use these results in a publication, please include the following in your methods section and cite:' | tee -a ${strain}/logs/Beav.log
