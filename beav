@@ -948,13 +948,13 @@ cat ${strain}/bakta/${strain}.fna | sed 's/ .*//g' >> ${strain}/${strain}_final.
 
 
 
-rm ${strain}/genomelist
+rm ${strain}/genomelist 2> /dev/null
 
 
 mkdir ${strain}/logs 2> /dev/null
 mv ${strain}/${strain}.log ${strain}/logs/bakta.log 2> /dev/null
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
-mv ${strain}_final.oncogenic.gbk ${strain}
+mv ${strain}_final.oncogenic.gbk ${strain} 2> /dev/null
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "Final annotation output: ${strain}_final.gbk" | tee -a ${strain}/logs/Beav.log
 
