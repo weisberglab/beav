@@ -932,9 +932,9 @@ if $agrobacterium_run; then
     echo -e "----------------------------------------------------------" | tee -a Beav.log
     echo -e "" | tee -a Beav.log
 fi
-mv ${strain}_cds_subset.gbk ./bakta
-mv ${strain}.gbff.gff.gz ./bakta
-mv ${strain}.nofasta.gff3 ./bakta
+mv ${strain}_cds_subset.gbk ./bakta 2> /dev/null
+mv ${strain}.gbff.gff.gz ./bakta 2> /dev/null
+mv ${strain}.nofasta.gff3 ./bakta 2> /dev/null
 echo -e "Combining annotations and preparing final output files" | tee -a Beav.log
 SECONDS=0
 cd ..
