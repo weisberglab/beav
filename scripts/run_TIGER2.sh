@@ -16,7 +16,7 @@ echo -e "TIGER2: preparing input"
 mkdir TIGER2
 cd TIGER2
 cp ../bakta/${strain}.fna ./genome.fa
-echo -e "357    Bacteria sp. $strain    Bacteria;;;;;;; 11	$strain" > genome.tax
+echo -e "357	Bacteria sp. $strain	Bacteria;;;;;;; 11	$strain" > genome.tax
 mkdir protein
 cp ../bakta/${strain}.faa protein/protein.faa
 cp ../bakta/${strain}.gff3 protein/protein.gff
