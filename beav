@@ -533,6 +533,15 @@ if $continue_run && $agrobacterium_run; then
 		echo -e "Agrobacterium pipeline files not found. Rerunning Agrobacterium pipeline" | tee -a Beav.log
 	fi
 fi
+
+#if continue runs redo border annotations
+if $continue_run; then
+    rm -rf borders
+    rm -f ./tables/borders.table
+    rm -f ./tables/${strain}_borders.table
+    rm -f ./tables/${strain}_uniq_borders.table
+fi
+
 mkdir borders  2> /dev/null
 SECONDS=0
 if $agrobacterium_run; then
