@@ -970,11 +970,6 @@ mv ${strain}_final.oncogenic.gbk ${strain} 2> /dev/null
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "Final annotation output: ${strain}_final.gbk" | tee -a ${strain}/logs/Beav.log
 
-if $continue_run && $circos_run; then
-	if [ -f ./${strain}/${strain}_final.circo.png ] || [ -f ./${strain}/${strain}_final.oncogenes.png ]; then
-		circos_run=false
-	fi
-fi
 
 if $circos_run; then
 	SECONDS=0
