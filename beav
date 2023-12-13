@@ -354,7 +354,7 @@ cd $output
 #Check if continue argument was used and if program output file exist, are empty, or present and not empty 
 
 if $continue_run; then
-        echo -e "Checking if beav can continue from Bakta" | tee -a Beav.log
+        echo -e "Checking Bakta output" | tee -a Beav.log
         echo -e ""
         if [ ! -f ./${strain}/bakta/${strain}.gbff ] && [ ! -f ./${strain}/bakta/${strain}.faa ] && [ ! -f ./${strain}/bakta/${strain}.gff3 ]; then
                 echo -e "Bakta output files do not exist" | tee -a Beav.log
