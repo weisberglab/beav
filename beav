@@ -988,7 +988,7 @@ if $circos_run; then
 	mv ${strain}_final.circo.png ${strain}
 	mv ${strain}_final.oncogenes.png ${strain}
 fi
-echo -e "" | tee -a Beav.log
+echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "----------------------------------------------------------" | tee -a ${strain}/logs/Beav.log
 echo -e "Summary of annotations" | tee -a ${strain}/logs/Beav.log
 echo -e "" | tee -a ${strain}/logs/Beav.log
