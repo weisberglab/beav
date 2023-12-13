@@ -348,7 +348,7 @@ fi
 echo -e "----------------------------------------------------------" | tee -a Beav.log
 echo -e "" | tee -a Beav.log
 
-mv Beav.log $output
+mv Beav.log $output 2> /dev/null
 cd $output
 
 #Check if continue argument was used and if program output file exist, are empty, or present and not empty 
