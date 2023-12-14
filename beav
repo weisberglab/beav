@@ -673,7 +673,7 @@ fi
 
 if $integronfinder_run; then
 	SECONDS=0
-	integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" 
+	integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
@@ -862,7 +862,7 @@ fi
 
 if $tiger_run && [ ! -z "$tiger_blast_database" ]; then
 	SECONDS=0
-	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread"
+	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
@@ -884,7 +884,7 @@ if $operon_run; then
     echo -e "" | tee -a Beav.log
 
     #check on status of operon-mapper job and wait for results
-    ${BEAV_DIR}/scripts/check_operon_mapper_status.sh
+    ${BEAV_DIR}/scripts/check_operon_mapper_status.sh | tee -a Beav.log
     
     echo -e "" | tee -a Beav.log
     echo -e "----------------------------------------------------------" | tee -a Beav.log
@@ -897,7 +897,7 @@ if  [ -d ./operon-mapper_results ] && [ -f ./operon-mapper_results/list_of_opero
 	echo -e "Identifying T6SS vgrG operons" | tee -a Beav.log
 	echo -e "" | tee -a Beav.log
 
-	${BEAV_DIR}/scripts/identify_vgrG_clusters.sh $strain | tee T6SS_vgrG_cluster_list.out
+	${BEAV_DIR}/scripts/identify_vgrG_clusters.sh $strain | tee T6SS_vgrG_cluster_list.out | tee -a Beav.log
 	
 	echo -e "" | tee -a Beav.log
 	echo -e "----------------------------------------------------------" | tee -a Beav.log
