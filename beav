@@ -915,13 +915,13 @@ if $continue_run && $agrobacterium_run; then
                 echo -e "T-DNA borders:" | tee -a Beav.log
                 echo -e "contig start   end     border  strand" | tee -a Beav.log
                 grep 'T-DNA' borders/borders.bed | cut -f 1,2,3,5,6 | tee -a Beav.log
-                echo ""
-                echo ""
-                echo "oncogenic plasmid type: (best hit reference strain)" | tee ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log
-                grep 'WKID' -A 1 ${strain}.oncogenic_plasmid_type.sketch.out | tail -n 1 | sed 's/^.*\s//g' | sed 's/__/\t/g' | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log
-                echo "" | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log
-                echo "oncogenic plasmid-like contigs: (best hit reference strain)" | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log
-                echo "contig    length  weighted_k-mer_id       k-mer_id        plasmid_type    best_hit_ref_strain" | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log
+                echo "" | tee -a Beav.log
+                echo "" | tee -a Beav.log
+                echo "oncogenic plasmid type: (best hit reference strain)" | tee ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log | tee -a Beav.log
+                grep 'WKID' -A 1 ${strain}.oncogenic_plasmid_type.sketch.out | tail -n 1 | sed 's/^.*\s//g' | sed 's/__/\t/g' | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log | tee -a Beav.log
+                echo "" | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log | tee -a Beav.log
+                echo "oncogenic plasmid-like contigs: (best hit reference strain)" | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log | tee -a Beav.log
+                echo "contig    length  weighted_k-mer_id       k-mer_id        plasmid_type    best_hit_ref_strain" | tee -a ${strain}.oncogenic_plasmid_final.out | tee --append oncogenicplasmid.log | tee -a Beav.log
 
                 grep 'WKID' ${strain}.oncogenic_plasmid_contigs.sketch.out -A1 -B1 | grep -v '^--$' | grep -v 'WKID' | sed 's/^Query: //g' | sed 's/\s.*Bases: /___BASES___/g' | sed 's/\s.*File:.*$//g' | paste -d " " - - | sed 's/\s\+/\t/g' | cut -f 1,2,3,14 | sed 's/___BASES___/\t/g' | sed 's/__\(\S\+\)$/\t\1/g' | tee -a ${strain}.oncogenic_plasmid_final.out | tee ${strain}.oncogenic_plasmid_final.out.contiglist | tee --append oncogenicplasmid.log
                 echo -e "" | tee -a Beav.log
