@@ -992,7 +992,7 @@ mv ${strain}/${strain}_final.no_fasta.gff3 ${strain}/bakta 2> /dev/null
 mv ${strain}/${strain}_final.oncogenic.gbk ${strain} 2> /dev/null
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "Final annotation output: ${strain}_final.gbk" | tee -a ${strain}/logs/Beav.log
-
+echo -e "" | tee -a ${strain}/logs/Beav.log
 
 if $circos_run; then
 	SECONDS=0
