@@ -355,7 +355,7 @@ cd $output
 
 if $continue_run; then
         echo -e "Checking Bakta output" | tee -a Beav.log
-        echo -e ""
+        echo -e "" | tee -a Beav.log
         if [ ! -f ./${strain}/bakta/${strain}.gbff ] && [ ! -f ./${strain}/bakta/${strain}.faa ] && [ ! -f ./${strain}/bakta/${strain}.gff3 ]; then
                 echo -e "Bakta output files do not exist" | tee -a Beav.log
                 echo -e "" | tee -a Beav.log
