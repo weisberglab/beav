@@ -378,7 +378,7 @@ if $bakta_run; then
 	SECONDS=0
 	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-	echo $ELAPSED | tee -a ${strain}/logs/Beav.log
+	echo $ELAPSED | tee -a Beav.log
 	mkdir ${strain}/bakta
 
 	mv ${strain}/${strain}.txt ${strain}/bakta/ 2> /dev/null
