@@ -376,7 +376,7 @@ if $bakta_run; then
 	echo -e "Running Bakta" | tee -a Beav.log
 	echo -e "" | tee -a Beav.log
 	SECONDS=0
-	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file || error_exit "error occurred while running bakta" | tee -a Beav.log
+	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file 1>2 || error_exit "error occurred while running bakta" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	mkdir ${strain}/bakta
