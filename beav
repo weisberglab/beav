@@ -376,11 +376,11 @@ if $bakta_run; then
 	echo -e "Running Bakta" | tee -a Beav.log
 	echo -e "" | tee -a Beav.log
 	SECONDS=0
-	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file > ${strain}.log || error_exit "error occurred while running Bakta. Please see Bakta.log" | tee -a Beav.log
+	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file > Bakta.log || error_exit "error occurred while running Bakta. Please see Bakta.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	mkdir ${strain}/bakta
-
+	
 	mv ${strain}/${strain}.txt ${strain}/bakta/ 2> /dev/null
 	mv ${strain}/${strain}.embl ${strain}/bakta/ 2> /dev/null
 	mv ${strain}/${strain}.faa ${strain}/bakta/ 2> /dev/null
@@ -401,7 +401,7 @@ if $bakta_run; then
 	echo -e "Done" | tee -a Beav.log
 	echo -e "" | tee -a Beav.log
 fi
-
+mv Bakta.log $strain
 mv Beav.log $strain
 cd $strain
 
@@ -987,7 +987,7 @@ rm ${strain}/genomelist 2> /dev/null
 
 
 mkdir ${strain}/logs 2> /dev/null
-mv ${strain}/${strain}.log ${strain}/logs/Bakta.log 2> /dev/null
+${strain}/${strain}.log >> ${strain}/logs/Bakta.log 2> /dev/null
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 mv ${strain}/${strain}_final.no_fasta.gff3 ${strain}/bakta 2> /dev/null
 mv ${strain}/${strain}_final.oncogenic.gbk ${strain} 2> /dev/null
