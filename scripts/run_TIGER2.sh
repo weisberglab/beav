@@ -10,7 +10,11 @@ cpus=$3
 #8
 
 echo -e "TIGER2: preparing input"
-
+error_exit()
+{
+	echo "Error: $1"
+	exit 1
+}
 #for bakta version, unset pythonpath and activate bakta conda
 
 mkdir TIGER2
@@ -24,14 +28,14 @@ oldlocus=`head -n1 protein/protein.faa | sed 's/>//g;s/_[0-9]\+.*//g'`
 sed -i "s/$oldlocus/$strain/g" protein/protein*
 
 echo -e "TIGER2: running Islander"
-perl $BEAV_DIR/software/TIGER/bin/islander.pl -tax genome.tax -cpu $cpus genome.fa &> islander.log
+perl $BEAV_DIR/software/TIGER/bin/islander.pl -tax genome.tax -cpu $cpus genome.fa &> islander.log || error_exit "error occurred while running Islander"
 #refseq genomic is very slow. make a lineage specific blast db (blastdb made using -parse_seqids)
 echo -e "TIGER2: running Tiger"
-perl $BEAV_DIR/software/TIGER/bin/tiger.pl -verbose -cpu $cpus -db $blastdb -fasta genome.fa &> tiger.log
+perl $BEAV_DIR/software/TIGER/bin/tiger.pl -verbose -cpu $cpus -db $blastdb -fasta genome.fa &> tiger.log || error_exit "error occurred while running Tiger"
 echo -e "TIGER2: running Typing"
-perl $BEAV_DIR/software/TIGER/bin/typing.pl genome.island.nonoverlap.gff &> typing.log
+perl $BEAV_DIR/software/TIGER/bin/typing.pl genome.island.nonoverlap.gff &> typing.log || error_exit "error occurred while running Typing"
 echo -e "TIGER2: running Resolve"
-perl $BEAV_DIR/software/TIGER/bin/resolve.pl mixed lenient > resolved.log 
+perl $BEAV_DIR/software/TIGER/bin/resolve.pl mixed lenient > resolved.log || error_exit "error occurred while running Resolve"
 #does not work well#perl $BEAV_DIR/software/TIGER/bin/typing.pl resolve3.gff &> typing_final.log 
 
 echo -e "TIGER2: parsing output"
