@@ -376,7 +376,7 @@ if $bakta_run; then
 	echo -e "Running Bakta" | tee -a Beav.log
 	echo -e "" | tee -a Beav.log
 	SECONDS=0
-	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file 1>2 || error_exit "error occurred while running bakta" | tee -a Beav.log
+	bakta --threads "$thread" --proteins $BEAV_DIR/databases/bakta_custom_protein/combined.faa --strain "$strain" --output $strain --skip-plot --prefix "$strain" --keep-contig-headers $bakta_args $input_file > ${strain}.log || error_exit "error occurred while running Bakta. Please see Bakta.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	mkdir ${strain}/bakta
@@ -635,7 +635,7 @@ fi
 if $macsyfinder_run; then
 	SECONDS=0
 	python $BEAV_DIR/scripts/makegembase.py
-	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all 1> /dev/null | tee MacSyFinder.log || error_exit "error occurred while running macsyfinder" | tee -a Beav.log
+	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all > MacSyFinder.log || error_exit "error occurred while running MacSyFinder. Please see MacSyFinder.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec" | tee -a Beav.log
 	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
@@ -673,7 +673,7 @@ fi
 
 if $integronfinder_run; then
 	SECONDS=0
-	integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna 1> /dev/null | tee Integron_Finder.log || error_exit "error occurred while running integron-finder" | tee -a Beav.log
+	integron_finder --local-max --cpu "$thread" --outdir Integron_Finder --promoter-attI --pdf  ./bakta/"$strain".fna > Integron_Finder.log || error_exit "error occurred while running IntegronFinder. Please see Integron_Finder.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
  	cut -f 2-6,11 ./Integron_Finder/Results_Integron_Finder_${strain}/${strain}.integrons | awk '$2 ~/P_in|att/' > integron.table
@@ -711,7 +711,7 @@ fi
 
 if $defensefinder_run; then
 	SECONDS=0
-	defense-finder run --db-type gembase ./bakta/${strain}.faa 1> /dev/null | tee defensefinder.log|| error_exit "error occurred while running defense-finder" | tee -a Beav.log
+	defense-finder run --db-type gembase ./bakta/${strain}.faa > defensefinder.log|| error_exit "error occurred while running DefenseFinder. Please see defensefinder.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
@@ -793,7 +793,7 @@ fi
 if $dbscanswa_run; then
 	SECONDS=0
 	sed -i 's/gnl|Bakta|//g' ${strain}_cds_subset.gbk
-	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" 1> /dev/null | tee dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA" | tee -a Beav.log
+	python $BEAV_DIR/software/DBSCAN-SWA/bin/dbscan-swa.py --input ${strain}_cds_subset.gbk --output DBSCAN-SWA --thread_num "$thread" > dbscan-swa.log || error_exit "error occurred while running DBSCAN-SWA. Please see dbscan-swa.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,5-8 ./DBSCAN-SWA/bac_DBSCAN-SWA_prophage_summary.txt | grep -v "bacteria_id" > prophage.table
@@ -987,7 +987,7 @@ rm ${strain}/genomelist 2> /dev/null
 
 
 mkdir ${strain}/logs 2> /dev/null
-mv ${strain}/${strain}.log ${strain}/logs/bakta.log 2> /dev/null
+mv ${strain}/${strain}.log ${strain}/logs/Bakta.log 2> /dev/null
 mv ${strain}/*.log ${strain}/logs/ 2> /dev/null
 mv ${strain}/${strain}_final.no_fasta.gff3 ${strain}/bakta 2> /dev/null
 mv ${strain}/${strain}_final.oncogenic.gbk ${strain} 2> /dev/null
