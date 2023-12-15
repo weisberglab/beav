@@ -6,25 +6,15 @@ sys.path.insert(0, f'{os.environ["BEAV_DIR"]}/software/PyCirclize/src/')
 
 from pycirclize import Circos
 from pycirclize.parser import Genbank
+
 import numpy as np
 from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
+
 import beav_oncogenes
 
-def get_base_file_name(file_name):
-    """
-    INPUT: Genbank file name or path to the file
-    OUTPUT: Base name 
-    """
-    if '.' in file_name:
-        file_name = file_name.split('.')[0]
-    
-    if '/' in file_name:
-        file_name = file_name.split('/')[-1]
-    
-    return file_name
 
-def all_contig_circos(gbk_file):
+def all_contig_circos(gbk_file, onco_label):
     """
     INPUT: Genbank file containing beav annotation
     OUTPUT: Circos plot containing feature distribution in differnt contigs
@@ -38,8 +28,8 @@ def all_contig_circos(gbk_file):
 
 
     circos = Circos(seqid2size, space=1, start=15, end=345)
-    #main_kwargs = dict(ha="right", va="top")
-    #circos.text(f"{get_base_file_name(gbk_file)}\n{len(circos.sectors)} contig(s)", r=12, size=8, **main_kwargs)
+
+    intPresent = 0 # status will change if integron is present
 
     # Loop through the contigs
     contig_i = 0
@@ -62,6 +52,8 @@ def all_contig_circos(gbk_file):
         extra_feature =  sector.add_track((72, 77))
         gc_content_track = sector.add_track((67, 72))
         gc_skew_track = sector.add_track((62, 67))
+
+        
         
         # Plot forward/reverse CDS, ICE, origin, beav tracks
         for feature in seqid2features[sector.name]:
@@ -100,17 +92,31 @@ def all_contig_circos(gbk_file):
                             fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
                             beav_track.xticks([(fx1 + fx2)/2], outer=False, line_kws={'ec':'slateblue'}, text_kws={'color':'darkred'}) # T6SS
                     elif 'SMASH' in feature.qualifiers['note'][0]:
-                        beav_track.genomic_features([feature], fc="forestgreen") #Secondary metabolite
+                        beav_track.genomic_features([feature], fc="forestgreen") # Secondary metabolite
+                    elif 'IntegronFinder' in feature.qualifiers['note'][0]:
+                        beav_track.genomic_features([feature], fc="black") # Integron
+                        intPresent = 1
+                    
+                    
+                if 'gene' in feature.qualifiers.keys():
+                    if feature.qualifiers['gene'][0] == 'vgrG':
+                        beav_track.genomic_features([feature], fc="darkorange") # Secretion Systems 
+                        fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                        beav_track.xticks([(fx1 + fx2)/2], outer=False, line_kws={'ec':'slateblue'}, text_kws={'color':'darkred'}) # T6SS
             
             if feature.type == "rep_origin":
                 fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
-                gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['origin'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # Origin of replication
+                gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['Origin'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # Origin of replication
+            
+            if feature.type == 'oriT':
+                fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['oriT'], label_orientation="vertical") # Origin of transfer
+
             if feature.type == "CDS":
                 if 'gene' in feature.qualifiers.keys():
                     if feature.qualifiers['gene'][0] in ['repA', 'repB', 'repC']:
                         extra_feature.genomic_features([feature], fc='black',  plotstyle="arrow")
                                             
-
         # Plot GC skew
         pos_list, gc_skews = gbk.calc_gc_skew(seq=str(gbk.records[contig_i].seq))
         positive_gc_skews = np.where(gc_skews > 0, gc_skews, 0)
@@ -137,35 +143,43 @@ def all_contig_circos(gbk_file):
     circos.text("RNA", r=68, color="dimgrey", **text_common_kws)
     circos.text("GC skew", r=63, color="dimgrey", **text_common_kws)
 
-    fig = circos.plotfig()
-    _ = circos.ax.legend(
-        handles=[
+    # Prepare legends for circos plot
+    legend_list = [
             Patch(color="darkorange", label="Secretion Systems"),
-            Line2D([], [], color="darkred", label="T4SS", marker='_', ls='None'),
             Line2D([], [], color="plum", label="T3SS", marker='_', ls='None'),
+            Line2D([], [], color="darkred", label="T4SS", marker='_', ls='None'),
             Line2D([], [], color="slateblue", label="T6SS", marker='_', ls='None'),
-            Patch(color="royalblue", label="Phages"),
+            Patch(color="royalblue", label="Prophages"),
             Patch(color="turquoise", label="ICEs"),
-            Patch(color="forestgreen", label="Secondary Metabolites"),
+            Patch(color="forestgreen", label="Metabolite Clusters"),
             Line2D([], [], color="olive", label="Positive GC Skew", marker="^", ms=6, ls="None"),
             Line2D([], [], color="purple", label="Negative GC Skew", marker="v", ms=6, ls="None"),
             Line2D([], [], color="yellowgreen", label="rRNA", marker="_", ms=6, ls="None"),
             Line2D([], [], color="orange", label="tRNA", marker="_", ms=6, ls="None")
-        ],
+        ]
+
+    if intPresent == 1:
+            legend_list.insert(6, Patch(color="black", label="Integron"))
+
+
+    fig = circos.plotfig()
+    _ = circos.ax.legend(
+        title = f"{onco_label}\n",
+        handles = legend_list,
         bbox_to_anchor=(0.5, 0.45),
         loc="center",
-        #ncols=2,
         fontsize=6
     )
 
-    fig.savefig(f'{get_base_file_name(gbk_file)}.circo.png')
-    print(f'Image saved: {get_base_file_name(gbk_file)}.circo.png')
+    fig.savefig(f'{onco_label}.circos.png', dpi=300)
+    fig.savefig(f'{onco_label}.circos.pdf', dpi=300)
+    print(f'Image saved: {onco_label}.circos.png/.pdf')
 
     pass
 
 
-def splice_genbank_contig(gbk_file, contig_id):
-    """
+def splice_genbank_contig(gbk_file, contig_id, onco_label):
+    """x
     INPUT:
         gbk_file: Genbank file containing beav annotation and has multiple contigs
         contig_id: List of contigs
@@ -182,19 +196,19 @@ def splice_genbank_contig(gbk_file, contig_id):
             if j in i.split('\n', 1)[0].split():
                 contig_of_interest.append(i)
 
-    with open(f'{get_base_file_name(gbk_file)}.oncogenic.gbk', 'w') as f:
+    with open(f'{onco_label}.oncogenic.gbk', 'w') as f:
         for i in range(len(contig_of_interest)):
             f.writelines(contig_of_interest[i])
             if i < len(contig_of_interest):
                 f.writelines('//\n')
             
     
-    print(f'{get_base_file_name(gbk_file)}.oncogenic.gbk')
+    print(f'{onco_label}.oncogenic.gbk')
 
-    return f'{get_base_file_name(gbk_file)}.oncogenic.gbk'
+    return f'{onco_label}.oncogenic.gbk'
 
 
-def oncogenic_circos(gbk_file):
+def oncogenic_circos(gbk_file, onco_label):
     """
     INPUT: 
     gbk_file: Single contig genbank file containing beav annotation
@@ -268,6 +282,10 @@ def oncogenic_circos(gbk_file):
                     cds_track.genomic_features([feature], fc="turquoise", plotstyle="arrow") #Opine transport/catabolism genes
                 elif feature.qualifiers['gene'][0] in beav_oncogenes.agrocinopine_dict.keys():
                     cds_track.genomic_features([feature], fc="steelblue", plotstyle="arrow") #Agrocinopine transport/catabolism genes
+
+            if feature.type == 'oriT':
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['oriT'], label_orientation="vertical") # Origin of transfer
                 
             if 'product' in feature.qualifiers.keys():
                 if feature.qualifiers['product'][0] in beav_oncogenes.oncogene_list:
@@ -338,15 +356,16 @@ def oncogenic_circos(gbk_file):
 
     fig = circos.plotfig()
     _ = circos.ax.legend(
+        title = f"{onco_label}\n",
         handles=[
             Line2D([], [], color="lightgrey", label="CDS +strand", marker=">", ms=6, ls="None"),
             Line2D([], [], color="lightgrey", label="CDS -strand", marker="<", ms=6, ls="None"),
-            Patch(color="olive", label="T-DNA transfer"),
+            Patch(color="olive", label="$\it{vir}$ genes"),
             Patch(color="orange", label="T-DNA/Oncogenes"),
             Line2D([], [], color="darkgreen", label="ABC Transporter", marker="_", ms=6, ls="None"),
-            Patch(color="indigo", label="tra"),
-            Patch(color="purple", label="trb"),
-            Patch(color="salmon", label="repABC"),
+            Patch(color="indigo", label="$\it{tra}$"),
+            Patch(color="purple", label="$\it{trb}$"),
+            Patch(color="salmon", label="$\it{repABC}$"),
             Patch(color="darkgreen", label="Opine synthase "),
             Patch(color="turquoise", label="Opine transport"),
             Patch(color="steelblue", label="Agrocinopine transport"),
@@ -354,11 +373,15 @@ def oncogenic_circos(gbk_file):
         ],
         bbox_to_anchor=(0.5, 0.45),
         loc="center",
-        #ncols=2,
         fontsize=6
     )
-    fig.savefig(f'{get_base_file_name(gbk_file)}.oncogenes.png')
-    print(f'Image saved: {get_base_file_name(gbk_file)}.oncogenes.png')
+    if '\n' in onco_label:
+        file_name = onco_label.split('\n')[0]
+    else:
+        file_name = onco_label
+    fig.savefig(f'{file_name}.oncogenes.png', dpi=300)
+    fig.savefig(f'{file_name}.oncogenes.pdf', dpi=300)
+    print(f'Image saved: {file_name}.oncogenes.png/pdf')
 
     pass
 
@@ -368,22 +391,26 @@ if __name__ == "__main__":
 
     parser.add_argument('--input', '-i', type=str, required=True)
     parser.add_argument('--contigs', '-c', type=str, nargs='*', required=False)
+    parser.add_argument('--plasmid', '-p', type=str, required=False)
 
     # Parse the arguments
     args = parser.parse_args()
 
+    # Prepare for label
+    strain_id = args.input.split('/')[-2]
     # Generate only genome circos 
     # Command `python3 beav_circos.py --input input.gbk`
     if not args.contigs:
         print('All contig circos only ...')
-        all_contig_circos(args.input)
+        all_contig_circos(args.input, strain_id)
 
     # Generate genome and oncogene circos
     # Command: `python3 beav_circos.py --input input.gbk --contig contig_of_interest`
     if args.contigs:
+        plasmid_type = args.plasmid
         # Generate genome circos
-        all_contig_circos(args.input) 
+        all_contig_circos(args.input, strain_id) 
         # Subset contig_of_interest and create contig_id.gbk file
-        contig_id_gbk = splice_genbank_contig(args.input, args.contigs)
+        contig_id_gbk = splice_genbank_contig(args.input, args.contigs, strain_id)
         # Generate circos for contig_of_interest
-        oncogenic_circos(contig_id_gbk)
+        oncogenic_circos(contig_id_gbk, strain_id+'\n'+plasmid_type)
