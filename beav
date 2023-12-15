@@ -1005,8 +1005,10 @@ if $circos_run; then
 	echo $ELAPSED | tee -a ${strain}/logs/Beav.log
 	echo -e "" | tee -a ${strain}/logs/Beav.log
 	echo -e "Done" | tee -a ${strain}/logs/Beav.log
-	mv ${strain}_final.circo.png ${strain}
-	mv ${strain}_final.oncogenes.png ${strain}
+        mv ${strain}.circos.png ${strain}
+        mv ${strain}.circos.pdf ${strain}
+        mv ${strain}.oncogenes.png ${strain}
+        mv ${strain}.oncogenes.pdf ${strain}
 fi
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "----------------------------------------------------------" | tee -a ${strain}/logs/Beav.log
