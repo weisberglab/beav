@@ -852,6 +852,7 @@ if $continue_run && $tiger_run && [ ! -z $tiger_blast_database ]; then
         if [ ! -f ./tables/${strain}_TIGER2_final.table.out ]; then
                 echo -e "TIGER2 output files do not exist. Rerunning TIGER2" | tee -a Beav.log
                 echo -e "" | tee -a Beav.log
+		rm -rf TIGER2
         elif [ -f ./tables/${strain}_TIGER2_final.table.out ]; then
                 echo -e "TIGER2 output found. Skipping TIGER2" | tee -a Beav.log
                 echo -e "" | tee -a Beav.log
