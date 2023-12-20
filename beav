@@ -1010,6 +1010,7 @@ if $circos_run; then
         mv ${strain}.circos.pdf ${strain}
         mv ${strain}.oncogenes.png ${strain}
         mv ${strain}.oncogenes.pdf ${strain}
+	mv ${strain}.oncogenic.gbk ${strain}
 fi
 echo -e "" | tee -a ${strain}/logs/Beav.log
 echo -e "----------------------------------------------------------" | tee -a ${strain}/logs/Beav.log
