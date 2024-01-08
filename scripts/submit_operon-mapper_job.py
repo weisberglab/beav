@@ -41,7 +41,7 @@ if os.path.isfile(zip_fna_path) == False:
 
 try:
 	#need form action url for post, not original webpage
-    resp = requests.post('https://biocomputo.ibt.unam.mx/operon_mapper/capta_forma_01.pl', data=userdata, files=files, headers={'referer': 'https://biocomputo.ibt.unam.mx/', 'origin': 'https://biocomputo.ibt.unam.mx'})
+    resp = requests.post('https://biocomputo.ibt.unam.mx/operon_mapper/capta_forma_01.pl', data=userdata, files=files, headers={'referer': 'https://biocomputo.ibt.unam.mx/', 'origin': 'https://biocomputo.ibt.unam.mx'}, verify=False)
     resp.raise_for_status()
 except requests.exceptions.HTTPError as errh:
     print ("Http Error:",errh)
