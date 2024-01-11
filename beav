@@ -635,7 +635,7 @@ fi
 if $macsyfinder_run; then
 	SECONDS=0
 	python $BEAV_DIR/scripts/makegembase.py
-	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all > MacSyFinder.log || error_exit "error occurred while running MacSyFinder. Please see MacSyFinder.log" | tee -a Beav.log
+	macsyfinder -o MacSyFinder_TXSS --db-type gembase --sequence-db allgembase.faa --worker 1 --models TXSScan all --models-dir $BEAV_DIR/models > MacSyFinder.log || error_exit "error occurred while running MacSyFinder. Please see MacSyFinder.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec" | tee -a Beav.log
 	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,3 ./MacSyFinder_TXSS/best_solution.tsv | sed 's/^\S\+_//g' | sed 's/=/_/g' | grep '	' | grep -v gene_name > macsyfinder.tsv.table
@@ -711,7 +711,7 @@ fi
 
 if $defensefinder_run; then
 	SECONDS=0
-	defense-finder run --db-type gembase ./bakta/${strain}.faa > defensefinder.log 2>&1 || error_exit "error occurred while running DefenseFinder. Please see defensefinder.log" | tee -a Beav.log
+	defense-finder run --db-type gembase ./bakta/${strain}.faa --models-dir $BEAV_DIR/models > defensefinder.log 2>&1 || error_exit "error occurred while running DefenseFinder. Please see defensefinder.log" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
 	cut -f 2,3 ./${strain}_defense_finder_genes.tsv | grep -v 'hit_id' > ${strain}_defensefinder.tsv.table
