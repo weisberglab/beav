@@ -39,12 +39,12 @@ echo -e ""
 
 #macsyfinder
 echo -e "MACSYFINDER"
-macsydata install --user --upgrade TXSScan
+macsydata install --models-dir $BEAV_DIR/models --upgrade TXSScan
 echo -e ""
 
 #defense_finder
 echo -e "DEFENSE FINDER"
-defense-finder update
+defense-finder update --models-dir $BEAV_DIR/models
 echo -e ""
 
 echo -e "ANTISMASH"
