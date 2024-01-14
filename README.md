@@ -1,3 +1,5 @@
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/beav/badges/version.svg)](https://anaconda.org/bioconda/beav) [![Anaconda-Server Badge](https://anaconda.org/bioconda/beav/badges/latest_release_date.svg)](https://anaconda.org/bioconda/beav) [![Anaconda-Server Badge](https://anaconda.org/bioconda/beav/badges/downloads.svg)](https://anaconda.org/bioconda/beav)
+
 # beav - a bacterial genome and mobile element annotation pipeline
 
 <p align="center">
