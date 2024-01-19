@@ -68,7 +68,7 @@ echo -e "DBSCAN-SWA"
 if [[ ! -f $BEAV_DIR/software/DBSCAN-SWA/db/database/uniprot.dmnd ]]; then
 	echo -e "Downloading and extracting DBSCAN-SWA database"
 	mkdir $BEAV_DIR/software/DBSCAN-SWA/db/
-	if curl -L http://www.microbiome-bigdata.com/PHISDetector/static/download/DBSCAN-SWA/db.tar.gz > $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz; then
+	if curl -L https://zenodo.org/records/10404224/files/db.tar.gz?download=1 > $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz; then
 		tar -zxvf $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz -C $BEAV_DIR/software/DBSCAN-SWA/
 		rm -f $BEAV_DIR/software/DBSCAN-SWA/db/db.tar.gz
 	else
