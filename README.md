@@ -188,8 +188,9 @@ The beav databases, models, scripts and other forked tools are downloaded in `$B
 
 To visualize only beav-specific features on Circos plot, run `beav_circos.py` script by following:
 ```
-python3 beav_circos.py --input $GenBank_file
+python3 beav_circos.py --input $GBK
 ```
+Here, `--input` takes annotated GenBank file as input.
 
 To also visualize the oncogenic plasmid features, run the following:
 ```
