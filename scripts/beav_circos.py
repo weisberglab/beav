@@ -286,6 +286,10 @@ def oncogenic_circos(gbk_file, onco_label):
             if feature.type == 'oriT':
                     fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
                     cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['oriT'], label_orientation="vertical") # Origin of transfer
+            
+            if feature.type == "rep_origin":
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
+                    cds_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['Origin'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # Origin of replication
                 
             if 'product' in feature.qualifiers.keys():
                 if feature.qualifiers['product'][0] in beav_oncogenes.oncogene_list:
