@@ -219,7 +219,7 @@ Here, `--CONTIG` takes is the list of contigs that you want to visualize, and `-
 # Citation
 Beav can be cited as:
 
-Jung J., Rahman A., Schiffer A., and Weisberg A.J, Beav: a bacterial genome and mobile element annotation pipeline, (2023), GitHub repository, https://github.com/weisberglab/beav
+Jung J., Rahman A., Schiffer A., and Weisberg A.J, Beav: a bacterial genome and mobile element annotation pipeline, (2024), GitHub repository, https://github.com/weisberglab/beav
 
 
 
