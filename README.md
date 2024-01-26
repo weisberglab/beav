@@ -85,6 +85,23 @@ beav_db
 ```
 
 # Usage
+
+#### NOTE: there is currently a [bug](https://github.com/mdmparis/defense-finder/issues/42) in the latest DefenseFinder models that cause an error in MacSyFinder when running it. We recommend running Beav with `--skip_defensefinder` until the MacSyFinder [bug fix](https://github.com/gem-pasteur/macsyfinder/commit/27ee21ceb8e7100d9183b084356f791487aca4ad) is released in bioconda. Alternatively, copying the patched file to the MacSyFinder python library folder of your conda release will fix the issue.
+<details>
+  <summary>Patching instructions</summary>
+  To do so, find the python version of your conda environment: 
+
+    python --version
+
+Then download the patched registries.py file: 
+
+    wget https://github.com/gem-pasteur/macsyfinder/blob/27ee21ceb8e7100d9183b084356f791487aca4ad/macsypy/registries.py
+
+Then copy it to the correct folder in your conda env, changing the python version as necessary: 
+
+    cp registries.py $CONDA_PREFIX/lib/python3.9/site-packages/macsypy/
+</details>
+
 ```
 usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
     BEAV- Bacterial Element Annotation reVamped
