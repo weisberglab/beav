@@ -15,7 +15,7 @@ defensefinder_path = f"./{strain}/tables/{strain}_defensefinder.tsv.table"
 hmmdb_path = f"./{strain}/tables/{strain}_uniq_borders.table"
 dbscan_path = f"./{strain}/tables/prophage.table"
 antismash_path = f"./{strain}/tables/{strain}_antismash.table.beav.subset"
-tiger_path = f"./{strain}/tables/{strain}_TIGER2_final.table.out"
+tiger_path = f"./{strain}/tables/tiger_cut.table
 integron_path = f"./{strain}/tables/integron.table"
 integron_gene_path = f"./{strain}/tables/integron_gene.table"
 gapmind_path = f"./{strain}/GapMind/combined_GapMind_results.tab"
@@ -97,7 +97,7 @@ if os.path.isfile(antismash_path) == True:
 
 tiger_dict = {}
 if os.path.isfile(tiger_path) == True:          
-    with open (f"./{strain}/tables/{strain}_TIGER2_final.table.out", 'r') as tiger_file:
+    with open (f"./{strain}/tables/tiger_cut.table", 'r') as tiger_file:
         for line in tiger_file:
             replicon,start,end,annot = line.strip().split('\t')
             if replicon in tiger_dict:
