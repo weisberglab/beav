@@ -74,9 +74,11 @@ while read line; do
 	if [[ "$targetlen" == 1 ]]; then
 		target="tRNA_${aatable[$target]}"
 	fi
-	leftborderseq=`echo -e "$line" |  cut -f 9 | sed 's/^.*isleLseq=//g;s/;.*//g' | sed 's/[A-Z]//g'`
-	rightborderseq=`echo -e "$line" |  cut -f 9 | sed 's/^.*isleRseq=//g;s/;.*//g' | sed 's/[A-Z]//g'`
-	targetseq=`echo -e "$line" |  cut -f 9 | sed 's/^.*unintSeq=//g;s/;.*//g' | sed 's/[A-Z]//g'`
+        if [ $islandtype == "TIGER" ] || [ $islandtype == "Islander,TIGER" ]; then
+            leftborderseq=`echo -e "$line" |  cut -f 9 | sed 's/^.*isleLseq=//g;s/;.*//g' | sed 's/[A-Z]//g'`
+            rightborderseq=`echo -e "$line" |  cut -f 9 | sed 's/^.*isleRseq=//g;s/;.*//g' | sed 's/[A-Z]//g'`
+            targetseq=`echo -e "$line" |  cut -f 9 | sed 's/^.*unintSeq=//g;s/;.*//g' | sed 's/[A-Z]//g'`
+        fi
 	icelength=`echo -e "$line" |  cut -f 9 | sed 's/^.*;len=//g;s/;.*//g'`
 	tandem=`echo -e "$line" |  cut -f 9 | sed 's/^.*;tandem=//g;s/;.*//g' | sed 's/1,1/no/g;s/\([0-9]\),/count=\1,/g;s/,/,pos=/g'`
 	
@@ -87,11 +89,15 @@ while read line; do
 		inttype=`echo -e "$intlocus" | sed 's/\..*//g'` 
 		intposstart=`echo -e "$intlocus" | sed 's/^.*://g;s/-.*//g'` 
 		intposend=`echo -e "$intlocus" | sed 's/.*-//g'` 
-		intlocus=`echo "$replicon	$intposstart	$intposend" | bedtools intersect -nonamecheck -a stdin -b ./${strain}.nofasta.gff3 -wb -f 0.90  | grep 'CDS' | sed 's/^.*ID=//g;s/;.*//g' | tr '\n' ',' | sed 's/,$//g'`
+		intlocus=`echo "$replicon	$intposstart	$intposend" | bedtools intersect -nonamecheck -a stdin -b ./${strain}.nofasta.gff3 -wb -f 0.90  | grep 'CDS' | grep -v 'remark' | sed 's/^.*locus_tag=//g;s/;.*//g' | tr '\n' ',' | sed 's/,$//g'`
 		curloci="$curloci,$inttype:$intlocus"
 	done < <( echo -e "$integraseposlist" | tr ',' '\n' | sort -k2,2g -t : )  
 	curloci=`echo -e "$curloci" | sed 's/^,//g'`
-	echo -e "$replicon	$startpos	$endpos	TIGER2:integrative element (ICE/IME);target=$target;attL=$leftborderseq;attR=$rightborderseq;attB=$targetseq;length=$icelength;integrase=$curloci;tandem=$tandem;pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
+	if [ $islandtype == "TIGER" ] || [ $islandtype == "Islander,TIGER" ]; then
+        	echo -e "$replicon      $startpos       $endpos TIGER2:integrative element (ICE/IME);target=$target;attL=$leftborderseq;attR=$rightborderseq;attB=$targetseq;length=$icelength;integrase=$curloci;tandem=$tandem;pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
+        else
+                echo -e "$replicon      $startpos       $endpos TIGER2:integrative element (ICE/IME);target=$target;length=$icelength;integrase=$curloci;tandem=$tandem;pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
+        fi
 done < ./TIGER2/resolve3.gff
 
 echo -e "TIGER2: Done"
