@@ -14,6 +14,7 @@ dbscanswa_run=true
 operon_run=false
 continue_run=false
 bakta_run=true
+genbank=false
 thread=1
 output=$PWD
 bakta_args=""
@@ -114,10 +115,13 @@ do
         --continue)
             continue_run=true
             ;;
+        --genbank)
+            genbank=true
+            ;;
         -i|--input)
             input_file=$2
             new_strain=`basename $input_file`
-            new_strain=`echo -e "$new_strain" | sed 's/.fna$//g;s/.fasta$//g;s/.fas$//g'`
+            new_strain=`echo -e "$new_strain" | sed 's/.fna$//g;s/.fasta$//g;s/.fas$//g;s/.gbff$//g;s/.gbk$//g;s/.fa$//g;s/.genbank$//'`
             if [ ! -z $input_file ]; then
                 strain=$new_strain
             fi
@@ -370,6 +374,14 @@ if $continue_run; then
 	fi
 fi
 
+if [ "$genbank" ]; then
+     bakta_run=false
+     mkdir ${strain}
+     mkdir ${strain}/bakta
+     cp ${input_file} ${strain}/bakta/${strain}.gbff
+     python ${BEAV_DIR}/scripts/convert_gbff.py ${strain}
+     mv ${strain}.faa ${strain}.gff3 ${strain}.fna ${strain}.ffn ${strain}/bakta/
+fi
 
 if $bakta_run; then 
 
