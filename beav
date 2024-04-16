@@ -346,6 +346,7 @@ if $missing_program;then
 	echo -e "" | tee -a Beav.log
 	echo -e "Some required programs are missing or gave an error message." | tee -a Beav.log
 	echo -e "Either install them or use the --skip-PROGRAM option" | tee -a Beav.log
+	echo -e "Please run "beav_db" to install databases" | tee -a Beav.log
 	exit
 fi
 
