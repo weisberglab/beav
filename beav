@@ -161,7 +161,7 @@ do
             ;;
         --antismash_arguments)
 			new_antismash_args=$2
-            if [ ! -z "$new_bakta_args" ]; then
+            if [ ! -z "$new_antismash_args" ]; then
                 antismash_args=$new_antismash_args
 			fi
 			shift
