@@ -375,7 +375,7 @@ if $continue_run; then
 	fi
 fi
 
-if [ "$genbank" ]; then
+if $genbank; then
      bakta_run=false
      mkdir ${strain}
      mkdir ${strain}/bakta
