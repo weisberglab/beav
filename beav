@@ -81,6 +81,10 @@ echo -e "" | tee -a Beav.log
 
 echo $@ | tee -a Beav.log
 echo -e "" | tee -a Beav.log
+if [[ -z "${BEAV_DIR}" ]]; then
+    echo -e "The BEAV_DIR variable is not set. Either activate the Beav conda environment or set the BEAV_DIR variable." 
+    exit
+fi
 while [ $# -gt 0 ]
 do
     case $1 in
