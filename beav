@@ -20,7 +20,7 @@ output=$PWD
 bakta_args=""
 antismash_args=""
 #antismash_args="--cb-knownclusters --cc-mibig"
-input_file=""
+new_input_file=""
 tiger_blast_database=""
 email=""
 circos_run=true
@@ -119,7 +119,8 @@ do
             genbank=true
             ;;
         -i|--input)
-            input_file=$2
+            new_input_file=$2
+            input_file=$(realpath -e $new_input_file)
             new_strain=`basename $input_file`
             new_strain=`echo -e "$new_strain" | sed 's/.fna$//g;s/.fasta$//g;s/.fas$//g;s/.gbff$//g;s/.gbk$//g;s/.fa$//g;s/.genbank$//'`
             if [ ! -z $input_file ]; then
