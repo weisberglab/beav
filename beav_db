@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+if [[ -z "${BEAV_DIR}" ]]; then
+    echo -e "The BEAV_DIR variable is not set. Either activate the Beav conda environment or set the BEAV_DIR variable." 
+    exit
+fi
 
 echo -e "downloading and setting up databases for dependencies"
 
