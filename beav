@@ -1085,7 +1085,7 @@ if [ -f ${strain}/GapMind/carbon.sum.rules ]
 then
         gap_mind=` cat ${strain}/GapMind/carbon.sum.rules | cut -f 5,4,7-8 | grep "all" | awk '$4 == 0' | awk '$3 == 0' | cut -f 1 | sort | uniq | awk 'BEGIN { ORS = ", " } { print }' | sed 's/,\s\+$//g'`
 else
-        gap_mind=`N/A`
+        gap_mind="N/A"
 fi
 echo -e "${secretion_systems}   ${defense_systems}      ${phages}       ${antiSMASH}    ${ice}  ${integrons}" | tee --append ./${strain}/summary.table | tee -a ${strain}/logs/Beav.log
 
