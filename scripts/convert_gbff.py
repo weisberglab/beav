@@ -31,7 +31,7 @@ faa_output_handle = open(faa_filename, "w")
 for seq_record in SeqIO.parse(gbk_input_handle, "genbank") :
 #       print ("Dealing with GenBank record %s" % seq_record.id)
         for seq_feature in seq_record.features:
-                if seq_feature.type=="CDS" and 'translation' in seq_feature.qualifiers:
+                if seq_feature.type=="CDS" and 'translation' in seq_feature.qualifiers and 'pseudogene' not in seq_feature.qualifiers:
                         assert len(seq_feature.qualifiers['translation'])==1
                         faa_output_handle.write(">%s %s\n%s\n" % (
                                 seq_feature.qualifiers['locus_tag'][0],
