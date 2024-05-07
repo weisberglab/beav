@@ -219,7 +219,7 @@ output_gbk_handle.close()
 output_faa_handle = open(faa_path, 'w')
 for record in new_records:
         for feature in record.features:
-                if feature.type=="CDS":
+                if feature.type=="CDS" and 'pseudogene' not in feature.qualifiers:
                         product = feature.qualifiers.get("product")[0]
                         gene = feature.qualifiers.get("gene")
                         if gene is not None:
