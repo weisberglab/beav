@@ -890,7 +890,7 @@ if $tiger_run && [ ! -z "$tiger_blast_database" ]; then
 	$BEAV_DIR/scripts/run_TIGER2.sh "$strain" "$tiger_blast_database" "$thread" | tee -a Beav.log
 	ELAPSED="Elapsed: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
 	echo $ELAPSED | tee -a Beav.log
-	cut -f 1-4 ./${strain}_TIGER2_final.table.out > tiger_cut.table
+	cat ./${strain}_TIGER2_final.table.out | sed 's/\s\+/\t/g' | sed 's/\telement/\ element/g' | sed 's/\t(ICE/\ (ICE/g' > tiger_cut.table
 	mv *.table ./tables/ 2> /dev/null
 	mv *.table.out ./tables/ 2> /dev/null
 	echo -e "" | tee -a Beav.log
