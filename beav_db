@@ -4,41 +4,73 @@ if [[ -z "${BEAV_DIR}" ]]; then
     exit
 fi
 
-echo -e "downloading and setting up databases for dependencies"
+bakta_db_run=true
+light_db_run=false
+baktadbpath=""
+baktadbtype=full
+while [ $# -gt 0 ]
+do
+        case $1 in
+                --skip_bakta_db)
+                        bakta_db_run=false
+                        ;;
+                --bakta_db_path)
+                        new_baktadbpath=$2
+                        baktadbpath=$(realpath -e $new_baktadbpath)
+                        shift
+                        ;;
+                --light)
+                        light_db_run=true
+                        if [ $light_db_run ]; then
+                                baktadbtype=light
+                        fi
+                        ;;
+                esac
+        shift
+done
 
-echo -e "BAKTA"
 
-baktadbtype="$1"
-baktadbpath="$2"
+#check if bakta_db_run variable is false and if so echo skip message
+if ! $bakta_db_run; then
+        echo "Skipping Bakta database download"
+fi
+#check if bakta_db_run variable is true and download bakta database
+if $bakta_db_run; then
+        echo -e "downloading and setting up databases for dependencies"
+	echo -e ""
+        echo -e "BAKTA"
+
 
 #check if bakta db variable exists and db is downloaded
-if [[ ! -z "$BAKTA_DB" ]] && [[ -f $BAKTA_DB/version.json ]]; then
-	echo -e "BAKTA_DB already set and database is installed"
-else
-	#if they only provide a type, install to baktafolder/db
-	#otherwise install to where they want it and remind to set BAKTA_DB
-	if [[ ! ($baktadbtype == "full" || $baktadbtype == "light") ]]; then
-		echo -e "Please ensure that the second argument to this script is either full (60GB database) or light (~3GB database)"
-		exit 1
-	elif [[ -z $baktadbpath ]] && [[ ! -z $CONDA_PREFIX  ]]; then
-		echo -e "No bakta db path provided, defaulting to <baktadir>/db"
-		baktadbpath="$CONDA_PREFIX/db/"
-		if [[ ! -d $baktadbpath ]]; then
-			mkdir $baktadbpath
-		fi
-		echo -e "no need to set the BAKTA_DB environment variable."
-	else
-		echo -e "no bakta db path provided and not in a conda environment."
-		echo -e "Please activate the conda environment that beav is installed in and try again,"
-		echo -e "or provide a path to install the bakta_db."
-		echo -e "Dont forget to set the BAKTA_DB environment variable to point to that folder"
-		echo -e "alternatively, provide --db <yourbaktadbpath> as an argument to bakta"
-		exit 1
-	fi
-	echo -e "downloading bakta databases, this make take a while (30 or 3 GB)"	
-	bakta_db download --output $baktadbpath --type $baktadbtype
+        if [[ ! -z "$BAKTA_DB" ]] && [[ -f $BAKTA_DB/version.json ]]; then
+        echo -e "BAKTA_DB already set and database is installed"
+        else
+        #if they only provide a type, install to baktafolder/db
+        #otherwise install to where they want it and remind to set BAKTA_DB
+                if [[ ! ($baktadbtype == "full" || $baktadbtype == "light") ]]; then
+                        echo -e "Please ensure that the second argument to this script is either full (60GB database) or light (~3GB database)"
+                        exit 1
+                elif [[ -z $baktadbpath ]] && [[ ! -z $CONDA_PREFIX  ]]; then
+                        echo -e "No bakta db path provided, defaulting to <baktadir>/db"
+                        baktadbpath="$CONDA_PREFIX/db/"
+                        if [[ ! -d $baktadbpath ]]; then
+                                mkdir $baktadbpath
+                        fi
+                        echo -e "no need to set the BAKTA_DB environment variable."
+                elif [ $baktadbpath ]; then
+                        :
+                else
+                        echo -e "no bakta db path provided and not in a conda environment."
+                        echo -e "Please activate the conda environment that beav is installed in and try again,"
+                        echo -e "or provide a path to install the bakta_db."
+                        echo -e "Dont forget to set the BAKTA_DB environment variable to point to that folder"
+                        echo -e "alternatively, provide --db <yourbaktadbpath> as an argument to bakta"
+                        exit 1
+                fi
+                echo -e "downloading bakta databases, this make take a while (30 or 3 GB)"      
+                bakta_db download --output $baktadbpath --type $baktadbtype
+        fi
 fi
-
 echo -e ""
 
 #macsyfinder
