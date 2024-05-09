@@ -138,7 +138,9 @@ usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakt
         --skip_antismash
                 Skip detection and annotation of biosynthetic gene clusters
         --continue
-                Continue running BEAV from any point in the pipeline. Rerun programs that gave an error or were skipped. 
+                Continue running BEAV from any point in the pipeline. Rerun programs that gave an error or were skipped.
+        --genbank
+                Use a GenBank file as input
     General:
         --help, -h
                 Show BEAV help message
@@ -173,7 +175,7 @@ The continue option will check the output of existing Beav runs and rerun progra
 
 **--genbank**
 
-GenBank files can be used as the input file when the genbank option is used.
+A GenBank file can be used as the input file when the genbank option is used.
 
 # Examples
 **Minimal run**
