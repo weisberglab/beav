@@ -214,7 +214,7 @@ To also visualize the oncogenic plasmid features, run the following:
 python3 beav_circos.py --input $GBK --contig $CONTIG --plasmid $pTi
 ```
 
-Here, `--CONTIG` takes is the list of contigs that you want to visualize, and `--plasmid` takes the name of the plasmid that will be annotated as label.
+Here, `--CONTIG` takes is the list of contigs (seperated by space) that you want to visualize, and `--plasmid` takes the name of the plasmid that will be annotated as label.
 
 # Citation
 Beav can be cited as:
