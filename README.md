@@ -171,6 +171,9 @@ The skip options allow for specified programs to be skipped if the annotation is
 
 The continue option will check the output of existing Beav runs and rerun programs that errored or were skipped. This option allows for the pipeline to be used with existing Bakta runs. 
 
+**--genbank**
+GenBank files can be used as the input file when the genbank option is used.
+
 # Examples
 **Minimal run**
 
