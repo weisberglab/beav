@@ -3,16 +3,19 @@ if [[ -z "${BEAV_DIR}" ]]; then
     echo -e "The BEAV_DIR variable is not set. Either activate the Beav conda environment or set the BEAV_DIR variable." 
     exit
 fi
-
+update=false
 bakta_db_run=true
 light_db_run=false
 baktadbpath=""
-baktadbtype=full
+baktadbtype="full"
 while [ $# -gt 0 ]
 do
         case $1 in
                 --skip_bakta_db)
                         bakta_db_run=false
+                        ;;
+                --update)
+                        update=true
                         ;;
                 --bakta_db_path)
                         new_baktadbpath=$2
@@ -42,15 +45,12 @@ if $bakta_db_run; then
 
 
 #check if bakta db variable exists and db is downloaded
-        if [[ ! -z "$BAKTA_DB" ]] && [[ -f $BAKTA_DB/version.json ]]; then
+        if [[ ! -z "$BAKTA_DB" ]] && [[ -f $BAKTA_DB/version.json ]] && [[ -z "$update" ]]; then
         echo -e "BAKTA_DB already set and database is installed"
         else
         #if they only provide a type, install to baktafolder/db
         #otherwise install to where they want it and remind to set BAKTA_DB
-                if [[ ! ($baktadbtype == "full" || $baktadbtype == "light") ]]; then
-                        echo -e "Please ensure that the second argument to this script is either full (60GB database) or light (~3GB database)"
-                        exit 1
-                elif [[ -z $baktadbpath ]] && [[ ! -z $CONDA_PREFIX  ]]; then
+                if [[ -z $baktadbpath ]] && [[ ! -z $CONDA_PREFIX  ]]; then
                         echo -e "No bakta db path provided, defaulting to <baktadir>/db"
                         baktadbpath="$CONDA_PREFIX/db/"
                         if [[ ! -d $baktadbpath ]]; then
