@@ -83,6 +83,16 @@ Databases for each of these programs can then be installed manually. Alternative
 conda activate beav 
 beav_db
 ```
+## Database script usage
+    usage: beav_db [--skip_bakta_db] [--light] [--bakta_db_path DIRECTORY] [--update]
+        --skip_bakta_db 
+            Skip downloading the Bakta databases
+        --light
+            Install the light version of Bakta databases
+        --bakta_db_path DIRECTORY
+            Location for Bakta databases 
+        --update
+            Update Bakta databases
 
 # Usage
 
