@@ -33,7 +33,7 @@ error_exit()
 
 show_help()
 {
-    echo -e "usage: beav [--input INPUT] [--output OUTPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
+    echo -e "usage: beav [--input INPUT] [--output OUTPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS] [--genbank] [--continue]
     BEAV- Bacterial Element Annotation reVamped
     Input/Output:
         --input, -i INPUT.fna
@@ -67,6 +67,8 @@ show_help()
                 Skip detection and annotation of prophage
         --skip_antismash
                 Skip detection and annotation of biosynthetic gene clusters
+        --genbank
+                Use a GenBank file as input
     General:
         --help, -h
                 Show BEAV help message
