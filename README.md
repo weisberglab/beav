@@ -83,14 +83,14 @@ Databases for each of these programs can then be installed manually. Alternative
 conda activate beav 
 beav_db
 ```
-## Database script usage
+## Database script optional parameters
     usage: beav_db [--skip_bakta_db] [--light] [--bakta_db_path DIRECTORY] [--update]
         --skip_bakta_db 
             Skip downloading the Bakta databases
         --light
             Install the light version of Bakta databases
         --bakta_db_path DIRECTORY
-            Location for Bakta databases 
+            Install Bakta databases in nondefault location 
         --update
             Update Bakta databases
 
@@ -113,7 +113,7 @@ Then copy it to the correct folder in your conda env, changing the python versio
 </details>
 
 ```
-usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS]
+usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakta_arguments BAKTA_ARGUMENTS] [--tiger_arguments TIGER_ARGUMENTS][--agrobacterium AGROBACTERIUM] [--skip_macsyfinder] [--skip_integronfinder][--skip_defensefinder] [--skip_tiger] [--skip_gapmind][--skip_dcscan-swa] [--skip_antismash] [--help] [--threads THREADS] [--genbank]
     BEAV- Bacterial Element Annotation reVamped
     Input/Output: 
         --input, -i STRAIN.fna
@@ -203,6 +203,11 @@ beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/
 **Standard run with operon annotation (remote)**
 ```
 beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna --run_operon_email myemail@email.com
+```
+
+**Standard run with genbank input**
+```
+beav --input /path/to/file/test.gbk --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna --genbank
 ```
 
 **Complex run**
