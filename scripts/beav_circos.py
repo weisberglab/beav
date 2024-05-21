@@ -203,7 +203,6 @@ def splice_genbank_contig(gbk_file, contig_id, onco_label):
                 f.writelines('//\n')
             
     
-    print(f'{onco_label}.oncogenic.gbk')
 
     return f'{onco_label}.oncogenic.gbk'
 
@@ -393,28 +392,51 @@ if __name__ == "__main__":
     ## Define arguments
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input', '-i', type=str, required=True)
-    parser.add_argument('--contigs', '-c', type=str, nargs='*', required=False)
-    parser.add_argument('--plasmid', '-p', type=str, required=False)
+    parser.add_argument('--input', '-i', type=str, required=True, help='Input file')
+    parser.add_argument('--contigs', '-c', type=str, nargs='*', required=False, help='Plot selected contig(s)')
+    parser.add_argument('--pTi', type=str, nargs='*', required=False, help='Plot oncogenic contig(s)')
+    parser.add_argument('--plasmid', '-p', type=str, required=False, help='Oncogenic plasmid type')
+    parser.add_argument('--label', '-l', type=str, required=False, help='Label')
 
     # Parse the arguments
     args = parser.parse_args()
 
     # Prepare for label
-    strain_id = args.input.split('/')[-2]
+    if '/' in args.input:
+	    strain_id = args.input.split('/')[-2]
+    else:
+	    strain_id = args.input
+    if  args.plasmid == None:
+	    args.plasmid = ''
+
     # Generate only genome circos 
     # Command `python3 beav_circos.py --input input.gbk`
-    if not args.contigs:
-        print('All contig circos only ...')
+    if not args.pTi and not args.contigs:
+        print('Plotting all contig Circos ...')
         all_contig_circos(args.input, strain_id)
 
     # Generate genome and oncogene circos
-    # Command: `python3 beav_circos.py --input input.gbk --contig contig_of_interest`
-    if args.contigs:
+    # Command: `python2 beav_circos.py --input input.gbk --pTi contig_of_interest`
+    if args.pTi:
+        print('Plotting whole genome and pTi Circos ...')
         plasmid_type = args.plasmid
         # Generate genome circos
-        all_contig_circos(args.input, strain_id) 
+        all_contig_circos(args.input, strain_id)
+        # Subset contig_of_interest and create contig_id.gbk file
+        contig_id_gbk = splice_genbank_contig(args.input, args.pTi, strain_id)
+        # Generate circos for pTi contig_of_interest
+        oncogenic_circos(contig_id_gbk, strain_id+'\n'+plasmid_type)
+        # Delete intermediate file
+        os.remove(contig_id_gbk)
+
+    # Generate specific contig only circos
+    # Command `python3 beav_circos.py --input input.gbk --contig contig_of_interest`
+    if args.contigs:
+        print('Ploting specified contig Circos ...')
         # Subset contig_of_interest and create contig_id.gbk file
         contig_id_gbk = splice_genbank_contig(args.input, args.contigs, strain_id)
-        # Generate circos for contig_of_interest
-        oncogenic_circos(contig_id_gbk, strain_id+'\n'+plasmid_type)
+        # Generate Circos for contig_of_interest
+        all_contig_circos(contig_id_gbk, strain_id)
+        # Delete intermediate file
+        os.remove(contig_id_gbk)
+
