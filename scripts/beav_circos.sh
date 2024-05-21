@@ -16,6 +16,6 @@ then
 else
     # Get plasmid type
     pTi=`cat $1/*oncogenic_plasmid_final.out | head -2 | tail -1 | cut -f1`
-    echo "python3 beav_circos.py --input $GBK --contig $CONTIG --plasmid $pTi"
-    python3 $BEAV_DIR/scripts/beav_circos.py --input $GBK --contig $CONTIG --plasmid $pTi
+    echo "python3 beav_circos.py --input $GBK --pTi $CONTIG --plasmid $pTi"
+    python3 $BEAV_DIR/scripts/beav_circos.py --input $GBK --pTi $CONTIG --plasmid $pTi
 fi
