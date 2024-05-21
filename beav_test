@@ -1,0 +1,146 @@
+#!/bin/bash
+
+unset PYTHONPATH
+unset PERL5LIB
+
+EMAIL=$1
+
+#########################################
+# Check if necessary arguments provided #
+#########################################
+if [ -z "$1" ]
+then
+    echo "Usage: beav_test <e-mail for submitting operon finder job>"
+    echo "Example: beav_test example@test.com"
+    exit 1
+fi
+
+##########################
+# Move to test directory #
+##########################
+cd $BEAV_DIR/test_data/
+
+################################################################################
+# Check if previous test directory exist. Remove it before rerunning beav_test #
+################################################################################
+if [ -d "test" ]; then
+    rm -rf test/
+fi
+
+if [ -f "test.log" ]; then
+    rm -f beav_test.log
+fi
+
+############
+# Run beav #
+############
+beav --input $BEAV_DIR/test_data/test.fna --bakta_arguments "--db ${BAKTA_DB}" --tiger_blast_database ${BEAV_DIR}/test_data/C58db/Agrobacterium_fabrum_C58.fna --agrobacterium --run_operon_email $EMAIL --continue > beav_test.log
+
+#########################################################
+# Test if all tables are generated (non-zero file size) #
+#########################################################
+
+# List of known files to check
+FILES=(
+  "${BEAV_DIR}/test_data/test/tables/borders.table"
+  "${BEAV_DIR}/test_data/test/tables/integron_gene.table"
+  "${BEAV_DIR}/test_data/test/tables/integron.table"
+  "${BEAV_DIR}/test_data/test/tables/macsyfinder.tsv.table"
+  "${BEAV_DIR}/test_data/test/tables/oriT.table"
+  "${BEAV_DIR}/test_data/test/tables/prophage.table"
+  "${BEAV_DIR}/test_data/test/tables/test_antismash.table"
+  "${BEAV_DIR}/test_data/test/tables/test_antismash.table.beav.subset"
+  "${BEAV_DIR}/test_data/test/tables/test_borders.table"
+  "${BEAV_DIR}/test_data/test/tables/test_defensefinder.tsv.table"
+  "${BEAV_DIR}/test_data/test/tables/test_TIGER2_final.table.out"
+  "${BEAV_DIR}/test_data/test/tables/test_uniq_borders.table"
+  "${BEAV_DIR}/test_data/test/tables/tiger_cut.table"
+  "${BEAV_DIR}/test_data/test/test.circos.png"
+  "${BEAV_DIR}/test_data/test/test.oncogenes.png"
+)
+
+######################################################
+# Function to check if a file exists and is non-zero #
+######################################################
+check_file() {
+  local file=$1
+  if [ -e "$file" ]; then
+    if [ -s "$file" ]; then
+      echo "'$file': OK" >> test.log
+    else
+      echo "$file: Exists but is zero in size." >> beav_test.log
+    fi
+  else
+    echo "$file: Does not exist." >> beav_test.log
+  fi
+}
+
+# Loop through each file in the predefined list and check
+for file in "${FILES[@]}"; do
+  check_file "$file"
+done
+
+##############################
+# Check if it can detect pTi #
+##############################
+pTi=`cat ${BEAV_DIR}/test_data/test/test.oncogenic_plasmid_final.out | head -2 | tail -1 | cut -f1`
+TRUTH="pTi_TypeIV.a"
+
+if [[ "$pTi" != $TRUTH ]];
+then
+	echo "pTi characterization does not match." >> beav_test.log
+else
+	echo "pTi characterization: OK" >> beav_test.log
+fi
+
+######################
+# Test summary table #
+######################
+SS=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{print $1}'`
+DS=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{print $2}'`
+Ph=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{print $3}'`
+BG=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{print $4}'`
+ICE=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{print $5}'`
+In=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{print $6}'`
+
+if [[ "$SS" -ge 1 ]];
+then
+	echo "Secretion system: OK" >> beav_test.log
+else
+	echo "Secretion system: NOT OK" >> beav_test.log
+fi
+
+if [[ "$DS" -ge 1 ]];
+then
+         echo "Defense system: OK" >> beav_test.log
+else
+         echo "Defense system: NOT OK" >> beav_test.log
+fi
+
+if [[ "$Ph" -ge 1 ]];
+then
+        echo "Phage detection: OK" >> beav_test.log
+else
+        echo "Phage detection: NOT OK" >> beav_test.log
+fi
+
+if [[ "$BG" -ge 1 ]];
+then
+	echo "Biosynthetic gene cluster: OK" >> beav_test.log
+else
+        echo "Biosynthetic gene cluster: NOT OK" >> beav_test.log
+fi
+
+if [[ "$ICE" -ge 1 ]];
+then
+	echo "ICEs: OK" >> beav_test.log
+else
+        echo "ICEs: NOT OK" >> beav_test.log
+fi
+
+if [[ "$In" -ge 1 ]];
+then
+	echo "Integron: OK" >> beav_test.log
+else
+        echo "Integron: NOT OK" >> beav_test.log
+fi

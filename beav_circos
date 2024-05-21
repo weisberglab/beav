@@ -1,0 +1,67 @@
+#!/bin/bash
+
+#########################################
+# Function to display usage information #
+#########################################
+usage() {
+    echo "Usage: $0 -i <GenBank_file> [-c <Contig_for_subset_visualization>] [--pTi <Contig_for_oncogenic_visualization>]"
+    exit 1
+}
+
+########################
+# Initialize variables #
+########################
+GBK=""
+CONTIG=""
+PTI=""
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        -i)
+            GBK="$2"
+            shift # past argument
+            shift # past value
+            ;;
+        -c)
+            CONTIG="$2"
+            shift # past argument
+            shift # past value
+            ;;
+        --pTi)
+            PTI="$2"
+            shift # past argument
+            shift # past value
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            echo "Invalid option: $1" 1>&2
+            usage
+            ;;
+    esac
+done
+
+##################################################
+# Check if the GenBank file argument is provided #
+##################################################
+if [ -z "$GBK" ]; then
+    echo "Error: GenBank file is required."
+    usage
+fi
+
+###################################
+# Conditionally run python script #
+###################################
+if [ -n "$PTI" ]; then
+    # Run python script with pTi argument
+    python3 $BEAV_DIR/scripts/beav_circos.py --input ${GBK} --pTi ${PTI}
+elif [ -n "$CONTIG" ]; then
+    # Run python script with contig argument
+    python3 $BEAV_DIR/scripts/beav_circos.py --input ${GBK} --contigs ${CONTIG}
+else
+    # Run python script without contig or pTi argument
+    python3 $BEAV_DIR/scripts/beav_circos.py --input ${GBK}
+fi
