@@ -34,11 +34,17 @@ fi
 ############
 # Run beav #
 ############
+echo "Running beav on $BEAV_DIR/test_data/test.fna ..." | tee -a beav_test.log
+echo "" | tee -a beav_test.log
+
 beav --input $BEAV_DIR/test_data/test.fna --bakta_arguments "--db ${BAKTA_DB}" --tiger_blast_database ${BEAV_DIR}/test_data/C58db/Agrobacterium_fabrum_C58.fna --agrobacterium --run_operon_email $EMAIL --continue > beav_test.log
 
 #########################################################
 # Test if all tables are generated (non-zero file size) #
 #########################################################
+
+echo "Checking beav output ..." | tee -a beav_test.log
+echo "" | tee -a beav_test.log
 
 # List of known files to check
 FILES=(
@@ -66,12 +72,12 @@ check_file() {
   local file=$1
   if [ -e "$file" ]; then
     if [ -s "$file" ]; then
-      echo "'$file': OK" >> test.log
+      echo "$file: OK"  | tee -a beav_test.log
     else
-      echo "$file: Exists but is zero in size." >> beav_test.log
+      echo "$file: Exists but is zero in size."  | tee -a beav_test.log
     fi
   else
-    echo "$file: Does not exist." >> beav_test.log
+    echo "$file: Does not exist."  | tee -a beav_test.log
   fi
 }
 
@@ -88,9 +94,9 @@ TRUTH="pTi_TypeIV.a"
 
 if [[ "$pTi" != $TRUTH ]];
 then
-	echo "pTi characterization does not match." >> beav_test.log
+	echo "pTi characterization does not match." | tee -a beav_test.log
 else
-	echo "pTi characterization: OK" >> beav_test.log
+	echo "pTi characterization: OK"  | tee -a beav_test.log
 fi
 
 ######################
@@ -105,42 +111,50 @@ In=`cat ${BEAV_DIR}/test_data/test/summary.table | head -2| tail -1 | awk '{prin
 
 if [[ "$SS" -ge 1 ]];
 then
-	echo "Secretion system: OK" >> beav_test.log
+	echo "Secretion system: OK"  | tee -a beav_test.log
 else
-	echo "Secretion system: NOT OK" >> beav_test.log
+	echo "Secretion system: NOT OK" | tee -a beav_test.log
 fi
 
 if [[ "$DS" -ge 1 ]];
 then
-         echo "Defense system: OK" >> beav_test.log
+         echo "Defense system: OK"  | tee -a beav_test.log
 else
-         echo "Defense system: NOT OK" >> beav_test.log
+         echo "Defense system: NOT OK" | tee -a beav_test.log
 fi
 
 if [[ "$Ph" -ge 1 ]];
 then
-        echo "Phage detection: OK" >> beav_test.log
+        echo "Phage detection: OK" | tee -a beav_test.log
 else
-        echo "Phage detection: NOT OK" >> beav_test.log
+        echo "Phage detection: NOT OK" | tee -a beav_test.log
 fi
 
 if [[ "$BG" -ge 1 ]];
 then
-	echo "Biosynthetic gene cluster: OK" >> beav_test.log
+	echo "Biosynthetic gene cluster: OK"  | tee -a beav_test.log
 else
-        echo "Biosynthetic gene cluster: NOT OK" >> beav_test.log
+        echo "Biosynthetic gene cluster: NOT OK"  | tee -a beav_test.log
 fi
 
 if [[ "$ICE" -ge 1 ]];
 then
-	echo "ICEs: OK" >> beav_test.log
+	echo "ICEs: OK"  | tee -a beav_test.log
 else
-        echo "ICEs: NOT OK" >> beav_test.log
+        echo "ICEs: NOT OK" | tee -a beav_test.log
 fi
 
 if [[ "$In" -ge 1 ]];
 then
-	echo "Integron: OK" >> beav_test.log
+	echo "Integron: OK"  | tee -a beav_test.log
 else
-        echo "Integron: NOT OK" >> beav_test.log
+        echo "Integron: NOT OK" | tee -a beav_test.log
 fi
+
+
+# Final message
+
+echo "" | tee -a beav_test.log
+echo "Complete log can be found in $BEAV_DIR/test_data/beav_test.log" | tee -a beav_test.log
+echo "" | tee -a beav_test.log
+echo "DONE!" | tee -a beav_test.log
