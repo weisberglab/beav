@@ -107,6 +107,10 @@ def all_contig_circos(gbk_file, onco_label):
             if feature.type == "rep_origin":
                 fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
                 gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['Origin'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # Origin of replication
+
+            if feature.type == "misc_feature" and feature.qualifiers['note'][0] == 'dif':
+                    fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end    ))
+                    gc_skew_track.xticks([(fx1 + fx2)/2], outer=False, label_size=6, labels=['dif'], label_orientation="vertical", line_kws={'ec':'darkred'}, text_kws={'color':'darkred'}) # Dif site
             
             if feature.type == 'oriT':
                 fx1, fx2 = int(str(feature.location.parts[0].start)), int(str(feature.location.parts[-1].end))
