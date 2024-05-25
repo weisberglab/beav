@@ -975,11 +975,11 @@ if $agrobacterium_run; then
     echo -e "Characterizing Agrobacterium lineage and Ti/Ri plasmid sequences" | tee -a Beav.log
     echo -e "" | tee -a Beav.log
 
-    $BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread"
+    $BEAV_DIR/scripts/check_agrobacteria_biovar.sh "$strain" "$thread" | tee -a Beav.log
    	
 	echo -e "" | tee -a Beav.log
 	
-	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$strain".fna
+	$BEAV_DIR/scripts/identify_Ti_Ri_plasmid_contigs.sh "$strain".fna | tee -a Beav.log
 
     echo -e "" | tee -a Beav.log
     echo -e "T-DNA borders:" | tee -a Beav.log
