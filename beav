@@ -67,7 +67,7 @@ show_help()
                 Skip detection and annotation of prophage
         --skip_antismash
                 Skip detection and annotation of biosynthetic gene clusters
-        --genbank
+        --gbk
                 Use a GenBank file as input
     General:
         --help, -h
@@ -121,7 +121,7 @@ do
         --continue)
             continue_run=true
             ;;
-        --genbank)
+        --gbk)
             genbank=true
             ;;
         -i|--input)
