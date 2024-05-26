@@ -149,7 +149,7 @@ usage: beav [--input INPUT] [--output OUPUT_DIRECTORY] [--strain STRAIN] [--bakt
                 Skip detection and annotation of biosynthetic gene clusters
         --continue
                 Continue running BEAV from any point in the pipeline. Rerun programs that gave an error or were skipped.
-        --genbank
+        --gbk
                 Use a GenBank file as input
     General:
         --help, -h
@@ -183,7 +183,7 @@ The skip options allow for specified programs to be skipped if the annotation is
 
 The continue option will check the output of existing Beav runs and rerun programs that errored or were skipped. This option allows for the pipeline to be used with existing Bakta runs. 
 
-**--genbank**
+**--gbk**
 
 A GenBank file can be used as the input file when the genbank option is used.
 
@@ -207,7 +207,7 @@ beav --input /path/to/file/test.fna --threads 8 --tiger_blast_database /path/to/
 
 **Standard run with genbank input**
 ```
-beav --input /path/to/file/test.gbk --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna --genbank
+beav --input /path/to/file/test.gbk --threads 8 --tiger_blast_database /path/to/databases/blast/refseq_genomic.fna --gbk
 ```
 
 **Complex run**
