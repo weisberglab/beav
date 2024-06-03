@@ -227,6 +227,23 @@ Usage:
 beav_circos -i <GenBank_file> [-c <Contig_for_subset_visualization>] [--pTi <Contig_for_oncogenic_visualization>]
 ```
 
+Examples:
+```
+# Generate a general Circos plot for all contigs
+beav_circos -i test.gbk
+
+# Generate a general Circos plot for all contigs and a oncogenic Circos plot for single contig
+beav_circos -i test.gbk --pTi contig_1
+
+# Generate a general Circos plot for all contigs and a oncogenic Circos plot for a set of contigs
+beav_circos -i test.gbk --pTi "contig_1 contig_2"
+
+# Generate a general Circos plot for single contig
+beav_circos -i test.gbk -c contig_1
+
+# Generate a general Circos plot for a set of contigs
+beav_circos -i test.gbk -c "contig_1 contig_2"
+```
 
 
 
