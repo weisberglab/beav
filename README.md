@@ -222,20 +222,13 @@ To generate Circos plots on your GenBank file independant of the **beav** pipeli
 conda activate beav 
 ```
 
-The beav databases, models, scripts and other forked tools are downloaded in `$BEAV_DIR` of your system. 
-
-To visualize only beav-specific features on Circos plot, run `beav_circos.py` script by following:
+Usage:
 ```
-python3 beav_circos.py --input $GBK
-```
-Here, `--input` takes annotated GenBank file as input.
-
-To also visualize the oncogenic plasmid features, run the following:
-```
-python3 beav_circos.py --input $GBK --contig $CONTIG --plasmid $pTi
+beav_circos -i <GenBank_file> [-c <Contig_for_subset_visualization>] [--pTi <Contig_for_oncogenic_visualization>]
 ```
 
-Here, `--CONTIG` takes is the list of contigs (seperated by space) that you want to visualize, and `--plasmid` takes the name of the plasmid that will be annotated as label.
+
+
 
 # Citation
 Beav can be cited as:
