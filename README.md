@@ -33,6 +33,8 @@ An optional <i>Agrobacterium</i>-specific pipeline identifies the presence of Ti
 # **Installation**
 The **beav** pipeline requires a number of programs and databases be installed. Therefore, it is highly encouraged and recommended to use conda to install **beav** and all of its dependencies.
 
+Once the tool is installed, run the **beav_db** tool to download all necessary databases.
+
 # From conda (Recommended) 
 It is recommended to use either conda with [libmamba](https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community) or mamba to install beav as this will greatly speed up the time solving the environment.
 
