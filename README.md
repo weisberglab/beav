@@ -46,6 +46,12 @@ alternative instructions using mamba:
 conda create -n beav
 mamba install -n beav beav
 ```
+or as one combined command:
+```
+conda create -n beav beav
+or
+mamba create -n beav beav
+```
 
 The conda environment can then be activated using:
 ```
