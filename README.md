@@ -29,6 +29,16 @@ An optional <i>Agrobacterium</i>-specific pipeline identifies the presence of Ti
 </figure>
   
 
+# **Quick Start**
+```
+#download and install beav with conda/mamba
+mamba create -n beav beav
+conda activate beav
+#download all prerequisite databases
+beav_db
+#run beav
+beav --input /path/to/file/test.fna --threads 8 --skip_tiger
+```
     
 # **Installation**
 The **beav** pipeline requires a number of programs and databases be installed. Therefore, it is highly encouraged and recommended to use conda to install **beav** and all of its dependencies.
