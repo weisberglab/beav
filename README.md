@@ -114,6 +114,9 @@ beav_db
 
 # Usage
 
+#### NOTE: If you get an error stating "ModuleNotFoundError: No module named 'nrpys'", then you can run the following command (with the beav conda environment activated) to force reinstall it:
+`python -m pip install --upgrade --force-reinstall nrpys`
+
 #### NOTE: there is currently a [bug](https://github.com/mdmparis/defense-finder/issues/42) in the latest DefenseFinder models that cause an error in MacSyFinder when running it. We recommend running Beav with `--skip_defensefinder` until the MacSyFinder [bug fix](https://github.com/gem-pasteur/macsyfinder/commit/27ee21ceb8e7100d9183b084356f791487aca4ad) is released in bioconda. Alternatively, copying the patched file to the MacSyFinder python library folder of your conda release will fix the issue.
 <details>
   <summary>Patching instructions</summary>
