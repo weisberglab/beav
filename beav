@@ -1,6 +1,6 @@
 #!/bin/bash
  
-version="1.3.0"
+version="1.4.0"
 
 antismash_run=true
 agrobacterium_run=false

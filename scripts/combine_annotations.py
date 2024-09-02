@@ -202,7 +202,10 @@ for record in SeqIO.parse(f"./{strain}/bakta/{strain}.gbff","gb"):
 
     if record.id in tiger_dict:
         for ice in tiger_dict[record.id]:
-            tiger_newfeat = SeqFeature(FeatureLocation(int(ice[0]),int(ice[1])), type="mobile_element", qualifiers={"mobile_element_type": "integrative element", "note": ice[2] , "inference" : "TIGER2"})
+            if "Phage" in ice[2]:
+                tiger_newfeat = SeqFeature(FeatureLocation(int(ice[0]),int(ice[1])), type="mobile_element", qualifiers={"mobile_element_type": "phage", "note": ice[2] , "inference" : "TIGER2"})
+            else:
+                tiger_newfeat = SeqFeature(FeatureLocation(int(ice[0]),int(ice[1])), type="mobile_element", qualifiers={"mobile_element_type": "integrative element", "note": ice[2] , "inference" : "TIGER2"})
             record.features.append(tiger_newfeat)
     for number in accession:
         if number in dbscan:

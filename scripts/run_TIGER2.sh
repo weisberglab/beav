@@ -4,10 +4,8 @@
 strain=$1
 
 blastdb=$2
-#/nfs7/BPP/Weisberg_Lab/projects/annotation_pipeline/databases/blast/allagro.fna
 
 cpus=$3
-#8
 
 echo -e "TIGER2: preparing input"
 error_exit()
@@ -15,9 +13,8 @@ error_exit()
 	echo "Error: $1"
 	exit 1
 }
-#for bakta version, unset pythonpath and activate bakta conda
 
-mkdir TIGER2
+#mkdir TIGER2
 cd TIGER2
 cp ../bakta/${strain}.fna ./genome.fa
 echo -e "357	Bacteria sp. $strain	Bacteria;;;;;;;	11	$strain" > genome.tax
@@ -35,8 +32,10 @@ perl $BEAV_DIR/software/TIGER/bin/tiger.pl -verbose -cpu $cpus -db $blastdb -fas
 echo -e "TIGER2: running Typing"
 perl $BEAV_DIR/software/TIGER/bin/typing.pl genome.island.nonoverlap.gff &> typing.log || error_exit "error occurred while running Typing"
 echo -e "TIGER2: running Resolve"
-perl $BEAV_DIR/software/TIGER/bin/resolve.pl mixed lenient > resolved.log || error_exit "error occurred while running Resolve"
-#does not work well#perl $BEAV_DIR/software/TIGER/bin/typing.pl resolve3.gff &> typing_final.log 
+perl $BEAV_DIR/software/TIGER/bin/resolve.pl mixed lenient &> resolved.log || error_exit "error occurred while running Resolve"
+
+echo -e "TIGER2: running final Typing"
+perl $BEAV_DIR/software/TIGER/bin/typing.pl resolve3.gff &> typing_final.log || error_exit "error occurred while running final typing" 
 
 echo -e "TIGER2: parsing output"
 
@@ -68,6 +67,8 @@ while read line; do
 	islandtype=`echo -e "$line" |  cut -f 2`
 	startpos=`echo -e "$line" |  cut -f 4`
 	endpos=`echo -e "$line" |  cut -f 5`
+	
+	tigerID=`echo -e "$line" |  cut -f 9 | sed 's/^.*ID=//g;s/;.*//g'`
 
 	target=`echo -e "$line" |  cut -f 9 | sed 's/;coord=.*//g;s/^.*target=//g'`
 	targetlen=`expr length "$target"`
@@ -82,6 +83,17 @@ while read line; do
 	icelength=`echo -e "$line" |  cut -f 9 | sed 's/^.*;len=//g;s/;.*//g'`
 	tandem=`echo -e "$line" |  cut -f 9 | sed 's/^.*;tandem=//g;s/;.*//g' | sed 's/1,1/no/g;s/\([0-9]\),/count=\1,/g;s/,/,pos=/g'`
 	
+	#get whether ICE or Phage or PhageICE
+	MGEtype=`echo -e "$line" | cut -f 1-5 | grep -f - ./TIGER2/islesFinal.gff |  cut -f 9 | sed 's/^.*;type=//g;s/;.*//g;s/[0-9]\+$//g' | sed 's/other/IME/g'`
+	
+	#if phage, get phage loci
+	if [[ $MGEtype == *"Phage"*  ]]; then
+		phagecomp=`cat ./TIGER2/Isles/$tigerID/phage.txt | grep -v '#nick' | cut -f 5- | sed 's/\t/,/g' | sed 's/^,\+//g;s/,\+$//g'`
+		phageloci="phage_loci=$phagecomp;"	
+	else
+		phageloci=""
+	fi
+
 	#get loci for all integrases
 	integraseposlist=`echo -e "$line" |  cut -f 9 | sed 's/^.*;ints=//g;s/;.*//g'`
 	curloci=""
@@ -94,9 +106,9 @@ while read line; do
 	done < <( echo -e "$integraseposlist" | tr ',' '\n' | sort -k2,2g -t : )  
 	curloci=`echo -e "$curloci" | sed 's/^,//g'`
 	if [ $islandtype == "TIGER" ] || [ $islandtype == "Islander,TIGER" ]; then
-        	echo -e "$replicon      $startpos       $endpos TIGER2:integrative element (ICE/IME);target=$target;attL=$leftborderseq;attR=$rightborderseq;attB=$targetseq;length=$icelength;integrase=$curloci;tandem=$tandem;pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
+        	echo -e "$replicon      $startpos       $endpos $MGEtype;target=$target;attL=$leftborderseq;attR=$rightborderseq;attB=$targetseq;length=$icelength;integrase=$curloci;tandem=$tandem;${phageloci}pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
         else
-                echo -e "$replicon      $startpos       $endpos TIGER2:integrative element (ICE/IME);target=$target;length=$icelength;integrase=$curloci;tandem=$tandem;pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
+                echo -e "$replicon      $startpos       $endpos $MGEtype;target=$target;length=$icelength;integrase=$curloci;tandem=$tandem;${phageloci}pred_model=$islandtype" >> ${strain}_TIGER2_final.table.out
         fi
 done < ./TIGER2/resolve3.gff
 
