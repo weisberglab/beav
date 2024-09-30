@@ -70,6 +70,14 @@ The conda environment can then be activated using:
 conda activate beav
 ```
 
+# Alternative: From pixi
+
+Pixi is a new tool for installing and managing conda packages and simplifies many things. To install beav globally, and with no need to activate environments, run the following command:
+```
+pixi global install beav
+```
+Then you can then follow the database installation step without running conda activate.
+
 # Alternative: From source
 
 Clone the beav github repository.
