@@ -279,8 +279,8 @@ beav_circos -i test.gbk -c "contig_1 contig_2"
 # Citation
 Beav can be cited as:
 
-Jung J.M., Rahman A., Schiffer A.M., and Weisberg A.J., Beav: a bacterial genome and mobile element annotation pipeline. (2024) bioRxiv 2024.01.25.577299; 
-doi: https://doi.org/10.1101/2024.01.25.577299
+
+Jung, J. M., Rahman, A., Schiffer, A. M., & Weisberg, A. J. (2024). Beav: a bacterial genome and mobile element annotation pipeline. Msphere, 9(8), e00209-24. https://doi.org/10.1128/msphere.00209-24
 
 
 
